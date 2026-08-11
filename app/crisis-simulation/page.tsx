@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { DarkTopbar } from '@/components/nav/dark-topbar'
+import { AppShell } from '@/components/shell/app-shell'
 import { CrisisSimulation } from '@/components/simulation/crisis-simulation'
 
 export const metadata: Metadata = {
@@ -10,9 +10,8 @@ export const metadata: Metadata = {
 
 export default function CrisisSimulationPage() {
   return (
-    <div className="min-h-screen bg-navy-950">
-      <DarkTopbar active="/crisis-simulation" title="Crisis Simulation" />
+    <AppShell title="Crisis Simulation">
       <CrisisSimulation />
-    </div>
+    </AppShell>
   )
 }

@@ -1,32 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
-import {
-  Bot,
-  Send,
-  X,
-  Plus,
-  MessageSquare,
-  Bookmark,
-  Settings,
-  Sparkles,
-  Languages,
-  Search,
-  FileText,
-} from 'lucide-react'
+import { Bot, Send, Search, Sparkles, FileText, Languages } from 'lucide-react'
+import { AppShell } from '@/components/shell/app-shell'
 import { aiSuggestions } from '@/lib/data'
 
 type Message = { role: 'user' | 'ai'; text: string }
 
 const suggestionIcons = [Search, Sparkles, FileText, Languages]
-
-const railItems = [
-  { icon: Plus, label: 'New chat' },
-  { icon: MessageSquare, label: 'Conversations' },
-  { icon: Bookmark, label: 'Saved' },
-  { icon: Settings, label: 'Settings' },
-]
 
 export function Concierge() {
   const [messages, setMessages] = useState<Message[]>([])
@@ -48,47 +29,8 @@ export function Concierge() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Icon rail */}
-      <aside className="flex w-16 shrink-0 flex-col items-center gap-2 border-r border-border bg-card py-4">
-        <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-icesco-blue to-cyan-accent">
-          <Bot className="h-5 w-5 text-white" />
-        </div>
-        {railItems.map((item) => (
-          <button
-            key={item.label}
-            aria-label={item.label}
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-secondary hover:text-icesco-blue"
-          >
-            <item.icon className="h-5 w-5" />
-          </button>
-        ))}
-        <Link
-          href="/"
-          aria-label="Exit"
-          className="mt-auto flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-        >
-          <X className="h-5 w-5" />
-        </Link>
-      </aside>
-
-      {/* Main */}
-      <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-border px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent">
-              <Bot className="h-5 w-5 text-icesco-blue" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-foreground">AI Concierge</p>
-              <p className="text-xs text-muted-foreground">Your smart assistant for the forum</p>
-            </div>
-          </div>
-          <Link href="/" aria-label="Close" className="text-muted-foreground hover:text-foreground">
-            <X className="h-5 w-5" />
-          </Link>
-        </header>
-
+    <AppShell title="AI Concierge">
+      <div className="flex h-[calc(100vh-4rem)] flex-col">
         <div className="scrollbar-thin flex-1 overflow-y-auto">
           <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-6 py-8">
             {!started ? (
@@ -168,6 +110,6 @@ export function Concierge() {
           </form>
         </div>
       </div>
-    </div>
+    </AppShell>
   )
 }

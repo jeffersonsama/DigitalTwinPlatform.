@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { DarkTopbar } from '@/components/nav/dark-topbar'
+import { AppShell } from '@/components/shell/app-shell'
 import { PulseWall } from '@/components/pulse/pulse-wall'
 
 export const metadata: Metadata = {
@@ -10,9 +10,8 @@ export const metadata: Metadata = {
 
 export default function GlobalPulsePage() {
   return (
-    <div className="min-h-screen bg-navy-950">
-      <DarkTopbar active="/global-pulse" title="ICESCO Global Pulse" />
+    <AppShell title="ICESCO Global Pulse">
       <PulseWall />
-    </div>
+    </AppShell>
   )
 }

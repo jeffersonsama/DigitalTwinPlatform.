@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { DarkTopbar } from '@/components/nav/dark-topbar'
+import { AppShell } from '@/components/shell/app-shell'
 import { MapDashboard } from '@/components/world-map/map-dashboard'
 
 export const metadata: Metadata = {
@@ -10,9 +10,8 @@ export const metadata: Metadata = {
 
 export default function WorldMapPage() {
   return (
-    <div className="min-h-screen bg-navy-950">
-      <DarkTopbar active="/world-map" title="Global Engagement" />
+    <AppShell title="Global Engagement">
       <MapDashboard />
-    </div>
+    </AppShell>
   )
 }

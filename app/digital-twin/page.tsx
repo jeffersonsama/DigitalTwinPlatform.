@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { DarkTopbar } from '@/components/nav/dark-topbar'
+import { AppShell } from '@/components/shell/app-shell'
 import { TwinCity } from '@/components/digital-twin/twin-city'
 
 export const metadata: Metadata = {
@@ -10,9 +10,8 @@ export const metadata: Metadata = {
 
 export default function DigitalTwinPage() {
   return (
-    <div className="min-h-screen bg-navy-950">
-      <DarkTopbar active="/digital-twin" title="ICESCO Digital Twin City" />
+    <AppShell title="ICESCO Digital Twin City">
       <TwinCity />
-    </div>
+    </AppShell>
   )
 }

@@ -1,6 +1,8 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Inter, Poppins } from 'next/font/google'
+import { ThemeProvider } from 'next-themes'
+import { LocaleProvider, localeInitScript } from '@/lib/i18n'
 import './globals.css'
 
 const inter = Inter({
@@ -25,7 +27,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: '#0b1e3f',
-  colorScheme: 'light',
+  colorScheme: 'light dark',
 }
 
 export default function RootLayout({
@@ -34,9 +36,18 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable} bg-background`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${inter.variable} ${poppins.variable} bg-background`}
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: localeInitScript }} />
+      </head>
       <body className="font-sans antialiased">
-        {children}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <LocaleProvider>{children}</LocaleProvider>
+        </ThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
