@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
-import { primaryNav, utilityNav, type NavItem } from '@/lib/nav'
+import { primaryNav, utilityNav, isImmersivePath, type NavItem } from '@/lib/nav'
 import { useLocale, type TranslationKey } from '@/lib/i18n'
 import { RailLogo } from '@/components/brand/rail-logo'
 import { cn } from '@/lib/utils'
@@ -16,11 +16,13 @@ function RailLink({
   item,
   active,
   expanded,
+  immersive,
   label,
 }: {
   item: NavItem
   active: boolean
   expanded: boolean
+  immersive: boolean
   label: string
 }) {
   const Icon = item.icon
@@ -29,8 +31,13 @@ function RailLink({
       href={item.href}
       title={expanded ? undefined : label}
       className={cn(
-        'flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm font-medium transition-colors',
-        active ? 'bg-cyan-accent/15 text-cyan-accent' : 'text-white/70 hover:bg-white/10 hover:text-white',
+        'flex items-center rounded-lg py-2.5 text-sm font-medium transition-colors',
+        expanded ? 'justify-start gap-3 px-3.5' : 'justify-center gap-0 px-3.5',
+        active
+          ? 'bg-cyan-accent/15 text-cyan-accent'
+          : immersive
+            ? 'text-white/70 hover:bg-white/10 hover:text-white'
+            : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
       )}
     >
       <Icon className="h-5 w-5 shrink-0" />
@@ -52,6 +59,7 @@ export function NavRail() {
   const [hovered, setHovered] = useState(false)
   const { t } = useLocale()
   const expanded = pinned || hovered
+  const immersive = isImmersivePath(pathname)
 
   function isActive(href: string) {
     return href === '/' ? pathname === '/' : pathname.startsWith(href)
@@ -62,11 +70,12 @@ export function NavRail() {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={cn(
-        'sticky top-0 z-50 flex h-screen shrink-0 flex-col border-r border-white/10 bg-navy-950 transition-[width] duration-200 ease-out',
+        'sticky top-0 z-50 flex h-screen shrink-0 flex-col border-r transition-[width] duration-200 ease-out',
+        immersive ? 'border-white/10 bg-navy-950' : 'border-border bg-card',
         expanded ? 'w-60' : RAIL_COLLAPSED_CLASS,
       )}
     >
-      <div className="flex h-16 shrink-0 items-center px-2">
+      <div className="flex h-16 shrink-0 items-center">
         <RailLogo expanded={expanded} />
       </div>
 
@@ -77,16 +86,18 @@ export function NavRail() {
             item={item}
             active={isActive(item.href)}
             expanded={expanded}
+            immersive={immersive}
             label={t(item.key as TranslationKey)}
           />
         ))}
-        <div className="my-2 border-t border-white/10" />
+        <div className={cn('my-2 border-t', immersive ? 'border-white/10' : 'border-border')} />
         {utilityNav.map((item) => (
           <RailLink
             key={item.href}
             item={item}
             active={isActive(item.href)}
             expanded={expanded}
+            immersive={immersive}
             label={t(item.key as TranslationKey)}
           />
         ))}
@@ -96,12 +107,18 @@ export function NavRail() {
         type="button"
         aria-label={pinned ? 'Collapse navigation' : 'Pin navigation open'}
         onClick={() => setPinned((v) => !v)}
-        className="flex h-12 shrink-0 items-center gap-3 border-t border-white/10 px-3.5 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
+        className={cn(
+          'flex h-12 shrink-0 items-center border-t py-2.5 text-sm transition-colors',
+          expanded ? 'justify-start gap-3 px-3.5' : 'justify-center gap-0 px-3.5',
+          immersive
+            ? 'border-white/10 text-white/50 hover:bg-white/10 hover:text-white'
+            : 'border-border text-muted-foreground hover:bg-secondary hover:text-foreground',
+        )}
       >
         {pinned ? <PanelLeftClose className="h-5 w-5 shrink-0" /> : <PanelLeftOpen className="h-5 w-5 shrink-0" />}
         <span
           className={cn(
-            'overflow-hidden whitespace-nowrap text-sm transition-all duration-150',
+            'overflow-hidden whitespace-nowrap transition-all duration-150',
             expanded ? 'w-auto opacity-100' : 'w-0 opacity-0',
           )}
         >

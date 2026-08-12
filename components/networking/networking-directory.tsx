@@ -1,13 +1,38 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useTransition } from 'react'
 import { Search, UserPlus, MessageCircle, Check, Users } from 'lucide-react'
-import { delegates, networkingStats } from '@/lib/data'
+import { toggleConnection } from '@/lib/actions/networking'
 import { cn } from '@/lib/utils'
 
-export function NetworkingDirectory() {
+export interface DelegateView {
+  id: string
+  name: string
+  role: string
+  country: string
+  flag: string
+  initials: string
+  mutual: number
+  online: boolean
+  connected: boolean
+}
+
+export interface NetworkingStatView {
+  label: string
+  value: string
+}
+
+export function NetworkingDirectory({
+  delegates,
+  stats,
+  isLoggedIn,
+}: {
+  delegates: DelegateView[]
+  stats: NetworkingStatView[]
+  isLoggedIn: boolean
+}) {
   const [query, setQuery] = useState('')
-  const [connected, setConnected] = useState<string[]>([])
+  const [pending, startTransition] = useTransition()
 
   const filtered = useMemo(
     () =>
@@ -17,11 +42,15 @@ export function NetworkingDirectory() {
           d.role.toLowerCase().includes(query.toLowerCase()) ||
           d.country.toLowerCase().includes(query.toLowerCase()),
       ),
-    [query],
+    [delegates, query],
   )
 
-  function toggle(name: string) {
-    setConnected((c) => (c.includes(name) ? c.filter((n) => n !== name) : [...c, name]))
+  function toggle(id: string) {
+    if (!isLoggedIn) {
+      window.location.href = '/login'
+      return
+    }
+    startTransition(() => toggleConnection(id))
   }
 
   return (
@@ -36,9 +65,8 @@ export function NetworkingDirectory() {
         </div>
       </header>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {networkingStats.map((s) => (
+        {stats.map((s) => (
           <div key={s.label} className="rounded-2xl border border-border bg-card p-4">
             <p className="font-display text-2xl font-bold text-foreground">{s.value}</p>
             <p className="text-xs text-muted-foreground">{s.label}</p>
@@ -46,7 +74,6 @@ export function NetworkingDirectory() {
         ))}
       </div>
 
-      {/* Search */}
       <div className="relative">
         <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
@@ -57,52 +84,49 @@ export function NetworkingDirectory() {
         />
       </div>
 
-      {/* Directory */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((d) => {
-          const isConnected = connected.includes(d.name)
-          return (
-            <article key={d.name} className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5">
-              <div className="flex items-start gap-3">
-                <div className="relative">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-icesco-blue to-cyan-accent text-sm font-semibold text-white">
-                    {d.initials}
-                  </div>
-                  {d.online && (
-                    <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-card bg-icesco-teal" />
-                  )}
+        {filtered.map((d) => (
+          <article key={d.id} className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5">
+            <div className="flex items-start gap-3">
+              <div className="relative">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-icesco-blue to-cyan-accent text-sm font-semibold text-white">
+                  {d.initials}
                 </div>
-                <div className="min-w-0">
-                  <h3 className="truncate font-semibold text-foreground">{d.name}</h3>
-                  <p className="truncate text-xs text-muted-foreground">{d.role}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    <span aria-hidden>{d.flag}</span> {d.country} · {d.mutual} mutual
-                  </p>
-                </div>
+                {d.online && (
+                  <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-card bg-icesco-teal" />
+                )}
               </div>
-              <div className="mt-auto flex gap-2">
-                <button
-                  onClick={() => toggle(d.name)}
-                  className={cn(
-                    'flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition-colors',
-                    isConnected
-                      ? 'border border-border bg-accent text-icesco-blue'
-                      : 'bg-icesco-blue text-white hover:bg-icesco',
-                  )}
-                >
-                  {isConnected ? <Check className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
-                  {isConnected ? 'Connected' : 'Connect'}
-                </button>
-                <button
-                  aria-label={`Message ${d.name}`}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                </button>
+              <div className="min-w-0">
+                <h3 className="truncate font-semibold text-foreground">{d.name}</h3>
+                <p className="truncate text-xs text-muted-foreground">{d.role}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  <span aria-hidden>{d.flag}</span> {d.country} · {d.mutual} mutual
+                </p>
               </div>
-            </article>
-          )
-        })}
+            </div>
+            <div className="mt-auto flex gap-2">
+              <button
+                disabled={pending}
+                onClick={() => toggle(d.id)}
+                className={cn(
+                  'flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-60',
+                  d.connected
+                    ? 'border border-border bg-accent text-icesco-blue'
+                    : 'bg-icesco-blue text-white hover:bg-icesco',
+                )}
+              >
+                {d.connected ? <Check className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
+                {d.connected ? 'Connected' : 'Connect'}
+              </button>
+              <button
+                aria-label={`Message ${d.name}`}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <MessageCircle className="h-4 w-4" />
+              </button>
+            </div>
+          </article>
+        ))}
       </div>
 
       {filtered.length === 0 && (

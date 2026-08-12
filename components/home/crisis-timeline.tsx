@@ -1,17 +1,22 @@
 import { Check, Radio, Clock } from 'lucide-react'
-import { crisisTimeline } from '@/lib/data'
 import { cn } from '@/lib/utils'
 
-export function CrisisTimeline() {
+export interface TimelineStep {
+  time: string
+  label: string
+  status: 'done' | 'live' | 'upcoming'
+}
+
+export function CrisisTimeline({ steps }: { steps: TimelineStep[] }) {
   return (
     <section className="rounded-2xl border border-border bg-card p-5">
       <h2 className="mb-5 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
         Crisis Timeline
       </h2>
       <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:gap-0">
-        {crisisTimeline.map((step, i) => (
-          <div key={step.time} className="relative flex flex-1 items-start gap-3 md:flex-col md:items-center md:text-center">
-            {i < crisisTimeline.length - 1 && (
+        {steps.map((step, i) => (
+          <div key={`${step.time}-${step.label}`} className="relative flex flex-1 items-start gap-3 md:flex-col md:items-center md:text-center">
+            {i < steps.length - 1 && (
               <span className="absolute left-[11px] top-6 h-[calc(100%+1rem)] w-0.5 bg-border md:left-auto md:right-[-50%] md:top-3 md:h-0.5 md:w-full" />
             )}
             <div

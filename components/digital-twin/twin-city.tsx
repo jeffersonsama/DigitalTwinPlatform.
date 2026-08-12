@@ -10,12 +10,11 @@ import {
   Building2,
   Gauge,
 } from 'lucide-react'
-import { TwinScene, statusStyles } from './twin-scene'
-import { twinBuildings } from '@/lib/data'
+import { TwinScene, statusStyles, type TwinBuilding } from './twin-scene'
 import { cn } from '@/lib/utils'
 
-export function TwinCity() {
-  const [selectedId, setSelectedId] = useState<string | null>('museum')
+export function TwinCity({ buildings: twinBuildings }: { buildings: TwinBuilding[] }) {
+  const [selectedId, setSelectedId] = useState<string | null>(twinBuildings[0]?.id ?? null)
   const selected = twinBuildings.find((b) => b.id === selectedId)
 
   const counts = {

@@ -14,13 +14,24 @@ const LOGO_HEIGHT = 48
 const FULL_WIDTH = Math.round(LOGO_HEIGHT * (LOGO_SOURCE_WIDTH / LOGO_SOURCE_HEIGHT))
 const MARK_WIDTH = Math.round(LOGO_HEIGHT * (LOGO_MARK_WIDTH / LOGO_SOURCE_HEIGHT))
 
+/** Must match the rail's collapsed width (`w-16` in nav-rail.tsx = 4rem). */
+const RAIL_COLLAPSED_PX = 64
+
+/**
+ * Fixed left offset, identical whether collapsed or expanded — chosen so the
+ * mark sits centered in the 64px collapsed rail. Kept constant (rather than
+ * re-centering on expand) so only the width animates: the left edge never
+ * jumps, it just grows to the right.
+ */
+const LEFT_OFFSET = (RAIL_COLLAPSED_PX - MARK_WIDTH) / 2
+
 export function RailLogo({ expanded }: { expanded: boolean }) {
   return (
     <Link
       href="/"
       aria-label="ICESCO"
       className="relative block shrink-0 overflow-hidden transition-[width] duration-300 ease-out"
-      style={{ height: LOGO_HEIGHT, width: expanded ? FULL_WIDTH : MARK_WIDTH }}
+      style={{ height: LOGO_HEIGHT, width: expanded ? FULL_WIDTH : MARK_WIDTH, marginLeft: LEFT_OFFSET }}
     >
       <Image
         src={LOGO_SRC}

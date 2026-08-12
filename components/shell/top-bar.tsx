@@ -1,10 +1,16 @@
 'use client'
 
 import { useEffect, useState, type ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useTheme } from 'next-themes'
 import { Search, Bell, Sun, Moon, Monitor } from 'lucide-react'
 import { useLocale, type Locale } from '@/lib/i18n'
-import { cn } from '@/lib/utils'
+import { cn, initials } from '@/lib/utils'
+
+export interface CurrentUser {
+  name: string
+}
 
 const THEME_CYCLE: Array<{ value: 'light' | 'dark' | 'system'; icon: typeof Sun; label: string }> = [
   { value: 'light', icon: Sun, label: 'Light theme' },
@@ -67,12 +73,21 @@ export function TopBar({
   immersive,
   title,
   right,
+  user,
 }: {
   immersive: boolean
   title?: string
   right?: ReactNode
+  user: CurrentUser | null
 }) {
   const { t } = useLocale()
+  const router = useRouter()
+
+  async function handleLogout() {
+    await fetch('/api/auth/logout', { method: 'POST' })
+    router.push('/')
+    router.refresh()
+  }
 
   return (
     <header
@@ -120,14 +135,29 @@ export function TopBar({
         <LanguageSwitcher immersive={immersive} />
         {!immersive && <ThemeToggle />}
 
-        <div
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold',
-            immersive ? 'bg-gradient-to-br from-cyan-accent to-icesco-blue text-white' : 'bg-icesco text-white',
-          )}
-        >
-          AB
-        </div>
+        {user ? (
+          <button
+            type="button"
+            onClick={handleLogout}
+            title={`Log out (${user.name})`}
+            className={cn(
+              'flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-opacity hover:opacity-80',
+              immersive ? 'bg-gradient-to-br from-cyan-accent to-icesco-blue text-white' : 'bg-icesco text-white',
+            )}
+          >
+            {initials(user.name)}
+          </button>
+        ) : (
+          <Link
+            href="/login"
+            className={cn(
+              'rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors',
+              immersive ? 'bg-white text-icesco hover:bg-white/90' : 'bg-icesco-blue text-white hover:bg-icesco',
+            )}
+          >
+            Log in
+          </Link>
+        )}
       </div>
     </header>
   )

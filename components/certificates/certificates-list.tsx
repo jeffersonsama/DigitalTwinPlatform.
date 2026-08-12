@@ -1,6 +1,14 @@
 import { Award, Download, Share2, CheckCircle2, Clock, Lock, ShieldCheck } from 'lucide-react'
-import { certificates } from '@/lib/data'
 import { cn } from '@/lib/utils'
+
+export interface CertificateView {
+  id: string
+  title: string
+  type: string
+  code: string | null
+  status: 'issued' | 'in-progress' | 'locked'
+  issuedAt: string | null
+}
 
 const statusMeta = {
   issued: { label: 'Issued', tone: 'bg-icesco-teal/10 text-icesco-teal', Icon: CheckCircle2 },
@@ -8,7 +16,7 @@ const statusMeta = {
   locked: { label: 'Locked', tone: 'bg-secondary text-muted-foreground', Icon: Lock },
 } as const
 
-export function CertificatesList() {
+export function CertificatesList({ certificates }: { certificates: CertificateView[] }) {
   const issued = certificates.filter((c) => c.status === 'issued').length
 
   return (
@@ -34,13 +42,12 @@ export function CertificatesList() {
           const locked = c.status === 'locked'
           return (
             <article
-              key={c.title}
+              key={c.id}
               className={cn(
                 'flex flex-col overflow-hidden rounded-2xl border border-border bg-card',
                 locked && 'opacity-70',
               )}
             >
-              {/* Certificate visual */}
               <div className="relative flex aspect-[16/10] items-center justify-center overflow-hidden bg-gradient-to-br from-icesco to-icesco-blue p-4">
                 <div className="grid-glow absolute inset-0 opacity-40" />
                 <div className="relative flex flex-col items-center text-center text-white">
@@ -59,16 +66,15 @@ export function CertificatesList() {
                 </span>
               </div>
 
-              {/* Details */}
               <div className="flex flex-1 flex-col gap-3 p-4">
                 <div className="min-h-[3rem]">
                   <h3 className="text-pretty font-semibold leading-snug text-foreground">{c.title}</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {c.status === 'issued' ? `Issued ${c.issued}` : meta.label}
+                    {c.status === 'issued' ? `Issued ${c.issuedAt}` : meta.label}
                   </p>
                 </div>
                 {c.status === 'issued' && (
-                  <p className="truncate font-mono text-[11px] text-muted-foreground">ID: {c.id}</p>
+                  <p className="truncate font-mono text-[11px] text-muted-foreground">ID: {c.code}</p>
                 )}
                 <div className="mt-auto flex gap-2">
                   <button

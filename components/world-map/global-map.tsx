@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps'
-import { activeCountryMarkers } from '@/lib/data'
+import type { CountryEngagement } from '@/lib/stats'
 import { cn } from '@/lib/utils'
 
 const GEO_URL =
@@ -14,7 +14,7 @@ const activityColor: Record<'high' | 'medium' | 'low', string> = {
   low: '#60a5fa',
 }
 
-export function GlobalMap() {
+export function GlobalMap({ markers }: { markers: CountryEngagement[] }) {
   const [hover, setHover] = useState<string | null>(null)
 
   return (
@@ -45,13 +45,13 @@ export function GlobalMap() {
           }
         </Geographies>
 
-        {activeCountryMarkers.map((m) => {
+        {markers.map((m) => {
           const r = m.activity === 'high' ? 6 : m.activity === 'medium' ? 4.5 : 3.5
           const color = activityColor[m.activity]
           return (
             <Marker
               key={m.name}
-              coordinates={m.coordinates as [number, number]}
+              coordinates={[m.lng, m.lat]}
               onMouseEnter={() => setHover(m.name)}
               onMouseLeave={() => setHover(null)}
             >

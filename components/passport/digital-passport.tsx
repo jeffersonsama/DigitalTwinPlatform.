@@ -17,22 +17,72 @@ import {
   CheckCircle2,
   Lock,
 } from 'lucide-react'
-import {
-  passport,
-  passportActivity,
-  passportBadges,
-  passportSkills,
-  passportProgress,
-  certificates,
-} from '@/lib/data'
 import { cn } from '@/lib/utils'
 
-const badgeIcons = { zap: Zap, users: Users, book: BookOpen, heart: Heart, globe: Globe }
+const badgeIcons: Record<string, typeof Zap> = { zap: Zap, users: Users, book: BookOpen, heart: Heart, globe: Globe }
 
 const tabs = ['Activity', 'Certificates', 'Skills', 'Progress'] as const
 type Tab = (typeof tabs)[number]
 
-export function DigitalPassport() {
+export interface PassportView {
+  name: string
+  role: string
+  country: string
+  level: number
+  levelTitle: string
+  xp: number
+  xpMax: number
+  stats: { missions: number; connections: number; certificates: number }
+}
+
+export interface ActivityView {
+  id: string
+  title: string
+  meta: string
+  xp: number
+}
+
+export interface BadgeView {
+  id: string
+  label: string
+  icon: string
+}
+
+export interface SkillView {
+  id: string
+  label: string
+  value: number
+}
+
+export interface ProgressView {
+  id: string
+  label: string
+  value: number
+  max: number
+}
+
+export interface PassportCertView {
+  id: string
+  title: string
+  type: string
+  issuedLabel: string
+}
+
+export function DigitalPassport({
+  passport,
+  badges,
+  skills,
+  progress,
+  activity,
+  certificates,
+}: {
+  passport: PassportView
+  badges: BadgeView[]
+  skills: SkillView[]
+  progress: ProgressView[]
+  activity: ActivityView[]
+  certificates: PassportCertView[]
+}) {
   const [tab, setTab] = useState<Tab>('Activity')
   const xpPct = Math.round((passport.xp / passport.xpMax) * 100)
 
@@ -64,7 +114,6 @@ export function DigitalPassport() {
             </div>
           </div>
 
-          {/* Level + XP */}
           <div className="mt-5 rounded-xl bg-accent/60 p-4">
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-1.5 text-sm font-semibold text-icesco-blue">
@@ -82,7 +131,6 @@ export function DigitalPassport() {
             </div>
           </div>
 
-          {/* Stats */}
           <div className="mt-4 grid grid-cols-3 gap-2 text-center">
             {[
               { icon: Trophy, value: passport.stats.missions, label: 'Missions' },
@@ -98,14 +146,13 @@ export function DigitalPassport() {
           </div>
         </section>
 
-        {/* Badges */}
         <section className="rounded-2xl border border-border bg-card p-5">
           <h2 className="mb-4 text-sm font-semibold text-foreground">Badges</h2>
           <div className="grid grid-cols-5 gap-2 text-center">
-            {passportBadges.map((b) => {
-              const Icon = badgeIcons[b.icon]
+            {badges.map((b) => {
+              const Icon = badgeIcons[b.icon] ?? Award
               return (
-                <div key={b.label} className="flex flex-col items-center gap-1.5">
+                <div key={b.id} className="flex flex-col items-center gap-1.5">
                   <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-icesco-blue to-cyan-accent text-white">
                     <Icon className="h-5 w-5" />
                   </span>
@@ -138,11 +185,8 @@ export function DigitalPassport() {
         <div className="p-4 md:p-5">
           {tab === 'Activity' && (
             <ul className="flex flex-col gap-3">
-              {passportActivity.map((a) => (
-                <li
-                  key={a.title}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-border p-3"
-                >
+              {activity.map((a) => (
+                <li key={a.id} className="flex items-center justify-between gap-3 rounded-xl border border-border p-3">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-foreground">{a.title}</p>
                     <p className="text-xs text-muted-foreground">{a.meta}</p>
@@ -157,15 +201,15 @@ export function DigitalPassport() {
 
           {tab === 'Certificates' && (
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {certificates.slice(0, 4).map((c) => (
-                <li key={c.title} className="flex items-start gap-3 rounded-xl border border-border p-3">
+              {certificates.map((c) => (
+                <li key={c.id} className="flex items-start gap-3 rounded-xl border border-border p-3">
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent text-icesco-blue">
                     <Award className="h-4 w-4" />
                   </span>
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-foreground">{c.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {c.type} · {c.issued}
+                      {c.type} · {c.issuedLabel}
                     </p>
                   </div>
                 </li>
@@ -175,8 +219,8 @@ export function DigitalPassport() {
 
           {tab === 'Skills' && (
             <div className="flex flex-col gap-4">
-              {passportSkills.map((s) => (
-                <div key={s.label}>
+              {skills.map((s) => (
+                <div key={s.id}>
                   <div className="mb-1 flex items-center justify-between text-sm">
                     <span className="text-foreground">{s.label}</span>
                     <span className="font-semibold text-icesco-blue">{s.value}%</span>
@@ -194,11 +238,11 @@ export function DigitalPassport() {
 
           {tab === 'Progress' && (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {passportProgress.map((p) => {
+              {progress.map((p) => {
                 const pct = Math.round((p.value / p.max) * 100)
                 const complete = p.value >= p.max
                 return (
-                  <div key={p.label} className="rounded-xl border border-border p-4">
+                  <div key={p.id} className="rounded-xl border border-border p-4">
                     <div className="mb-2 flex items-center justify-between">
                       <span className="text-sm font-medium text-foreground">{p.label}</span>
                       {complete ? (

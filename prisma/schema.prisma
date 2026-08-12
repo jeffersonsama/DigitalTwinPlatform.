@@ -1,0 +1,226 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String
+  country      String
+  level        Int      @default(1)
+  levelTitle   String   @default("Newcomer")
+  xp           Int      @default(0)
+  xpMax        Int      @default(1000)
+  lastSeenAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  certificates        Certificate[]
+  badges              Badge[]
+  skills              Skill[]
+  progressItems       ProgressItem[]
+  activity            ActivityLogEntry[]
+  bookmarks           Bookmark[]
+  connectionsSent     Connection[]       @relation("ConnectionSender")
+  connectionsReceived Connection[]       @relation("ConnectionReceiver")
+
+  @@map("users")
+}
+
+model Country {
+  id      String @id @default(cuid())
+  name    String @unique
+  isoCode String @unique
+  flag    String
+  lat     Float
+  lng     Float
+
+  @@map("countries")
+}
+
+model ProgramDay {
+  id       String           @id
+  label    String
+  date     String
+  sessions ProgramSession[]
+
+  @@map("program_days")
+}
+
+model Speaker {
+  id       String           @id @default(cuid())
+  name     String
+  role     String
+  initials String
+  sessions ProgramSession[]
+
+  @@map("speakers")
+}
+
+model ProgramSession {
+  id        String   @id @default(cuid())
+  dayId     String
+  day       ProgramDay @relation(fields: [dayId], references: [id])
+  time      String
+  duration  String
+  title     String
+  track     String
+  room      String
+  speakerId String?
+  speaker   Speaker? @relation(fields: [speakerId], references: [id])
+  startsAt  DateTime
+  endsAt    DateTime
+
+  bookmarks Bookmark[]
+
+  @@map("program_sessions")
+}
+
+model Bookmark {
+  id        String         @id @default(cuid())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id])
+  sessionId String
+  session   ProgramSession @relation(fields: [sessionId], references: [id])
+  createdAt DateTime       @default(now())
+
+  @@unique([userId, sessionId])
+  @@map("bookmarks")
+}
+
+enum CertificateStatus {
+  issued
+  in_progress
+  locked
+}
+
+model Certificate {
+  id       String            @id @default(cuid())
+  userId   String
+  user     User              @relation(fields: [userId], references: [id])
+  title    String
+  type     String
+  code     String?
+  status   CertificateStatus
+  issuedAt DateTime?
+
+  @@map("certificates")
+}
+
+model Badge {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  label  String
+  icon   String
+
+  @@map("badges")
+}
+
+model Skill {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  label  String
+  value  Int
+
+  @@map("skills")
+}
+
+model ProgressItem {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  label  String
+  value  Int
+  max    Int
+
+  @@map("progress_items")
+}
+
+model ActivityLogEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  meta      String
+  xp        Int
+  createdAt DateTime @default(now())
+
+  @@map("activity_log_entries")
+}
+
+enum ConnectionStatus {
+  pending
+  accepted
+}
+
+model Connection {
+  id         String           @id @default(cuid())
+  fromUserId String
+  fromUser   User             @relation("ConnectionSender", fields: [fromUserId], references: [id])
+  toUserId   String
+  toUser     User             @relation("ConnectionReceiver", fields: [toUserId], references: [id])
+  status     ConnectionStatus @default(pending)
+  createdAt  DateTime         @default(now())
+
+  @@unique([fromUserId, toUserId])
+  @@map("connections")
+}
+
+enum ResourceType {
+  report
+  case
+  tool
+  training
+  policy
+}
+
+model Resource {
+  id       String       @id @default(cuid())
+  title    String
+  type     ResourceType
+  category String
+  country  String?
+  language String?
+  featured Boolean      @default(false)
+  tag      String?
+  image    String?
+  url      String?
+  addedAt  DateTime     @default(now())
+
+  @@map("resources")
+}
+
+enum TwinStatus {
+  operational
+  warning
+  flood_risk
+}
+
+model TwinBuilding {
+  id     String     @id
+  name   String
+  status TwinStatus
+  x      Float
+  y      Float
+
+  @@map("twin_buildings")
+}
+
+model EventMetric {
+  id    String @id @default(cuid())
+  key   String @unique
+  value Int
+
+  @@map("event_metrics")
+}

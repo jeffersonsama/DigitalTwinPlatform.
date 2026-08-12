@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Bot, Send, Search, Sparkles, FileText, Languages } from 'lucide-react'
-import { AppShell } from '@/components/shell/app-shell'
 import { aiSuggestions } from '@/lib/data'
 
 type Message = { role: 'user' | 'ai'; text: string }
@@ -29,8 +28,7 @@ export function Concierge() {
   }
 
   return (
-    <AppShell title="AI Concierge">
-      <div className="flex h-[calc(100vh-4rem)] flex-col">
+    <div className="flex h-[calc(100vh-4rem)] flex-col">
         <div className="scrollbar-thin flex-1 overflow-y-auto">
           <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-6 py-8">
             {!started ? (
@@ -110,6 +108,5 @@ export function Concierge() {
           </form>
         </div>
       </div>
-    </AppShell>
   )
 }

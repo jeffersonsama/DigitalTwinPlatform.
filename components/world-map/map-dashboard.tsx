@@ -1,17 +1,32 @@
 import { Globe2, Users, Radio, FolderKanban, Trophy } from 'lucide-react'
 import { GlobalMap } from './global-map'
-import { globalStats, topCountries } from '@/lib/data'
+import type { CountryEngagement } from '@/lib/stats'
 
-const overview = [
-  { label: 'Countries Online', value: globalStats.countriesConnected, icon: Globe2 },
-  { label: 'Participants', value: globalStats.participantsOnline.toLocaleString(), icon: Users },
-  { label: 'Voice Shared', value: globalStats.ideasShared.toLocaleString(), icon: Radio },
-  { label: 'Projects Initiated', value: globalStats.projectsInitiated, icon: FolderKanban },
-  { label: 'Challenges Completed', value: globalStats.challengesCompleted, icon: Trophy },
-]
+export function MapDashboard({
+  countriesConnected,
+  participantsOnline,
+  ideasShared,
+  projectsInitiated,
+  challengesCompleted,
+  countries,
+}: {
+  countriesConnected: number
+  participantsOnline: number
+  ideasShared: number
+  projectsInitiated: number
+  challengesCompleted: number
+  countries: CountryEngagement[]
+}) {
+  const overview = [
+    { label: 'Countries Online', value: countriesConnected, icon: Globe2 },
+    { label: 'Participants', value: participantsOnline.toLocaleString(), icon: Users },
+    { label: 'Voice Shared', value: ideasShared.toLocaleString(), icon: Radio },
+    { label: 'Projects Initiated', value: projectsInitiated, icon: FolderKanban },
+    { label: 'Challenges Completed', value: challengesCompleted, icon: Trophy },
+  ]
+  const topCountries = countries.slice(0, 6)
+  const max = Math.max(1, ...topCountries.map((c) => c.value))
 
-export function MapDashboard() {
-  const max = Math.max(...topCountries.map((c) => c.value))
   return (
     <main className="mx-auto grid max-w-[1500px] grid-cols-1 gap-4 p-4 md:p-6 lg:grid-cols-[280px_minmax(0,1fr)]">
       {/* Left column */}
@@ -64,7 +79,7 @@ export function MapDashboard() {
             Global Engagement · Live
           </span>
         </div>
-        <GlobalMap />
+        <GlobalMap markers={countries} />
       </section>
     </main>
   )

@@ -1,15 +1,23 @@
 import Link from 'next/link'
 import { Target, Globe2, Users, CalendarClock, ArrowRight } from 'lucide-react'
-import { globalStats } from '@/lib/data'
 
 function formatNum(n: number) {
   return n.toLocaleString('en-US')
 }
 
-export function StatRow() {
+export function StatRow({
+  countriesConnected,
+  participantsOnline,
+  participantsDelta,
+  sessionsToday,
+}: {
+  countriesConnected: number
+  participantsOnline: number
+  participantsDelta: number
+  sessionsToday: number
+}) {
   return (
     <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {/* Today's Mission */}
       <div className="flex flex-col justify-between rounded-2xl border border-border bg-gradient-to-br from-icesco to-icesco-blue p-5 text-white">
         <div>
           <div className="flex items-center gap-2 text-cyan-accent">
@@ -29,25 +37,15 @@ export function StatRow() {
         </Link>
       </div>
 
-      <StatCard
-        icon={Globe2}
-        label="Countries Connected"
-        value={formatNum(globalStats.countriesConnected)}
-        sub="Member States"
-      />
+      <StatCard icon={Globe2} label="Countries Connected" value={formatNum(countriesConnected)} sub="Member States" />
       <StatCard
         icon={Users}
         label="Participants Online"
-        value={formatNum(globalStats.participantsOnline)}
-        sub={`+${formatNum(globalStats.participantsDelta)} today`}
+        value={formatNum(participantsOnline)}
+        sub={`+${formatNum(participantsDelta)} today`}
         accent
       />
-      <StatCard
-        icon={CalendarClock}
-        label="Sessions Today"
-        value={formatNum(globalStats.sessionsToday)}
-        sub="Live & On-demand"
-      />
+      <StatCard icon={CalendarClock} label="Sessions Today" value={formatNum(sessionsToday)} sub="Live & On-demand" />
     </section>
   )
 }

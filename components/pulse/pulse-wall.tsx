@@ -1,13 +1,4 @@
 import Image from 'next/image'
-import { globalStats } from '@/lib/data'
-
-const bigStats = [
-  { label: 'Countries Online', value: globalStats.countriesConnected.toString() },
-  { label: 'Participants', value: globalStats.participantsOnline.toLocaleString() },
-  { label: 'Ideas Shared', value: globalStats.ideasShared.toLocaleString() },
-  { label: 'Projects Initiated', value: globalStats.projectsInitiated.toString() },
-  { label: 'Challenges Completed', value: globalStats.challengesCompleted.toString() },
-]
 
 const highlights = [
   { label: 'Most Active Country', value: 'Türkiye' },
@@ -15,7 +6,26 @@ const highlights = [
   { label: 'Top AI Insight', value: 'Invest in early warning & community education' },
 ]
 
-export function PulseWall() {
+export function PulseWall({
+  countriesConnected,
+  participantsOnline,
+  ideasShared,
+  projectsInitiated,
+  challengesCompleted,
+}: {
+  countriesConnected: number
+  participantsOnline: number
+  ideasShared: number
+  projectsInitiated: number
+  challengesCompleted: number
+}) {
+  const bigStats = [
+    { label: 'Countries Online', value: countriesConnected.toString() },
+    { label: 'Participants', value: participantsOnline.toLocaleString() },
+    { label: 'Ideas Shared', value: ideasShared.toLocaleString() },
+    { label: 'Projects Initiated', value: projectsInitiated.toString() },
+    { label: 'Challenges Completed', value: challengesCompleted.toString() },
+  ]
   return (
     <main className="relative min-h-[calc(100vh-56px)] overflow-hidden bg-navy-950">
       {/* Stage backdrop */}
