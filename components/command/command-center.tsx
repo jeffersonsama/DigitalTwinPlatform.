@@ -45,9 +45,9 @@ function StreamGrid() {
               <Radio className="h-2.5 w-2.5" /> LIVE
             </div>
             <MonitorPlay className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 text-white/20" />
-            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-black/50 px-2 py-1">
-              <span className="text-[11px] font-medium text-white">{s}</span>
-              <span className="text-[10px] text-cyan-accent">{(i + 3) * 412} viewers</span>
+            <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-center justify-between gap-x-1 bg-black/50 px-2 py-1">
+              <span className="truncate text-[11px] font-medium text-white">{s}</span>
+              <span className="shrink-0 text-[10px] text-cyan-accent">{(i + 3) * 412}</span>
             </div>
           </div>
         ))}

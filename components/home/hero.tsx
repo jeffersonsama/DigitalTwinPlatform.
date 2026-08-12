@@ -6,13 +6,20 @@ import { AiAssistantCard } from './ai-assistant-card'
 export function Hero() {
   return (
     <section className="grid grid-cols-1 gap-4 lg:grid-cols-[1.6fr_1fr]">
-      <div className="relative overflow-hidden rounded-2xl border border-border">
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-icesco">
         <Image
-          src="/images/hero-city.png"
-          alt="Modern smart city skyline with a mosque at dusk"
+          src="/images/icesco-front.png"
+          alt="ICESCO forum venue, front view"
           fill
           priority
-          className="object-cover"
+          className="hero-photo-fade object-cover"
+          sizes="(max-width: 1024px) 100vw, 800px"
+        />
+        <Image
+          src="/images/icesco-angle.png"
+          alt="ICESCO forum venue, angled view"
+          fill
+          className="hero-photo-fade hero-photo-fade-2 object-cover"
           sizes="(max-width: 1024px) 100vw, 800px"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-icesco/90 via-icesco/70 to-icesco/20" />

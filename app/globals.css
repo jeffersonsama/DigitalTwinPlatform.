@@ -160,4 +160,32 @@
     background-color: rgba(148, 163, 184, 0.4);
     border-radius: 9999px;
   }
+
+  /* Two photos crossfade in a loop: each is visible for ~34% of the cycle,
+     offset by half the cycle length so one is always fading in as the other
+     fades out. */
+  .hero-photo-fade {
+    animation: hero-photo-fade 13s infinite ease-in-out;
+  }
+  .hero-photo-fade-2 {
+    animation-delay: 6.5s;
+  }
+}
+
+@keyframes hero-photo-fade {
+  0% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  42% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
 }
