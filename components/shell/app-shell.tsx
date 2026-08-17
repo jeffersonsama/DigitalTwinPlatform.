@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 import { getCurrentUser } from '@/lib/auth'
-import { resolveAvatar } from '@/lib/avatar'
 import { AppShellClient } from './app-shell-client'
 
 export async function AppShell({
@@ -18,7 +17,7 @@ export async function AppShell({
     <AppShellClient
       title={title}
       right={right}
-      user={user ? { name: user.name, avatar: resolveAvatar(user) } : null}
+      user={user ? { name: user.name } : null}
     >
       {children}
     </AppShellClient>

@@ -4,7 +4,6 @@ import { SiteFooter } from '@/components/site-footer'
 import { DigitalPassport } from '@/components/passport/digital-passport'
 import { prisma } from '@/lib/db'
 import { requireUser } from '@/lib/auth'
-import { resolveAvatarId } from '@/lib/avatar'
 
 export const metadata: Metadata = {
   title: 'My Passport | ICESCO Crisis Forum 2026',
@@ -14,7 +13,7 @@ export const metadata: Metadata = {
 export default async function PassportPage() {
   const user = await requireUser()
 
-  const [badges, skills, progress, activity, certs, connectionsCount, certificatesCount, countries] = await Promise.all([
+  const [badges, skills, progress, activity, certs, connectionsCount, certificatesCount] = await Promise.all([
     prisma.badge.findMany({ where: { userId: user.id } }),
     prisma.skill.findMany({ where: { userId: user.id } }),
     prisma.progressItem.findMany({ where: { userId: user.id } }),
@@ -24,7 +23,6 @@ export default async function PassportPage() {
       where: { status: 'accepted', OR: [{ fromUserId: user.id }, { toUserId: user.id }] },
     }),
     prisma.certificate.count({ where: { userId: user.id, status: 'issued' } }),
-    prisma.country.findMany({ orderBy: { name: 'asc' } }),
   ])
 
   const missions = progress.find((p) => p.label === 'Missions Completed')?.value ?? 0
@@ -33,9 +31,7 @@ export default async function PassportPage() {
     <AppShell title="My Passport">
       <DigitalPassport
         passport={{
-          id: user.id,
           name: user.name,
-          avatar: resolveAvatarId(user),
           role: user.role,
           country: user.country,
           level: user.level,
@@ -44,7 +40,6 @@ export default async function PassportPage() {
           xpMax: user.xpMax,
           stats: { missions, connections: connectionsCount, certificates: certificatesCount },
         }}
-        countries={countries.map((c) => ({ name: c.name, flag: c.flag }))}
         badges={badges}
         skills={skills}
         progress={progress}

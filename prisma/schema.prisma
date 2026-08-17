@@ -15,7 +15,6 @@ model User {
   email        String   @unique
   passwordHash String
   name         String
-  avatar       String?
   role         String
   country      String
   level        Int      @default(1)
@@ -33,13 +32,6 @@ model User {
   bookmarks           Bookmark[]
   connectionsSent     Connection[]       @relation("ConnectionSender")
   connectionsReceived Connection[]       @relation("ConnectionReceiver")
-  messagesSent        DirectMessage[]    @relation("MessageSender")
-  messagesReceived    DirectMessage[]    @relation("MessageReceiver")
-  chatMessages        ChatMessage[]
-  pollVotes           PollVote[]
-  questions           Question[]
-  questionUpvotes     QuestionUpvote[]
-  liveNote            LiveNote?
 
   @@map("users")
 }
@@ -185,21 +177,6 @@ model Connection {
   @@map("connections")
 }
 
-model DirectMessage {
-  id         String   @id @default(cuid())
-  fromUserId String
-  fromUser   User     @relation("MessageSender", fields: [fromUserId], references: [id])
-  toUserId   String
-  toUser     User     @relation("MessageReceiver", fields: [toUserId], references: [id])
-  body       String
-  readAt     DateTime?
-  createdAt  DateTime @default(now())
-
-  @@index([fromUserId, toUserId])
-  @@index([toUserId, fromUserId])
-  @@map("direct_messages")
-}
-
 enum ResourceType {
   report
   case
@@ -246,83 +223,4 @@ model EventMetric {
   value Int
 
   @@map("event_metrics")
-}
-
-model ChatMessage {
-  id         String   @id @default(cuid())
-  userId     String?
-  user       User?    @relation(fields: [userId], references: [id])
-  authorName String
-  body       String
-  createdAt  DateTime @default(now())
-
-  @@map("live_chat_messages")
-}
-
-model Poll {
-  id       String       @id @default(cuid())
-  question String
-  active   Boolean      @default(true)
-  options  PollOption[]
-
-  @@map("polls")
-}
-
-model PollOption {
-  id        String     @id @default(cuid())
-  pollId    String
-  poll      Poll       @relation(fields: [pollId], references: [id])
-  label     String
-  order     Int
-  seedCount Int        @default(0)
-  votes     PollVote[]
-
-  @@map("poll_options")
-}
-
-model PollVote {
-  id        String     @id @default(cuid())
-  pollId    String
-  optionId  String
-  option    PollOption @relation(fields: [optionId], references: [id])
-  userId    String
-  user      User       @relation(fields: [userId], references: [id])
-  createdAt DateTime   @default(now())
-
-  @@unique([pollId, userId])
-  @@map("poll_votes")
-}
-
-model Question {
-  id          String           @id @default(cuid())
-  userId      String?
-  user        User?            @relation(fields: [userId], references: [id])
-  authorName  String
-  body        String
-  seedUpvotes Int              @default(0)
-  createdAt   DateTime         @default(now())
-  upvotes     QuestionUpvote[]
-
-  @@map("live_questions")
-}
-
-model QuestionUpvote {
-  id         String   @id @default(cuid())
-  questionId String
-  question   Question @relation(fields: [questionId], references: [id])
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-
-  @@unique([questionId, userId])
-  @@map("live_question_upvotes")
-}
-
-model LiveNote {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id])
-  body      String
-  updatedAt DateTime @updatedAt
-
-  @@map("live_notes")
 }

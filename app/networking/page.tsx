@@ -4,7 +4,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { NetworkingDirectory, type DelegateView, type NetworkingStatView } from '@/components/networking/networking-directory'
 import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
-import { resolveAvatar } from '@/lib/avatar'
+import { initials } from '@/lib/utils'
 
 export const metadata: Metadata = {
   title: 'Networking | ICESCO Crisis Forum 2026',
@@ -21,18 +21,15 @@ export default async function NetworkingPage() {
     getCurrentUser(),
   ])
 
-  const [pendingCount, distinctCountries, viewerConnections] = await Promise.all([
+  const [pendingCount, distinctCountries] = await Promise.all([
     prisma.connection.count({ where: { status: 'pending' } }),
     prisma.user.findMany({ distinct: ['country'], select: { country: true } }),
-    viewer
-      ? prisma.connection.findMany({ where: { OR: [{ fromUserId: viewer.id }, { toUserId: viewer.id }] } })
-      : Promise.resolve([]),
   ])
 
   const countryByName = new Map(countries.map((c) => [c.name, c]))
   const now = Date.now()
 
-  // partner sets, for real "mutual connections" (accepted only)
+  // partner sets, for real "mutual connections" + per-viewer connected state
   const partnersOf = new Map<string, Set<string>>()
   for (const c of acceptedConnections) {
     if (!partnersOf.has(c.fromUserId)) partnersOf.set(c.fromUserId, new Set())
@@ -41,14 +38,6 @@ export default async function NetworkingPage() {
     partnersOf.get(c.toUserId)!.add(c.fromUserId)
   }
   const viewerPartners = viewer ? partnersOf.get(viewer.id) ?? new Set<string>() : new Set<string>()
-
-  // viewer's relationship to every other delegate: accepted / pending-sent / pending-received
-  const stateByUserId = new Map<string, DelegateView['connectionState']>()
-  for (const c of viewerConnections) {
-    const otherId = c.fromUserId === viewer?.id ? c.toUserId : c.fromUserId
-    if (c.status === 'accepted') stateByUserId.set(otherId, 'connected')
-    else stateByUserId.set(otherId, c.fromUserId === viewer?.id ? 'pending-sent' : 'pending-received')
-  }
 
   const delegates: DelegateView[] = users
     .filter((u) => u.id !== viewer?.id)
@@ -61,10 +50,10 @@ export default async function NetworkingPage() {
         role: u.role,
         country: u.country,
         flag: countryByName.get(u.country)?.flag ?? '🏳️',
-        avatar: resolveAvatar(u),
+        initials: initials(u.name),
         mutual,
         online: now - u.lastSeenAt.getTime() < ONLINE_WINDOW_MS,
-        connectionState: stateByUserId.get(u.id) ?? 'none',
+        connected: viewerPartners.has(u.id),
       }
     })
 

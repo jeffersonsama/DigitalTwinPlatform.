@@ -2,43 +2,37 @@
 
 import { useState } from 'react'
 import { Send, ThumbsUp, Heart, Hand } from 'lucide-react'
-import { useLiveRoom } from '@/components/live/live-room-provider'
+import { liveChat } from '@/lib/data'
 
 export function LiveChatPanel() {
-  const { messages, sendMessage, isLoggedIn, presenceCount } = useLiveRoom()
+  const [messages, setMessages] = useState(liveChat)
   const [value, setValue] = useState('')
-  const [error, setError] = useState('')
 
-  async function send(e: React.FormEvent) {
+  function send(e: React.FormEvent) {
     e.preventDefault()
-    if (!isLoggedIn) {
-      window.location.href = '/login'
-      return
-    }
     const t = value.trim()
     if (!t) return
-    const res = await sendMessage(t)
-    if (res.error) {
-      setError(res.error)
-      return
-    }
-    setError('')
+    setMessages((m) => [...m, { user: 'You', text: t, mine: true }])
     setValue('')
   }
 
   return (
-    <div className="flex min-h-[280px] flex-1 flex-col rounded-xl border border-white/10 bg-navy-900">
+    <div className="flex h-full flex-col rounded-xl border border-white/10 bg-navy-900">
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
         <p className="text-sm font-semibold text-white">Live Chat</p>
-        <span className="text-[11px] text-white/50">{presenceCount.toLocaleString()} online</span>
+        <span className="text-[11px] text-white/50">1,204 online</span>
       </div>
 
       <div className="scrollbar-thin flex min-h-[220px] flex-1 flex-col gap-3 overflow-y-auto p-4">
-        {messages.map((m) => (
-          <div key={m.id}>
-            <p className="text-[11px] font-medium text-cyan-accent">{m.authorName}</p>
-            <p className="mt-0.5 inline-block max-w-[85%] rounded-2xl bg-white/5 px-3 py-1.5 text-sm text-white/85">
-              {m.body}
+        {messages.map((m, i) => (
+          <div key={i} className={m.mine ? 'self-end text-right' : ''}>
+            <p className="text-[11px] font-medium text-cyan-accent">{m.user}</p>
+            <p
+              className={`mt-0.5 inline-block max-w-[85%] rounded-2xl px-3 py-1.5 text-sm ${
+                m.mine ? 'bg-cyan-accent text-navy-950' : 'bg-white/5 text-white/85'
+              }`}
+            >
+              {m.text}
             </p>
           </div>
         ))}
@@ -56,23 +50,20 @@ export function LiveChatPanel() {
         ))}
       </div>
 
-      <form onSubmit={send} className="flex flex-col gap-1.5 border-t border-white/10 p-3">
-        <div className="flex items-center gap-2">
-          <input
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            placeholder={isLoggedIn ? 'Type your message…' : 'Log in to chat…'}
-            className="flex-1 rounded-full border border-white/15 bg-navy-950 px-3 py-1.5 text-sm text-white outline-none placeholder:text-white/40 focus:border-cyan-accent"
-          />
-          <button
-            type="submit"
-            aria-label="Send"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-accent text-navy-950"
-          >
-            <Send className="h-4 w-4" />
-          </button>
-        </div>
-        {error && <p className="text-[11px] text-red-400">{error}</p>}
+      <form onSubmit={send} className="flex items-center gap-2 border-t border-white/10 p-3">
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Type your message…"
+          className="flex-1 rounded-full border border-white/15 bg-navy-950 px-3 py-1.5 text-sm text-white outline-none placeholder:text-white/40 focus:border-cyan-accent"
+        />
+        <button
+          type="submit"
+          aria-label="Send"
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-accent text-navy-950"
+        >
+          <Send className="h-4 w-4" />
+        </button>
       </form>
     </div>
   )

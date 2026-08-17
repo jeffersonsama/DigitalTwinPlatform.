@@ -13,7 +13,6 @@ import {
   LayoutDashboard,
   Activity,
   MonitorPlay,
-  MessageCircle,
   Image as PosterStudioIcon,
   type LucideIcon,
 } from 'lucide-react'
@@ -32,11 +31,10 @@ export const primaryNav: NavItem[] = [
   { key: 'live', label: 'Live', href: '/live', icon: Radio },
   { key: 'program', label: 'Program', href: '/program', icon: Calendar },
   { key: 'digitalTwin', label: 'Digital Twin', href: '/digital-twin', icon: Boxes },
-  { key: 'worldMap', label: 'World Crisis Map', href: '/world-map', icon: Globe },
+  { key: 'worldMap', label: 'World Map', href: '/world-map', icon: Globe },
   { key: 'simulation', label: 'Simulation', href: '/crisis-simulation', icon: FlaskConical },
   { key: 'knowledgeHub', label: 'Knowledge Hub', href: '/knowledge', icon: BookOpen },
   { key: 'networking', label: 'Networking', href: '/networking', icon: Users },
-  { key: 'messages', label: 'Messages', href: '/messages', icon: MessageCircle },
   { key: 'passport', label: 'My Passport', href: '/passport', icon: IdCard },
   { key: 'certificates', label: 'Certificates', href: '/certificates', icon: Award },
 ]
@@ -64,7 +62,6 @@ export const immersivePaths = [
   '/global-pulse',
   '/crisis-simulation',
   '/digital-twin',
-  '/scan',
 ]
 
 export function isImmersivePath(pathname: string): boolean {

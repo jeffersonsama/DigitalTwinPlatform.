@@ -42,7 +42,7 @@ export function Hero() {
               Join Live Now
             </Link>
             <Link
-              href="/program"
+              href="/knowledge"
               className="inline-flex items-center gap-2 rounded-lg border border-white/40 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
             >
               Explore Program

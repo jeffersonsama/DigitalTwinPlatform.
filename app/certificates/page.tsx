@@ -27,7 +27,7 @@ export default async function CertificatesPage() {
 
   return (
     <AppShell title="Certificates">
-      <CertificatesList certificates={certificates} recipientName={user.name} />
+      <CertificatesList certificates={certificates} />
       <SiteFooter />
     </AppShell>
   )

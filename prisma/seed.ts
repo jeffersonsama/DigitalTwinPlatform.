@@ -242,16 +242,6 @@ async function main() {
     skipDuplicates: true,
   })
 
-  console.log('Seeding direct messages…')
-  await prisma.directMessage.deleteMany({})
-  await prisma.directMessage.createMany({
-    data: [
-      { fromUserId: layla.id, toUserId: ahmed.id, body: 'Great meeting you at the panel today!', createdAt: at(-2 * DAY) },
-      { fromUserId: ahmed.id, toUserId: layla.id, body: 'Likewise! Let’s compare notes on early warning systems sometime.', createdAt: at(-2 * DAY + 3600000) },
-      { fromUserId: layla.id, toUserId: ahmed.id, body: 'Definitely — I’ll send over our flood-risk report.', createdAt: at(-1 * DAY) },
-    ],
-  })
-
   console.log('Seeding knowledge hub resources…')
   await prisma.resource.deleteMany({})
   await prisma.resource.createMany({
@@ -277,43 +267,6 @@ async function main() {
   await prisma.eventMetric.upsert({ where: { key: 'ideasShared' }, update: { value: 1243 }, create: { key: 'ideasShared', value: 1243 } })
   await prisma.eventMetric.upsert({ where: { key: 'projectsInitiated' }, update: { value: 128 }, create: { key: 'projectsInitiated', value: 128 } })
   await prisma.eventMetric.upsert({ where: { key: 'challengesCompleted' }, update: { value: 342 }, create: { key: 'challengesCompleted', value: 342 } })
-
-  console.log('Seeding live room (chat, poll, Q&A)…')
-  const noor = usersByName.get('Noor Al-Faisal')!
-  const siti = usersByName.get('Siti Rahmawati')!
-
-  await prisma.chatMessage.deleteMany({})
-  await prisma.chatMessage.createMany({
-    data: [
-      { userId: layla.id, authorName: 'Layla Hassan', body: 'Thank you for this insightful session!' },
-      { userId: mehmet.id, authorName: 'Mehmet Yılmaz', body: 'Very insightful discussion on resilience.' },
-      { userId: ahmed.id, authorName: 'Ahmed Benali', body: 'How can we apply this in rural areas?' },
-    ],
-  })
-
-  await prisma.pollVote.deleteMany({})
-  await prisma.pollOption.deleteMany({})
-  await prisma.poll.deleteMany({})
-  const poll = await prisma.poll.create({
-    data: { question: 'What is the top priority for resilient cities?', active: true },
-  })
-  await prisma.pollOption.createMany({
-    data: [
-      { pollId: poll.id, label: 'Early warning systems', order: 0, seedCount: 42 },
-      { pollId: poll.id, label: 'Community-led response teams', order: 1, seedCount: 31 },
-      { pollId: poll.id, label: 'Resilient infrastructure', order: 2, seedCount: 24 },
-      { pollId: poll.id, label: 'Cross-border data sharing', order: 3, seedCount: 18 },
-    ],
-  })
-
-  await prisma.questionUpvote.deleteMany({})
-  await prisma.question.deleteMany({})
-  await prisma.question.createMany({
-    data: [
-      { userId: noor.id, authorName: 'Noor Al-Faisal', body: 'How do we fund early-warning systems in low-resource areas?', seedUpvotes: 18 },
-      { userId: siti.id, authorName: 'Siti Rahmawati', body: 'What role can youth volunteers play during the response phase?', seedUpvotes: 11 },
-    ],
-  })
 
   console.log('Done. Demo login: ahmed.benali@icesco.demo / demo1234')
 }
