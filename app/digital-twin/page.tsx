@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { AppShell } from '@/components/shell/app-shell'
 import { TwinCity } from '@/components/digital-twin/twin-city'
 import { prisma } from '@/lib/db'
+import { requireEnabledPage } from '@/lib/auth'
 import type { TwinBuilding } from '@/components/digital-twin/twin-scene'
 
 export const metadata: Metadata = {
@@ -11,6 +12,8 @@ export const metadata: Metadata = {
 }
 
 export default async function DigitalTwinPage() {
+  await requireEnabledPage('digitalTwin')
+
   const rows = await prisma.twinBuilding.findMany({ orderBy: { name: 'asc' } })
   const buildings: TwinBuilding[] = rows.map((b) => ({
     id: b.id,

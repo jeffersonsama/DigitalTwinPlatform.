@@ -3,6 +3,7 @@ import { AppShell } from '@/components/shell/app-shell'
 import { SiteFooter } from '@/components/site-footer'
 import { KnowledgeHub, type ResourceView } from '@/components/knowledge/knowledge-hub'
 import { prisma } from '@/lib/db'
+import { requireEnabledPage } from '@/lib/auth'
 
 export const metadata: Metadata = {
   title: 'Knowledge Hub | ICESCO Crisis Forum 2026',
@@ -17,6 +18,8 @@ export default async function KnowledgePage({
 }: {
   searchParams: Promise<{ category?: string; q?: string }>
 }) {
+  await requireEnabledPage('knowledgeHub')
+
   const params = await searchParams
   const activeCategory = CATEGORIES.includes(params.category ?? '') ? params.category! : 'All'
   const query = params.q ?? ''

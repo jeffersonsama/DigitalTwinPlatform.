@@ -10,20 +10,26 @@ datasource db {
   provider = "postgresql"
 }
 
+enum AccessRole {
+  admin
+  delegate
+}
+
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
+  id           String     @id @default(cuid())
+  email        String     @unique
   passwordHash String
   name         String
   avatar       String?
   role         String
+  accessRole   AccessRole @default(delegate)
   country      String
-  level        Int      @default(1)
-  levelTitle   String   @default("Newcomer")
-  xp           Int      @default(0)
-  xpMax        Int      @default(1000)
-  lastSeenAt   DateTime @default(now())
-  createdAt    DateTime @default(now())
+  level        Int        @default(1)
+  levelTitle   String     @default("Newcomer")
+  xp           Int        @default(0)
+  xpMax        Int        @default(1000)
+  lastSeenAt   DateTime   @default(now())
+  createdAt    DateTime   @default(now())
 
   certificates        Certificate[]
   badges              Badge[]
@@ -40,6 +46,8 @@ model User {
   questions           Question[]
   questionUpvotes     QuestionUpvote[]
   liveNote            LiveNote?
+  notifications       Notification[]     @relation("NotificationRecipient")
+  notificationsCaused Notification[]     @relation("NotificationActor")
 
   @@map("users")
 }
@@ -75,7 +83,7 @@ model Speaker {
 }
 
 model ProgramSession {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   dayId     String
   day       ProgramDay @relation(fields: [dayId], references: [id])
   time      String
@@ -84,7 +92,7 @@ model ProgramSession {
   track     String
   room      String
   speakerId String?
-  speaker   Speaker? @relation(fields: [speakerId], references: [id])
+  speaker   Speaker?   @relation(fields: [speakerId], references: [id])
   startsAt  DateTime
   endsAt    DateTime
 
@@ -186,18 +194,50 @@ model Connection {
 }
 
 model DirectMessage {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   fromUserId String
-  fromUser   User     @relation("MessageSender", fields: [fromUserId], references: [id])
+  fromUser   User      @relation("MessageSender", fields: [fromUserId], references: [id])
   toUserId   String
-  toUser     User     @relation("MessageReceiver", fields: [toUserId], references: [id])
+  toUser     User      @relation("MessageReceiver", fields: [toUserId], references: [id])
   body       String
   readAt     DateTime?
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
 
   @@index([fromUserId, toUserId])
   @@index([toUserId, fromUserId])
   @@map("direct_messages")
+}
+
+enum NotificationType {
+  connection_request
+  connection_accepted
+  message
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation("NotificationRecipient", fields: [userId], references: [id])
+  actorId   String?
+  actor     User?            @relation("NotificationActor", fields: [actorId], references: [id])
+  type      NotificationType
+  body      String
+  link      String
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+/** Admin-controlled visibility per nav-rail page — absence of a row means
+ * enabled, so most pages never need one. Keyed by NavItem.key from lib/nav.ts. */
+model PageFlag {
+  key       String   @id
+  enabled   Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@map("page_flags")
 }
 
 enum ResourceType {

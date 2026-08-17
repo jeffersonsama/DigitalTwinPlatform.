@@ -31,7 +31,8 @@ const COUNTRIES = [
 ]
 
 const USERS = [
-  { name: 'Ahmed Benali', role: 'Civil Protection Officer', country: 'Morocco', email: 'ahmed.benali@icesco.demo' },
+  { name: 'ICESCO Admin', role: 'Forum Administrator', country: 'Morocco', email: 'admin@icesco.demo', accessRole: 'admin' as const },
+  { name: 'Ahmed Benali', role: 'Civil Protection Officer', country: 'Morocco', email: 'ahmed.benali@icesco.demo', accessRole: 'admin' as const },
   { name: 'Layla Hassan', role: 'Disaster Risk Analyst', country: 'Egypt', email: 'layla.hassan@icesco.demo' },
   { name: 'Mehmet Yılmaz', role: 'Emergency Coordinator', country: 'Türkiye', email: 'mehmet.yilmaz@icesco.demo' },
   { name: 'Siti Rahmawati', role: 'Community Resilience Lead', country: 'Indonesia', email: 'siti.rahmawati@icesco.demo' },
@@ -73,14 +74,16 @@ async function main() {
   const passwordHash = await bcrypt.hash('demo1234', 10)
   const usersByName = new Map<string, { id: string }>()
   for (const u of USERS) {
+    const accessRole = 'accessRole' in u ? u.accessRole : 'delegate'
     const user = await prisma.user.upsert({
       where: { email: u.email },
-      update: {},
+      update: { accessRole },
       create: {
         email: u.email,
         passwordHash,
         name: u.name,
         role: u.role,
+        accessRole,
         country: u.country,
         level: 4,
         levelTitle: 'Resilience Builder',

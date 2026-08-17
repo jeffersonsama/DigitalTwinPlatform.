@@ -3,7 +3,7 @@ import { AppShell } from '@/components/shell/app-shell'
 import { SiteFooter } from '@/components/site-footer'
 import { CertificatesList, type CertificateView } from '@/components/certificates/certificates-list'
 import { prisma } from '@/lib/db'
-import { requireUser } from '@/lib/auth'
+import { requireUser, requireEnabledPage } from '@/lib/auth'
 
 export const metadata: Metadata = {
   title: 'Certificates | ICESCO Crisis Forum 2026',
@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 }
 
 export default async function CertificatesPage() {
+  await requireEnabledPage('certificates')
   const user = await requireUser()
   const rows = await prisma.certificate.findMany({ where: { userId: user.id }, orderBy: { issuedAt: 'desc' } })
 

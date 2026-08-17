@@ -3,7 +3,7 @@ import { AppShell } from '@/components/shell/app-shell'
 import { SiteFooter } from '@/components/site-footer'
 import { ProgramSchedule, type SessionView } from '@/components/program/program-schedule'
 import { prisma } from '@/lib/db'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser, requireEnabledPage } from '@/lib/auth'
 import { computeSessionStatus } from '@/lib/program'
 
 export const metadata: Metadata = {
@@ -12,6 +12,8 @@ export const metadata: Metadata = {
 }
 
 export default async function ProgramPage() {
+  await requireEnabledPage('program')
+
   const [days, sessions, user] = await Promise.all([
     prisma.programDay.findMany({ orderBy: { id: 'asc' } }),
     prisma.programSession.findMany({ orderBy: { startsAt: 'asc' }, include: { speaker: true } }),

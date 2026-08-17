@@ -24,6 +24,8 @@ export interface NavItem {
   label: string
   href: string
   icon: LucideIcon
+  /** Hidden from the rail (and gated server-side) for non-admins. */
+  adminOnly?: boolean
 }
 
 /** Primary navigation used across the platform shell. */
@@ -44,7 +46,7 @@ export const primaryNav: NavItem[] = [
 /** Secondary / utility routes surfaced in the rail. */
 export const utilityNav: NavItem[] = [
   { key: 'aiConcierge', label: 'AI Concierge', href: '/ai', icon: Sparkles },
-  { key: 'commandCenter', label: 'Command Center', href: '/command-center', icon: LayoutDashboard },
+  { key: 'commandCenter', label: 'Command Center', href: '/command-center', icon: LayoutDashboard, adminOnly: true },
   { key: 'globalPulse', label: 'Global Pulse', href: '/global-pulse', icon: Activity },
   { key: 'onlineExperience', label: 'Online Experience', href: '/online-experience', icon: MonitorPlay },
   { key: 'posterStudio', label: 'Poster Studio', href: '/poster-studio', icon: PosterStudioIcon },

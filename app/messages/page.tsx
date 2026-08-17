@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { AppShell } from '@/components/shell/app-shell'
 import { MessagesInbox } from '@/components/messaging/messages-inbox'
-import { requireUser } from '@/lib/auth'
+import { requireUser, requireEnabledPage } from '@/lib/auth'
 import { getConversations } from '@/lib/messages'
 
 export const metadata: Metadata = {
@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 }
 
 export default async function MessagesPage() {
+  await requireEnabledPage('messages')
   const user = await requireUser()
   const conversations = await getConversations(user.id)
 
