@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import type { User } from '@/lib/generated/prisma/client'
 
-const SESSION_COOKIE = 'session'
+export const SESSION_COOKIE = 'session'
 const SESSION_TTL = '30d'
 
 function jwtSecret() {
@@ -40,6 +40,18 @@ export async function clearSession() {
   cookieStore.delete(SESSION_COOKIE)
 }
 
+/** Shared by the cookie-based Next.js path and the Socket.IO handshake (which
+ * has no `next/headers` — it reads the raw `Cookie` header instead). */
+export function verifySessionToken(token: string): string | null {
+  try {
+    const payload = jwt.verify(token, jwtSecret())
+    if (typeof payload === 'string' || !payload.sub) return null
+    return payload.sub
+  } catch {
+    return null
+  }
+}
+
 /** Verifies the session cookie, loads the user, and bumps `lastSeenAt` — this
  * doubles as the presence signal behind the Home page's "online" count.
  * Wrapped in React's per-request `cache()` so calling it from both AppShell
@@ -49,14 +61,8 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
   const token = cookieStore.get(SESSION_COOKIE)?.value
   if (!token) return null
 
-  let userId: string
-  try {
-    const payload = jwt.verify(token, jwtSecret())
-    if (typeof payload === 'string' || !payload.sub) return null
-    userId = payload.sub
-  } catch {
-    return null
-  }
+  const userId = verifySessionToken(token)
+  if (!userId) return null
 
   const user = await prisma.user.findUnique({ where: { id: userId } })
   if (!user) return null

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { FullLogo } from '@/components/brand/full-logo'
 import { LoginForm } from '@/components/auth/login-form'
 import { AuthBackgroundVideo } from '@/components/auth/auth-background-video'
+import { AuthTopBar } from '@/components/auth/auth-top-bar'
 
 export const metadata: Metadata = {
   title: 'Log In | ICESCO Crisis Forum 2026',
@@ -11,6 +12,7 @@ export default function LoginPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
       <AuthBackgroundVideo />
+      <AuthTopBar />
       <div className="relative z-10 w-full max-w-md rounded-2xl border border-border bg-card/45 p-8 text-center shadow-xl backdrop-blur-sm">
         <FullLogo height={64} className="mx-auto mb-6" />
         <h1 className="font-display text-2xl font-bold text-foreground">Welcome back</h1>

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { AppShell } from '@/components/shell/app-shell'
 import { PulseWall } from '@/components/pulse/pulse-wall'
-import { getGlobalStats } from '@/lib/stats'
+import { getGlobalStats, getCountryEngagement } from '@/lib/stats'
 
 export const metadata: Metadata = {
   title: 'Global Pulse | ICESCO Crisis Forum 2026',
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 }
 
 export default async function GlobalPulsePage() {
-  const stats = await getGlobalStats()
+  const [stats, countries] = await Promise.all([getGlobalStats(), getCountryEngagement()])
 
   return (
     <AppShell title="ICESCO Global Pulse">
@@ -20,6 +20,7 @@ export default async function GlobalPulsePage() {
         ideasShared={stats.ideasShared}
         projectsInitiated={stats.projectsInitiated}
         challengesCompleted={stats.challengesCompleted}
+        countries={countries}
       />
     </AppShell>
   )

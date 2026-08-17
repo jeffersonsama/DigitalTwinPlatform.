@@ -1,7 +1,12 @@
+'use client'
+
 import { Users } from 'lucide-react'
 import { speakers } from '@/lib/data'
+import { useLiveRoom } from '@/components/live/live-room-provider'
 
 export function SpeakerStrip() {
+  const { presenceCount } = useLiveRoom()
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/10 bg-navy-900 p-4">
       <div>
@@ -24,7 +29,7 @@ export function SpeakerStrip() {
       </div>
       <div className="flex items-center gap-2 rounded-lg bg-white/5 px-4 py-2 text-white">
         <Users className="h-4 w-4 text-cyan-accent" />
-        <span className="font-display text-lg font-bold">2,458</span>
+        <span className="font-display text-lg font-bold">{presenceCount.toLocaleString()}</span>
         <span className="text-xs text-white/60">Participants Online</span>
       </div>
     </div>

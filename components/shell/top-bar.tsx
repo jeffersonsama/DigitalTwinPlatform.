@@ -6,10 +6,11 @@ import Link from 'next/link'
 import { useTheme } from 'next-themes'
 import { Search, Bell, Sun, Moon, Monitor } from 'lucide-react'
 import { useLocale, type Locale } from '@/lib/i18n'
-import { cn, initials } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 
 export interface CurrentUser {
   name: string
+  avatar: string
 }
 
 const THEME_CYCLE: Array<{ value: 'light' | 'dark' | 'system'; icon: typeof Sun; label: string }> = [
@@ -18,7 +19,7 @@ const THEME_CYCLE: Array<{ value: 'light' | 'dark' | 'system'; icon: typeof Sun;
   { value: 'system', icon: Monitor, label: 'System theme' },
 ]
 
-function ThemeToggle() {
+export function ThemeToggle({ immersive = false }: { immersive?: boolean }) {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
@@ -33,7 +34,12 @@ function ThemeToggle() {
       aria-label={mounted ? `Theme: ${current.label}. Click to change.` : 'Toggle theme'}
       title={mounted ? current.label : undefined}
       onClick={() => setTheme(THEME_CYCLE[(Math.max(currentIndex, 0) + 1) % THEME_CYCLE.length].value)}
-      className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+      className={cn(
+        'flex h-9 w-9 items-center justify-center rounded-full transition-colors',
+        immersive
+          ? 'text-white/60 hover:bg-white/10 hover:text-white'
+          : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
+      )}
     >
       {mounted ? <Icon className="h-[18px] w-[18px]" /> : <span className="h-[18px] w-[18px]" />}
     </button>
@@ -46,7 +52,7 @@ const LOCALE_OPTIONS: Array<{ value: Locale; label: string }> = [
   { value: 'ar', label: 'AR' },
 ]
 
-function LanguageSwitcher({ immersive }: { immersive: boolean }) {
+export function LanguageSwitcher({ immersive }: { immersive: boolean }) {
   const { locale, setLocale, t } = useLocale()
   return (
     <select
@@ -141,11 +147,12 @@ export function TopBar({
             onClick={handleLogout}
             title={`Log out (${user.name})`}
             className={cn(
-              'flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-opacity hover:opacity-80',
-              immersive ? 'bg-gradient-to-br from-cyan-accent to-icesco-blue text-white' : 'bg-icesco text-white',
+              'flex h-8 w-8 items-center justify-center overflow-hidden rounded-full transition-opacity hover:opacity-80',
+              immersive ? 'bg-gradient-to-br from-cyan-accent to-icesco-blue' : 'bg-accent',
             )}
           >
-            {initials(user.name)}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={user.avatar} alt="" className="h-full w-full" />
           </button>
         ) : (
           <Link

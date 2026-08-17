@@ -1,9 +1,10 @@
 import { Sparkles, CircleDot, Lightbulb } from 'lucide-react'
 import { aiKeyPoints, aiDecisions } from '@/lib/data'
+import { cn } from '@/lib/utils'
 
-export function AiSummaryPanel() {
+export function AiSummaryPanel({ className }: { className?: string }) {
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-white/10 bg-navy-900 p-4">
+    <div className={cn('flex flex-col gap-4 rounded-xl border border-white/10 bg-navy-900 p-4', className)}>
       <div className="flex items-center gap-2">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-accent/15">
           <Sparkles className="h-4 w-4 text-cyan-accent" />
