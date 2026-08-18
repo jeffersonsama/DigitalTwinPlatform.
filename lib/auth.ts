@@ -76,3 +76,12 @@ export async function requireUser(): Promise<User> {
   if (!user) redirect('/login')
   return user
 }
+
+/** Same as `requireUser()`, but also gates on `User.isAdmin` — the single
+ * platform-admin flag that doubles as Crisis City moderator/animateur access.
+ * Non-admins are bounced to the player-facing game instead of the admin tools. */
+export async function requireAdmin(): Promise<User> {
+  const user = await requireUser()
+  if (!user.isAdmin) redirect('/crisis-city')
+  return user
+}

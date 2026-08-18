@@ -1,0 +1,164 @@
+/* Décors de scène — Document n°4, §4.1 (2.5D en trois couches), §4.3 (variantes de crise)
+   et §4.4 (couches d'effets). Tout le mouvement vit ici : une seule media query
+   `prefers-reduced-motion` fige le parallaxe et les quatre effets d'un coup. */
+
+.cc-decor {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  container-type: inline-size;
+  line-height: 0;
+  -webkit-user-select: none;
+  user-select: none;
+  background: #14100c;
+  --cc-dx: 0px;
+  --cc-dy: 0px;
+}
+
+/* Le filtre « palette de crise » (4.3) s'applique ici, sur l'ensemble décor + effets. */
+.cc-decor__stage {
+  position: absolute;
+  inset: 0;
+  transition: filter 420ms ease;
+}
+
+.cc-decor__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* --- Parallaxe (4.1) : trois profondeurs, fond ×0.2 / milieu ×0.5 / avant ×1.0.
+       Le déplacement maximal (14 px écran) est converti en unités de viewBox côté JS et
+       posé sur --cc-dx / --cc-dy ; le facteur de profondeur est purement CSS.
+       Le léger scale évite de découvrir un bord quand la couche se translate. --- */
+.cc-decor__layer {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  transform: translate3d(calc(var(--cc-dx) * var(--cc-depth)), calc(var(--cc-dy) * var(--cc-depth)), 0)
+    scale(1.05);
+  transition: transform 130ms linear;
+  will-change: transform;
+}
+.cc-decor__layer--fond { --cc-depth: 0.2; }
+.cc-decor__layer--milieu { --cc-depth: 0.5; }
+.cc-decor__layer--avant { --cc-depth: 1; }
+
+/* --- Effet « pluie » : trois copies d'une tuile de 90 unités, translatées d'exactement
+       une tuile — la boucle est donc invisible. --- */
+.cc-fx-rain {
+  animation: cc-rain 0.9s linear infinite;
+}
+@keyframes cc-rain {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(0, 90px, 0); }
+}
+
+/* --- Effet « poussière » : nappes translucides qui dérivent lentement.
+       Trois cadences différentes pour qu'aucun cycle ne se superpose. --- */
+.cc-fx-dust__b { opacity: 0.5; }
+.cc-fx-dust__b--0 { animation: cc-dust-a 19s ease-in-out infinite; }
+.cc-fx-dust__b--1 { animation: cc-dust-b 26s ease-in-out infinite; }
+.cc-fx-dust__b--2 { animation: cc-dust-c 33s ease-in-out infinite; }
+@keyframes cc-dust-a {
+  0%, 100% { transform: translate3d(-14px, 2px, 0); opacity: 0.32; }
+  50%      { transform: translate3d(16px, -6px, 0); opacity: 0.62; }
+}
+@keyframes cc-dust-b {
+  0%, 100% { transform: translate3d(18px, -3px, 0); opacity: 0.55; }
+  50%      { transform: translate3d(-16px, 5px, 0); opacity: 0.26; }
+}
+@keyframes cc-dust-c {
+  0%, 100% { transform: translate3d(6px, 6px, 0); opacity: 0.24; }
+  45%      { transform: translate3d(-20px, -4px, 0); opacity: 0.5; }
+}
+
+/* --- Effet « néon » : scintillement irrégulier (paliers, jamais un fondu doux),
+       décalé par instance via --cc-neon-delay. --- */
+.cc-fx-neon {
+  animation: cc-neon 4.4s steps(1, end) var(--cc-neon-delay, 0s) infinite;
+}
+@keyframes cc-neon {
+  0%, 44%   { opacity: 1; }
+  45%       { opacity: 0.86; }
+  46%       { opacity: 1; }
+  71%       { opacity: 0.9; }
+  72%       { opacity: 1; }
+  73%       { opacity: 0.84; }
+  75%, 100% { opacity: 1; }
+}
+
+/* --- Effet « gyrophare » : deux nappes radiales qui pulsent en alternance. --- */
+.cc-fx-gyro__a { animation: cc-gyro 2.2s ease-in-out infinite; }
+.cc-fx-gyro__b { animation: cc-gyro 2.2s ease-in-out 1.1s infinite; }
+@keyframes cc-gyro {
+  0%, 100% { opacity: 0.18; }
+  38%      { opacity: 0.78; }
+  60%      { opacity: 0.24; }
+}
+
+/* --- Effet « vagues » (variante tempête de la digue) : houle qui monte et retombe. --- */
+.cc-fx-vagues { animation: cc-swell 4.6s ease-in-out infinite; }
+.cc-fx-vagues--lent { animation: cc-swell 7.3s ease-in-out 0.8s infinite; }
+@keyframes cc-swell {
+  0%, 100% { transform: translate3d(0, 3px, 0); }
+  46%      { transform: translate3d(-4px, -5px, 0); }
+}
+.cc-fx-ecume { animation: cc-ecume 3.1s ease-in-out infinite; }
+.cc-fx-ecume--2 { animation: cc-ecume 3.7s ease-in-out 1.4s infinite; }
+@keyframes cc-ecume {
+  0%, 100% { opacity: 0.25; transform: translate3d(0, 6px, 0) scale(0.94); }
+  40%      { opacity: 0.95; transform: translate3d(0, -6px, 0) scale(1.06); }
+}
+
+/* --- Repli (1.3) : décor manquant -> vue ville floutée + bandeau du lieu. --- */
+.cc-decor__fallback { position: absolute; inset: 0; }
+.cc-decor__fallback .cc-decor__svg {
+  filter: blur(5px) saturate(0.28) brightness(0.82);
+  transform: scale(1.06);
+}
+.cc-decor__bandeau {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 11%;
+  padding: 0.7em 1.2em;
+  background: linear-gradient(90deg, rgba(14, 12, 10, 0) 0%, rgba(14, 12, 10, 0.78) 12%, rgba(14, 12, 10, 0.78) 88%, rgba(14, 12, 10, 0) 100%);
+  border-top: 1px solid rgba(217, 162, 83, 0.45);
+  border-bottom: 1px solid rgba(217, 162, 83, 0.2);
+  color: #f0e2cc;
+  font: 600 clamp(11px, 2.1cqw, 20px) / 1.25 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+.cc-decor__bandeau small {
+  display: block;
+  margin-top: 0.35em;
+  font-size: 0.62em;
+  letter-spacing: 0.22em;
+  opacity: 0.62;
+  font-weight: 500;
+}
+
+/* --- Accessibilité : mouvement réduit -> décor strictement statique. --- */
+@media (prefers-reduced-motion: reduce) {
+  .cc-decor__layer,
+  .cc-fx-rain,
+  .cc-fx-dust__b,
+  .cc-fx-neon,
+  .cc-fx-gyro__a,
+  .cc-fx-gyro__b,
+  .cc-fx-vagues,
+  .cc-fx-vagues--lent,
+  .cc-fx-ecume,
+  .cc-fx-ecume--2 {
+    animation: none !important;
+    transition: none !important;
+  }
+  .cc-decor__layer { transform: scale(1.05); }
+  .cc-fx-gyro__a { opacity: 0.34; }
+  .cc-fx-gyro__b { opacity: 0.22; }
+}

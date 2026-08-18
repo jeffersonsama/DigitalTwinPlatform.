@@ -15,6 +15,8 @@ import {
   MonitorPlay,
   MessageCircle,
   Image as PosterStudioIcon,
+  Gamepad2,
+  ShieldCheck,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -39,6 +41,7 @@ export const primaryNav: NavItem[] = [
   { key: 'messages', label: 'Messages', href: '/messages', icon: MessageCircle },
   { key: 'passport', label: 'My Passport', href: '/passport', icon: IdCard },
   { key: 'certificates', label: 'Certificates', href: '/certificates', icon: Award },
+  { key: 'crisisCity', label: 'Crisis City', href: '/crisis-city', icon: Gamepad2 },
 ]
 
 /** Secondary / utility routes surfaced in the rail. */
@@ -50,7 +53,16 @@ export const utilityNav: NavItem[] = [
   { key: 'posterStudio', label: 'Poster Studio', href: '/poster-studio', icon: PosterStudioIcon },
 ]
 
-export const allRoutes: NavItem[] = [...primaryNav, ...utilityNav]
+/**
+ * Admin-only routes — rendered in the rail only for `User.isAdmin` accounts (see
+ * components/shell/nav-rail.tsx). The same admin flag doubles as Crisis City
+ * moderator/animateur access (lib/auth.ts#requireAdmin).
+ */
+export const adminNav: NavItem[] = [
+  { key: 'crisisCityAdmin', label: 'Crisis City — Admin', href: '/crisis-city/admin', icon: ShieldCheck },
+]
+
+export const allRoutes: NavItem[] = [...primaryNav, ...utilityNav, ...adminNav]
 
 /**
  * Routes that use the permanent dark "immersive" treatment regardless of the

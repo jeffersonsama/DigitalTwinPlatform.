@@ -73,9 +73,13 @@ async function main() {
   const passwordHash = await bcrypt.hash('demo1234', 10)
   const usersByName = new Map<string, { id: string }>()
   for (const u of USERS) {
+    // Ahmed Benali doubles as the demo admin account — platform moderator and Crisis City
+    // animateur (single `isAdmin` flag, see lib/auth.ts#requireAdmin), so the admin interface
+    // can be tested without provisioning a separate account.
+    const isAdmin = u.name === 'Ahmed Benali'
     const user = await prisma.user.upsert({
       where: { email: u.email },
-      update: {},
+      update: { isAdmin },
       create: {
         email: u.email,
         passwordHash,
@@ -86,6 +90,7 @@ async function main() {
         levelTitle: 'Resilience Builder',
         xp: 2450,
         xpMax: 3300,
+        isAdmin,
       },
     })
     usersByName.set(u.name, user)

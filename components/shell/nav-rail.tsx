@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
-import { primaryNav, utilityNav, isImmersivePath, type NavItem } from '@/lib/nav'
+import { primaryNav, utilityNav, adminNav, isImmersivePath, type NavItem } from '@/lib/nav'
 import { useLocale, type TranslationKey } from '@/lib/i18n'
 import { RailLogo } from '@/components/brand/rail-logo'
 import { cn } from '@/lib/utils'
@@ -53,7 +53,7 @@ function RailLink({
   )
 }
 
-export function NavRail() {
+export function NavRail({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname()
   const [pinned, setPinned] = useState(false)
   const [hovered, setHovered] = useState(false)
@@ -101,6 +101,21 @@ export function NavRail() {
             label={t(item.key as TranslationKey)}
           />
         ))}
+        {isAdmin && (
+          <>
+            <div className={cn('my-2 border-t', immersive ? 'border-white/10' : 'border-border')} />
+            {adminNav.map((item) => (
+              <RailLink
+                key={item.href}
+                item={item}
+                active={isActive(item.href)}
+                expanded={expanded}
+                immersive={immersive}
+                label={t(item.key as TranslationKey)}
+              />
+            ))}
+          </>
+        )}
       </nav>
 
       <button

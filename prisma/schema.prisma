@@ -22,6 +22,7 @@ model User {
   levelTitle   String   @default("Newcomer")
   xp           Int      @default(0)
   xpMax        Int      @default(1000)
+  isAdmin      Boolean  @default(false)
   lastSeenAt   DateTime @default(now())
   createdAt    DateTime @default(now())
 
@@ -40,8 +41,27 @@ model User {
   questions           Question[]
   questionUpvotes     QuestionUpvote[]
   liveNote            LiveNote?
+  crisisCityProfile   CrisisCityProfile?
 
   @@map("users")
+}
+
+// Carrière Crisis City (XP/badges/scénarios) — séparée des tables passeport génériques
+// ci-dessus (Badge/Skill/ProgressItem/ActivityLogEntry appartiennent au passeport de la
+// plateforme) : deux systèmes de progression distincts, un par utilisateur. Les champs JSON
+// reprennent exactement la forme de l'objet `progress` de Crisis City
+// (components/crisis-city/engine/persistence.js#emptyProgress) pour ne rien changer à sa
+// logique métier (xp.js/badges.js) lors du portage.
+model CrisisCityProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  xpEvents     Json     @default("{}")
+  badgesEarned Json     @default("{}")
+  scenarios    Json     @default("{}")
+  updatedAt    DateTime @updatedAt
+
+  @@map("crisis_city_profiles")
 }
 
 model Country {

@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 export interface CurrentUser {
   name: string
   avatar: string
+  isAdmin: boolean
 }
 
 const THEME_CYCLE: Array<{ value: 'light' | 'dark' | 'system'; icon: typeof Sun; label: string }> = [

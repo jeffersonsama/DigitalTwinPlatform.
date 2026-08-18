@@ -1,0 +1,90 @@
+/* Portraits vectoriels — Document n°4, §3.3 « micro-animations ».
+   Tout le mouvement vit ici (aucune animation en JS) pour qu'une seule media query
+   `prefers-reduced-motion` puisse tout neutraliser d'un coup. */
+
+.cc-portrait {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* --- Entrée : translation ~24px + fondu, 300ms (remontée par re-montage via `key`). --- */
+.cc-portrait__enter {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.cc-portrait__enter.is-enter {
+  animation: cc-portrait-enter 300ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+@keyframes cc-portrait-enter {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Pop d'emphase : 1 -> 1.02 -> 1 en 120ms. La classe `is-pop` est retirée puis
+       réappliquée après un reflow forcé côté JS, ce qui relance l'animation à chaque
+       nouvelle impulsion (une simple bascule de classe ne redémarrerait pas). --- */
+.cc-portrait__pop {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 72%;
+}
+.cc-portrait__pop.is-pop {
+  animation: cc-portrait-pop 120ms ease-out;
+}
+@keyframes cc-portrait-pop {
+  0%   { transform: scale(1); }
+  42%  { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.cc-portrait__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* --- Respiration : scaleY 1.000 -> 1.006, ~3s, origine au bas du buste.
+       Appliquée au seul groupe « figure » : le fond, le grain et la vignette
+       restent parfaitement immobiles. --- */
+.cc-figure {
+  transform-box: view-box;
+  transform-origin: 50% 120px;
+}
+.cc-figure.is-breathing {
+  animation: cc-portrait-breathe var(--cc-breathe-dur, 3s) ease-in-out infinite;
+}
+@keyframes cc-portrait-breathe {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(1.006); }
+}
+
+/* --- Clignement : la paupière (rectangle couleur peau + trait de cil) descend
+       brièvement dans le masque de l'œil. Durée et décalage sont tirés au sort par
+       instance (variables CSS) pour que deux portraits ne clignent jamais ensemble. --- */
+.cc-eyelid.is-blinking {
+  animation: cc-portrait-blink var(--cc-blink-dur, 5.4s) var(--cc-blink-delay, 0s) infinite both;
+}
+@keyframes cc-portrait-blink {
+  0%, 91.5%   { transform: translateY(0); }
+  93.2%, 94.8% { transform: translateY(var(--cc-blink-drop, 6px)); }
+  96.5%, 100% { transform: translateY(0); }
+}
+
+/* --- Accessibilité : mouvement réduit -> tout devient instantané. --- */
+@media (prefers-reduced-motion: reduce) {
+  .cc-portrait__enter.is-enter,
+  .cc-portrait__pop.is-pop,
+  .cc-figure.is-breathing,
+  .cc-eyelid.is-blinking {
+    animation: none !important;
+  }
+  .cc-portrait__enter.is-enter {
+    opacity: 1;
+    transform: none;
+  }
+}

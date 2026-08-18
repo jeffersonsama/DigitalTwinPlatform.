@@ -23,7 +23,7 @@ export function AppShellClient({
 
   return (
     <div className={cn('flex min-h-screen', immersive ? 'bg-navy-950 text-white' : 'bg-background text-foreground')}>
-      <NavRail />
+      <NavRail isAdmin={user?.isAdmin ?? false} />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar immersive={immersive} title={title} right={right} user={user} />
         {children}
