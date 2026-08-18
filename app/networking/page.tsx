@@ -3,7 +3,7 @@ import { AppShell } from '@/components/shell/app-shell'
 import { SiteFooter } from '@/components/site-footer'
 import { NetworkingDirectory, type DelegateView, type NetworkingStatView } from '@/components/networking/networking-directory'
 import { prisma } from '@/lib/db'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser, requireEnabledPage } from '@/lib/auth'
 import { resolveAvatar } from '@/lib/avatar'
 
 export const metadata: Metadata = {
@@ -14,6 +14,8 @@ export const metadata: Metadata = {
 const ONLINE_WINDOW_MS = 5 * 60 * 1000
 
 export default async function NetworkingPage() {
+  await requireEnabledPage('networking')
+
   const [users, countries, acceptedConnections, viewer] = await Promise.all([
     prisma.user.findMany({ orderBy: { name: 'asc' } }),
     prisma.country.findMany(),

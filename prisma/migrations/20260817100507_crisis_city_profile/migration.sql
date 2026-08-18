@@ -1,6 +1,3 @@
--- AlterTable
-ALTER TABLE "users" ADD COLUMN     "isAdmin" BOOLEAN NOT NULL DEFAULT false;
-
 -- CreateTable
 CREATE TABLE "crisis_city_profiles" (
     "id" TEXT NOT NULL,

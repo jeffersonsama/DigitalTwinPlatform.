@@ -4,9 +4,11 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useTheme } from 'next-themes'
-import { Search, Bell, Sun, Moon, Monitor } from 'lucide-react'
+import { Search, Sun, Moon, Monitor } from 'lucide-react'
 import { useLocale, type Locale } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
+import { NotificationBell } from './notification-bell'
+import type { NotificationView } from '@/lib/notifications'
 
 export interface CurrentUser {
   name: string
@@ -81,11 +83,15 @@ export function TopBar({
   title,
   right,
   user,
+  notifications,
+  unreadCount,
 }: {
   immersive: boolean
   title?: string
   right?: ReactNode
   user: CurrentUser | null
+  notifications: NotificationView[]
+  unreadCount: number
 }) {
   const { t } = useLocale()
   const router = useRouter()
@@ -127,34 +133,36 @@ export function TopBar({
         >
           <Search className="h-[18px] w-[18px]" />
         </button>
-        <button
-          aria-label={t('notifications')}
-          className={cn(
-            'hidden h-9 w-9 items-center justify-center rounded-full transition-colors sm:flex',
-            immersive
-              ? 'text-white/60 hover:bg-white/10 hover:text-white'
-              : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
-          )}
-        >
-          <Bell className="h-[18px] w-[18px]" />
-        </button>
+        {user && <NotificationBell notifications={notifications} unreadCount={unreadCount} immersive={immersive} />}
 
         <LanguageSwitcher immersive={immersive} />
         {!immersive && <ThemeToggle />}
 
         {user ? (
-          <button
-            type="button"
-            onClick={handleLogout}
-            title={`Log out (${user.name})`}
-            className={cn(
-              'flex h-8 w-8 items-center justify-center overflow-hidden rounded-full transition-opacity hover:opacity-80',
-              immersive ? 'bg-gradient-to-br from-cyan-accent to-icesco-blue' : 'bg-accent',
+          <div className="flex items-center gap-2">
+            {user.isAdmin && (
+              <span
+                className={cn(
+                  'hidden rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide sm:inline',
+                  immersive ? 'bg-white/10 text-cyan-accent' : 'bg-accent text-icesco-blue',
+                )}
+              >
+                Admin
+              </span>
             )}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={user.avatar} alt="" className="h-full w-full" />
-          </button>
+            <button
+              type="button"
+              onClick={handleLogout}
+              title={`Log out (${user.name})`}
+              className={cn(
+                'flex h-8 w-8 items-center justify-center overflow-hidden rounded-full transition-opacity hover:opacity-80',
+                immersive ? 'bg-gradient-to-br from-cyan-accent to-icesco-blue' : 'bg-accent',
+              )}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={user.avatar} alt="" className="h-full w-full" />
+            </button>
+          </div>
         ) : (
           <Link
             href="/login"

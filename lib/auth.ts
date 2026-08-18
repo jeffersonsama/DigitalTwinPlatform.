@@ -4,6 +4,7 @@ import { cache } from 'react'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
+import { isPageEnabled } from '@/lib/page-flags'
 import type { User } from '@/lib/generated/prisma/client'
 
 export const SESSION_COOKIE = 'session'
@@ -77,11 +78,23 @@ export async function requireUser(): Promise<User> {
   return user
 }
 
-/** Same as `requireUser()`, but also gates on `User.isAdmin` — the single
- * platform-admin flag that doubles as Crisis City moderator/animateur access.
- * Non-admins are bounced to the player-facing game instead of the admin tools. */
+/** Gates admin-only surfaces (e.g. the Command Center, and the Crisis City
+ * animateur/admin tools). Delegates are sent home rather than shown a 403 —
+ * the nav rail already hides these entries for them, so landing here at all
+ * means a stale link or a direct hit. */
 export async function requireAdmin(): Promise<User> {
   const user = await requireUser()
-  if (!user.isAdmin) redirect('/crisis-city')
+  if (user.accessRole !== 'admin') redirect('/')
   return user
+}
+
+/** Gates a page an admin has switched off via Command Center's Page
+ * Visibility panel. Admins always bypass — they're the ones who'd need to
+ * turn it back on, and the nav rail already marks it "disabled" for them
+ * rather than hiding it outright. Delegates get bounced home, matching the
+ * admin-only route pattern above. */
+export async function requireEnabledPage(key: string): Promise<void> {
+  const user = await getCurrentUser()
+  if (user?.accessRole === 'admin') return
+  if (!(await isPageEnabled(key))) redirect('/')
 }

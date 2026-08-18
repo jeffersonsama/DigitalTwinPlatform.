@@ -3,7 +3,7 @@ import { AppShell } from '@/components/shell/app-shell'
 import { SiteFooter } from '@/components/site-footer'
 import { DigitalPassport } from '@/components/passport/digital-passport'
 import { prisma } from '@/lib/db'
-import { requireUser } from '@/lib/auth'
+import { requireUser, requireEnabledPage } from '@/lib/auth'
 import { resolveAvatarId } from '@/lib/avatar'
 
 export const metadata: Metadata = {
@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 }
 
 export default async function PassportPage() {
+  await requireEnabledPage('passport')
   const user = await requireUser()
 
   const [badges, skills, progress, activity, certs, connectionsCount, certificatesCount, countries] = await Promise.all([

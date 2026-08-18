@@ -7,9 +7,11 @@ import { YoutubeChatPanel } from '@/components/live/youtube-chat-panel'
 import { SpeakerStrip } from '@/components/live/speaker-strip'
 import { LiveRoomProvider } from '@/components/live/live-room-provider'
 import { prisma } from '@/lib/db'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser, requireEnabledPage } from '@/lib/auth'
 
 export default async function LivePage() {
+  await requireEnabledPage('live')
+
   const [user, resources] = await Promise.all([
     getCurrentUser(),
     prisma.resource.findMany({ where: { featured: true }, take: 3 }),

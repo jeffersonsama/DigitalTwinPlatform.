@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { requireUser } from '@/lib/auth'
+import { notify } from '@/lib/notifications'
 
 function refresh(otherUserId: string) {
   revalidatePath('/networking')
@@ -22,11 +23,25 @@ export async function sendConnectionRequest(targetUserId: string) {
   })
   if (reverse) {
     await prisma.connection.update({ where: { id: reverse.id }, data: { status: 'accepted' } })
+    await notify({
+      userId: targetUserId,
+      actorId: user.id,
+      type: 'connection_accepted',
+      body: `${user.name} accepted your connection request`,
+      link: `/messages/${user.id}`,
+    })
   } else {
     await prisma.connection.upsert({
       where: { fromUserId_toUserId: { fromUserId: user.id, toUserId: targetUserId } },
       update: {},
       create: { fromUserId: user.id, toUserId: targetUserId, status: 'pending' },
+    })
+    await notify({
+      userId: targetUserId,
+      actorId: user.id,
+      type: 'connection_request',
+      body: `${user.name} sent you a connection request`,
+      link: '/networking',
     })
   }
 
@@ -48,6 +63,13 @@ export async function acceptConnectionRequest(fromUserId: string) {
   await prisma.connection.updateMany({
     where: { fromUserId, toUserId: user.id, status: 'pending' },
     data: { status: 'accepted' },
+  })
+  await notify({
+    userId: fromUserId,
+    actorId: user.id,
+    type: 'connection_accepted',
+    body: `${user.name} accepted your connection request`,
+    link: `/messages/${user.id}`,
   })
   refresh(fromUserId)
 }
@@ -76,12 +98,23 @@ export async function connectFromQr(targetUserId: string) {
     },
   })
 
+  const alreadyAccepted = existing?.status === 'accepted'
   if (existing) {
-    if (existing.status !== 'accepted') {
+    if (!alreadyAccepted) {
       await prisma.connection.update({ where: { id: existing.id }, data: { status: 'accepted' } })
     }
   } else {
     await prisma.connection.create({ data: { fromUserId: user.id, toUserId: targetUserId, status: 'accepted' } })
+  }
+
+  if (!alreadyAccepted) {
+    await notify({
+      userId: targetUserId,
+      actorId: user.id,
+      type: 'connection_accepted',
+      body: `${user.name} connected with you by scanning your QR code`,
+      link: `/messages/${user.id}`,
+    })
   }
 
   refresh(targetUserId)

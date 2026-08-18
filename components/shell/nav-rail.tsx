@@ -18,21 +18,24 @@ function RailLink({
   expanded,
   immersive,
   label,
+  disabled,
 }: {
   item: NavItem
   active: boolean
   expanded: boolean
   immersive: boolean
   label: string
+  disabled?: boolean
 }) {
   const Icon = item.icon
   return (
     <Link
       href={item.href}
-      title={expanded ? undefined : label}
+      title={expanded ? (disabled ? `${label} (hidden from delegates)` : undefined) : label}
       className={cn(
         'flex items-center rounded-lg py-2.5 text-sm font-medium transition-colors',
         expanded ? 'justify-start gap-3 px-3.5' : 'justify-center gap-0 px-3.5',
+        disabled && 'opacity-40',
         active
           ? 'bg-cyan-accent/15 text-cyan-accent'
           : immersive
@@ -49,11 +52,16 @@ function RailLink({
       >
         {label}
       </span>
+      {disabled && expanded && (
+        <span className="ml-auto shrink-0 rounded bg-current/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide opacity-80">
+          Off
+        </span>
+      )}
     </Link>
   )
 }
 
-export function NavRail({ isAdmin = false }: { isAdmin?: boolean }) {
+export function NavRail({ isAdmin, disabledKeys }: { isAdmin: boolean; disabledKeys: string[] }) {
   const pathname = usePathname()
   const [pinned, setPinned] = useState(false)
   const [hovered, setHovered] = useState(false)
@@ -80,27 +88,34 @@ export function NavRail({ isAdmin = false }: { isAdmin?: boolean }) {
       </div>
 
       <nav className="scrollbar-thin flex flex-1 flex-col gap-1 overflow-y-auto px-2.5 py-2">
-        {primaryNav.map((item) => (
-          <RailLink
-            key={item.href}
-            item={item}
-            active={isActive(item.href)}
-            expanded={expanded}
-            immersive={immersive}
-            label={t(item.key as TranslationKey)}
-          />
-        ))}
+        {primaryNav
+          .filter((item) => isAdmin || !disabledKeys.includes(item.key))
+          .map((item) => (
+            <RailLink
+              key={item.href}
+              item={item}
+              active={isActive(item.href)}
+              expanded={expanded}
+              immersive={immersive}
+              label={t(item.key as TranslationKey)}
+              disabled={disabledKeys.includes(item.key)}
+            />
+          ))}
         <div className={cn('my-2 border-t', immersive ? 'border-white/10' : 'border-border')} />
-        {utilityNav.map((item) => (
-          <RailLink
-            key={item.href}
-            item={item}
-            active={isActive(item.href)}
-            expanded={expanded}
-            immersive={immersive}
-            label={t(item.key as TranslationKey)}
-          />
-        ))}
+        {utilityNav
+          .filter((item) => !item.adminOnly || isAdmin)
+          .filter((item) => isAdmin || !disabledKeys.includes(item.key))
+          .map((item) => (
+            <RailLink
+              key={item.href}
+              item={item}
+              active={isActive(item.href)}
+              expanded={expanded}
+              immersive={immersive}
+              label={t(item.key as TranslationKey)}
+              disabled={disabledKeys.includes(item.key)}
+            />
+          ))}
         {isAdmin && (
           <>
             <div className={cn('my-2 border-t', immersive ? 'border-white/10' : 'border-border')} />

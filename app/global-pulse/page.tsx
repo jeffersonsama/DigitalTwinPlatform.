@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { AppShell } from '@/components/shell/app-shell'
 import { PulseWall } from '@/components/pulse/pulse-wall'
 import { getGlobalStats, getCountryEngagement } from '@/lib/stats'
+import { requireEnabledPage } from '@/lib/auth'
 
 export const metadata: Metadata = {
   title: 'Global Pulse | ICESCO Crisis Forum 2026',
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 }
 
 export default async function GlobalPulsePage() {
+  await requireEnabledPage('globalPulse')
   const [stats, countries] = await Promise.all([getGlobalStats(), getCountryEngagement()])
 
   return (

@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { requireUser } from '@/lib/auth'
+import { notify } from '@/lib/notifications'
 
 /** Delegates can only message people they've connected with — mirrors the
  * in-person etiquette of exchanging contact details before following up. */
@@ -32,6 +33,23 @@ export async function sendMessage(toUserId: string, body: string) {
   }
 
   await prisma.directMessage.create({ data: { fromUserId: user.id, toUserId, body: trimmed } })
+
+  // Skip if there's already an unread "message" notification from this same
+  // sender — it already points at the thread, no need to pile up duplicates
+  // for a fast back-and-forth conversation.
+  const alreadyNotified = await prisma.notification.findFirst({
+    where: { userId: toUserId, actorId: user.id, type: 'message', readAt: null },
+  })
+  if (!alreadyNotified) {
+    await notify({
+      userId: toUserId,
+      actorId: user.id,
+      type: 'message',
+      body: `New message from ${user.name}`,
+      link: `/messages/${user.id}`,
+    })
+  }
+
   revalidatePath('/messages')
   revalidatePath(`/messages/${toUserId}`)
   return { error: null }

@@ -1,7 +1,19 @@
 import { AppShell } from '@/components/shell/app-shell'
 import { CommandCenter } from '@/components/command/command-center'
+import { requireAdmin } from '@/lib/auth'
+import { getDisabledKeys, TOGGLEABLE_KEYS } from '@/lib/page-flags'
+import { allRoutes } from '@/lib/nav'
 
-export default function CommandCenterPage() {
+export default async function CommandCenterPage() {
+  await requireAdmin()
+  const disabledKeys = await getDisabledKeys()
+
+  const navByKey = new Map(allRoutes.map((r) => [r.key, r]))
+  const pages = TOGGLEABLE_KEYS.map((key) => {
+    const item = navByKey.get(key)!
+    return { key, label: item.label, href: item.href, enabled: !disabledKeys.has(key) }
+  })
+
   return (
     <AppShell
       title="Command Center"
@@ -12,7 +24,7 @@ export default function CommandCenterPage() {
         </span>
       }
     >
-      <CommandCenter />
+      <CommandCenter pages={pages} />
     </AppShell>
   )
 }
