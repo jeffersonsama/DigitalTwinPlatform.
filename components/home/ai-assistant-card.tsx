@@ -4,24 +4,100 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Bot, Send, X, ArrowUpRight } from 'lucide-react'
 import { useLocale } from '@/lib/i18n'
+import { renderFormattedText } from '@/components/ai/formatted-text'
+
+const FALLBACK_ERROR_TEXT =
+  "Sorry, I couldn't get a response right now. Please try again in a moment."
+
+type Message = { role: 'user' | 'ai'; text: string; pending?: boolean }
 
 export function AiAssistantCard() {
   const { t } = useLocale()
   const quickReplies = [t('home.aiCard.quickReply1'), t('home.aiCard.quickReply2'), t('home.aiCard.quickReply3')]
-  const [messages, setMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([
+  const [messages, setMessages] = useState<Message[]>([
     { role: 'ai', text: t('home.aiCard.greeting') },
   ])
   const [value, setValue] = useState('')
 
-  function send(text: string) {
+  async function send(text: string) {
     const q = text.trim()
     if (!q) return
-    setMessages((m) => [
-      ...m,
-      { role: 'user', text: q },
-      { role: 'ai', text: t('home.aiCard.reply') },
-    ])
     setValue('')
+
+    const history = messages
+      .filter((m) => !m.pending)
+      .map((m) => ({ role: m.role === 'ai' ? ('assistant' as const) : ('user' as const), content: m.text }))
+
+    setMessages((m) => [...m, { role: 'user', text: q }, { role: 'ai', text: '', pending: true }])
+
+    try {
+      const response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q, stream: true, history }),
+      })
+
+      if (!response.ok || !response.body) throw new Error('Reponse non-OK ou sans corps de flux')
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      let accumulated = ''
+      let firstChunkReceived = false
+
+      while (true) {
+        const { done, value: chunkValue } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(chunkValue, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop() ?? ''
+
+        for (const line of lines) {
+          const trimmed = line.trim()
+          if (!trimmed.startsWith('data:')) continue
+          const payload = trimmed.slice('data:'.length).trim()
+          if (payload === '[DONE]') continue
+
+          try {
+            const event = JSON.parse(payload)
+            if (event.type === 'chunk') {
+              accumulated += event.text
+              firstChunkReceived = true
+              setMessages((m) => {
+                const next = [...m]
+                next[next.length - 1] = { role: 'ai', text: accumulated }
+                return next
+              })
+            } else if (event.type === 'blocked') {
+              firstChunkReceived = true
+              accumulated = "I can't help with that request. Feel free to ask about the program, speakers, or forum resources instead."
+              setMessages((m) => {
+                const next = [...m]
+                next[next.length - 1] = { role: 'ai', text: accumulated }
+                return next
+              })
+            }
+          } catch {
+            // Ligne SSE incomplete entre deux lectures, ignoree volontairement.
+          }
+        }
+      }
+
+      if (!firstChunkReceived) {
+        setMessages((m) => {
+          const next = [...m]
+          next[next.length - 1] = { role: 'ai', text: FALLBACK_ERROR_TEXT }
+          return next
+        })
+      }
+    } catch {
+      setMessages((m) => {
+        const next = [...m]
+        next[next.length - 1] = { role: 'ai', text: FALLBACK_ERROR_TEXT }
+        return next
+      })
+    }
   }
 
   return (
@@ -48,7 +124,17 @@ export function AiAssistantCard() {
                 : 'self-start bg-secondary text-foreground'
             }`}
           >
-            {m.text}
+            {m.pending ? (
+              <span className="flex gap-1" aria-label="Typing">
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.3s]" />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.15s]" />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current" />
+              </span>
+            ) : m.role === 'ai' ? (
+              renderFormattedText(m.text)
+            ) : (
+              m.text
+            )}
           </div>
         ))}
         <div className="mt-1 flex flex-wrap gap-2">

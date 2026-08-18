@@ -6,7 +6,10 @@
     "dev": "tsx server.ts",
     "build": "next build",
     "start": "NODE_ENV=production tsx server.ts",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest run",
+    "ingest": "tsx scripts/ingest.ts",
+    "evaluate": "tsx scripts/evaluate.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -17,6 +20,7 @@
     "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "js-yaml": "^5.3.0",
     "jsonwebtoken": "^9.0.3",
     "jsqr": "^1.4.0",
     "lucide-react": "^1.16.0",
@@ -41,6 +45,7 @@
     "@dicebear/core": "^9.4.2",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/bcrypt": "^6.0.0",
+    "@types/js-yaml": "^4.0.9",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24",
     "@types/pg": "^8.21.0",
@@ -54,7 +59,8 @@
     "prisma": "^7.9.1",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.12",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "vitest": "^4.1.10"
   },
   "pnpm": {
     "overrides": {

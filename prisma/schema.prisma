@@ -284,8 +284,10 @@ model Notification {
   @@map("notifications")
 }
 
-/** Admin-controlled visibility per nav-rail page — absence of a row means
- * enabled, so most pages never need one. Keyed by NavItem.key from lib/nav.ts. */
+/**
+ * Admin-controlled visibility per nav-rail page — absence of a row means
+ * enabled, so most pages never need one. Keyed by NavItem.key from lib/nav.ts.
+ */
 model PageFlag {
   key       String   @id
   enabled   Boolean  @default(true)

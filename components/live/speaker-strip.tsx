@@ -1,5 +1,3 @@
-'use client'
-
 import { Users } from 'lucide-react'
 import { speakers } from '@/lib/data'
 import { useLiveRoom } from '@/components/live/live-room-provider'

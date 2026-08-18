@@ -19,10 +19,12 @@ const tabLabelKeys: Record<(typeof tabs)[number], TranslationKey> = {
 }
 
 export function LiveTabsPanel({
+  sessionId,
   initialNote,
   isLoggedIn,
   resources,
 }: {
+  sessionId: string
   initialNote: string
   isLoggedIn: boolean
   resources: LiveResourceView[]
@@ -49,7 +51,7 @@ export function LiveTabsPanel({
       </div>
 
       {tab === 'AI Summary' ? (
-        <AiSummaryPanel className="flex-1" />
+        <AiSummaryPanel sessionId={sessionId} className="flex-1" />
       ) : (
         <div className="flex-1 rounded-xl border border-white/10 bg-navy-900 p-4 text-sm text-white/70">
           {tab === 'Live Translation' && (
@@ -61,7 +63,7 @@ export function LiveTabsPanel({
           )}
           {tab === 'Poll' && <LivePollTab />}
           {tab === 'Q&A' && <LiveQaTab />}
-          {tab === 'Resources' && <LiveResourcesTab resources={resources} />}
+          {tab === 'Resources' && <LiveResourcesTab resources={resources} sessionId={sessionId} />}
           {tab === 'Notes' && <LiveNotesTab initialNote={initialNote} isLoggedIn={isLoggedIn} />}
         </div>
       )}
