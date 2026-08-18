@@ -7,7 +7,6 @@ import { YoutubeChatPanel } from '@/components/live/youtube-chat-panel'
 import { SpeakerStrip } from '@/components/live/speaker-strip'
 import { LiveRoomProvider } from '@/components/live/live-room-provider'
 import { SessionAttendanceMeter } from '@/components/live/session-attendance-meter'
-import { DevTranscriptInjector } from '@/components/live/dev-transcript-injector'
 import { prisma } from '@/lib/db'
 import { getCurrentUser, requireEnabledPage } from '@/lib/auth'
 import { PANEL_ATTENDANCE_RATIO } from '@/lib/gamification/config'
@@ -40,9 +39,6 @@ export default async function LivePage() {
     <AppShell title={t('live.pageTitle')}>
       <LiveRoomProvider isLoggedIn={!!user}>
         <main className="mx-auto grid max-w-[1500px] grid-cols-1 gap-4 p-4 md:p-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)_minmax(0,1fr)]">
-          <div className="col-span-full">
-            <DevTranscriptInjector sessionId={LIVE_SESSION_ID} />
-          </div>
           <div className="flex flex-col gap-4">
             <LiveVideo />
             {user && liveSession && (
