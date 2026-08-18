@@ -158,6 +158,7 @@ async function main() {
 
   // clear + reinsert sessions each run so the day1 "live now" timing always stays fresh
   await prisma.bookmark.deleteMany({})
+  await prisma.sessionAttendance.deleteMany({})
   await prisma.programSession.deleteMany({})
   for (const s of sessions) {
     const endsAt = new Date(s.startsAt.getTime() + s.durationMin * 60 * 1000)
