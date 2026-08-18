@@ -27,11 +27,12 @@ function RailLink({
   label: string
   disabled?: boolean
 }) {
+  const { t } = useLocale()
   const Icon = item.icon
   return (
     <Link
       href={item.href}
-      title={expanded ? (disabled ? `${label} (hidden from delegates)` : undefined) : label}
+      title={expanded ? (disabled ? t('shell.nav.hiddenTitle', { label }) : undefined) : label}
       className={cn(
         'flex items-center rounded-lg py-2.5 text-sm font-medium transition-colors',
         expanded ? 'justify-start gap-3 px-3.5' : 'justify-center gap-0 px-3.5',
@@ -54,7 +55,7 @@ function RailLink({
       </span>
       {disabled && expanded && (
         <span className="ml-auto shrink-0 rounded bg-current/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide opacity-80">
-          Off
+          {t('shell.nav.off')}
         </span>
       )}
     </Link>
@@ -135,7 +136,7 @@ export function NavRail({ isAdmin, disabledKeys }: { isAdmin: boolean; disabledK
 
       <button
         type="button"
-        aria-label={pinned ? 'Collapse navigation' : 'Pin navigation open'}
+        aria-label={pinned ? t('shell.nav.collapse') : t('shell.nav.pinOpen')}
         onClick={() => setPinned((v) => !v)}
         className={cn(
           'flex h-12 shrink-0 items-center border-t py-2.5 text-sm transition-colors',
@@ -152,7 +153,7 @@ export function NavRail({ isAdmin, disabledKeys }: { isAdmin: boolean; disabledK
             expanded ? 'w-auto opacity-100' : 'w-0 opacity-0',
           )}
         >
-          {pinned ? 'Collapse' : 'Pin open'}
+          {pinned ? t('shell.nav.collapseLabel') : t('shell.nav.pinOpenLabel')}
         </span>
       </button>
     </aside>

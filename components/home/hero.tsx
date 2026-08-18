@@ -1,15 +1,17 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Play, ArrowRight } from 'lucide-react'
+import { getTranslations } from '@/lib/i18n-server'
 import { AiAssistantCard } from './ai-assistant-card'
 
-export function Hero() {
+export async function Hero() {
+  const { t } = await getTranslations()
   return (
     <section className="grid grid-cols-1 gap-4 lg:grid-cols-[1.6fr_1fr]">
       <div className="relative overflow-hidden rounded-2xl border border-border bg-icesco">
         <Image
           src="/images/icesco-front.png"
-          alt="ICESCO forum venue, front view"
+          alt={t('home.heroFrontAlt')}
           fill
           priority
           className="hero-photo-fade object-cover"
@@ -17,7 +19,7 @@ export function Hero() {
         />
         <Image
           src="/images/icesco-angle.png"
-          alt="ICESCO forum venue, angled view"
+          alt={t('home.heroAngleAlt')}
           fill
           className="hero-photo-fade hero-photo-fade-2 object-cover"
           sizes="(max-width: 1024px) 100vw, 800px"
@@ -25,13 +27,11 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-r from-icesco/90 via-icesco/70 to-icesco/20" />
         <div className="relative flex h-full flex-col justify-center gap-5 p-8 md:p-10">
           <div>
-            <p className="text-sm font-medium text-cyan-accent">Welcome to</p>
+            <p className="text-sm font-medium text-cyan-accent">{t('home.welcomeTo')}</p>
             <h1 className="mt-1 max-w-md text-balance font-display text-3xl font-bold leading-tight text-white md:text-4xl">
-              ICESCO Crisis Management Knowledge Forum 2026
+              {t('home.heroTitle')}
             </h1>
-            <p className="mt-3 max-w-md text-pretty text-sm text-white/80">
-              Connecting minds. Building resilience. Shaping a safer tomorrow.
-            </p>
+            <p className="mt-3 max-w-md text-pretty text-sm text-white/80">{t('home.heroSubtitle')}</p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link
@@ -39,13 +39,13 @@ export function Hero() {
               className="inline-flex items-center gap-2 rounded-lg bg-cyan-accent px-5 py-2.5 text-sm font-semibold text-icesco transition-colors hover:bg-cyan-accent/90"
             >
               <Play className="h-4 w-4 fill-current" />
-              Join Live Now
+              {t('home.joinLiveNow')}
             </Link>
             <Link
               href="/program"
               className="inline-flex items-center gap-2 rounded-lg border border-white/40 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
             >
-              Explore Program
+              {t('home.exploreProgram')}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

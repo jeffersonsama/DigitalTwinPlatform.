@@ -15,6 +15,7 @@ node_modules
 .next/
 .DS_Store
 /lib/generated/prisma
+*.tsbuildinfo
 
 # Local dev-only embedded Postgres (no Docker on this machine) — see .devdb/start-db.mjs.
 .devdb/

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { Send, MessageCircle, Users } from 'lucide-react'
 import { sendMessage, markThreadRead } from '@/lib/actions/messages'
+import { useLocale } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import type { ConversationView } from '@/lib/messages'
 
@@ -29,6 +30,7 @@ export function MessagesInbox({
   activeUserId: string | null
   activeMessages: MessageView[]
 }) {
+  const { t } = useLocale()
   const active = conversations.find((c) => c.userId === activeUserId) ?? null
   const [value, setValue] = useState('')
   const [error, setError] = useState('')
@@ -64,15 +66,15 @@ export function MessagesInbox({
           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-icesco-blue">
             <MessageCircle className="h-4 w-4" />
           </span>
-          <h1 className="font-display text-lg font-bold text-foreground">Messages</h1>
+          <h1 className="font-display text-lg font-bold text-foreground">{t('messages')}</h1>
         </div>
         <div className="scrollbar-thin flex-1 overflow-y-auto">
           {conversations.length === 0 && (
             <div className="flex flex-col items-center gap-3 p-6 text-center text-sm text-muted-foreground">
               <Users className="h-6 w-6" />
-              <p>Connect with delegates in Networking to start messaging them.</p>
+              <p>{t('messaging.empty.prompt')}</p>
               <Link href="/networking" className="font-semibold text-icesco-blue hover:underline">
-                Go to Networking
+                {t('messaging.empty.goToNetworking')}
               </Link>
             </div>
           )}
@@ -99,7 +101,7 @@ export function MessagesInbox({
                   )}
                 </div>
                 <p className="truncate text-xs text-muted-foreground">
-                  {c.lastMessage ?? `${c.flag} ${c.country} · Say hello`}
+                  {c.lastMessage ?? t('messaging.sayHelloDefault', { flag: c.flag, country: c.country })}
                 </p>
               </div>
             </Link>
@@ -142,7 +144,7 @@ export function MessagesInbox({
                 })}
                 {activeMessages.length === 0 && (
                   <p className="mt-6 text-center text-sm text-muted-foreground">
-                    Say hello to {active.name.split(' ')[0]} — you&apos;re connected!
+                    {t('messaging.sayHelloTo', { name: active.name.split(' ')[0] })}
                   </p>
                 )}
                 <div ref={bottomRef} />
@@ -154,13 +156,13 @@ export function MessagesInbox({
                 <input
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
-                  placeholder={`Message ${active.name.split(' ')[0]}…`}
+                  placeholder={t('messaging.messagePlaceholder', { name: active.name.split(' ')[0] })}
                   className="flex-1 rounded-full border border-border bg-card px-4 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-icesco-blue"
                 />
                 <button
                   type="submit"
                   disabled={pending}
-                  aria-label="Send"
+                  aria-label={t('home.aiCard.send')}
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-icesco-blue text-white disabled:opacity-60"
                 >
                   <Send className="h-4 w-4" />
@@ -172,7 +174,7 @@ export function MessagesInbox({
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center text-sm text-muted-foreground">
             <MessageCircle className="h-8 w-8" />
-            <p>Select a conversation to start messaging.</p>
+            <p>{t('messaging.selectConversation')}</p>
           </div>
         )}
       </section>

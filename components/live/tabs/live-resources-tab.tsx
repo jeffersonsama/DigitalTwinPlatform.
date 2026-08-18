@@ -1,4 +1,7 @@
+'use client'
+
 import { FileText } from 'lucide-react'
+import { useLocale } from '@/lib/i18n'
 
 export interface LiveResourceView {
   id: string
@@ -7,8 +10,9 @@ export interface LiveResourceView {
 }
 
 export function LiveResourcesTab({ resources }: { resources: LiveResourceView[] }) {
+  const { t } = useLocale()
   if (resources.length === 0) {
-    return <p className="text-white/60">No resources shared for this session yet.</p>
+    return <p className="text-white/60">{t('live.resources.none')}</p>
   }
 
   return (

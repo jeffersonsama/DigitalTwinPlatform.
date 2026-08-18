@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { Bell, UserPlus, Check, MessageCircle } from 'lucide-react'
 import { markAllNotificationsRead } from '@/lib/actions/notifications'
+import { useLocale } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import type { NotificationView } from '@/lib/notifications'
 
@@ -13,14 +14,14 @@ const icons = {
   message: MessageCircle,
 } as const
 
-function timeAgo(iso: string) {
+function timeAgo(iso: string, t: ReturnType<typeof useLocale>['t']) {
   const diffMs = Date.now() - new Date(iso).getTime()
   const mins = Math.round(diffMs / 60000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
+  if (mins < 1) return t('shell.notifications.justNow')
+  if (mins < 60) return t('shell.notifications.minutesAgo', { mins })
   const hours = Math.round(mins / 60)
-  if (hours < 24) return `${hours}h ago`
-  return `${Math.round(hours / 24)}d ago`
+  if (hours < 24) return t('shell.notifications.hoursAgo', { hours })
+  return t('shell.notifications.daysAgo', { days: Math.round(hours / 24) })
 }
 
 export function NotificationBell({
@@ -32,6 +33,7 @@ export function NotificationBell({
   unreadCount: number
   immersive: boolean
 }) {
+  const { t } = useLocale()
   const [open, setOpen] = useState(false)
   const [unread, setUnread] = useState(unreadCount)
   const [, startTransition] = useTransition()
@@ -60,7 +62,7 @@ export function NotificationBell({
     <div ref={ref} className="relative">
       <button
         type="button"
-        aria-label="Notifications"
+        aria-label={t('notifications')}
         onClick={toggle}
         className={cn(
           'relative hidden h-9 w-9 items-center justify-center rounded-full transition-colors sm:flex',
@@ -78,11 +80,11 @@ export function NotificationBell({
       {open && (
         <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-border bg-card shadow-xl">
           <div className="border-b border-border px-4 py-3">
-            <p className="text-sm font-semibold text-foreground">Notifications</p>
+            <p className="text-sm font-semibold text-foreground">{t('notifications')}</p>
           </div>
           <div className="scrollbar-thin max-h-96 overflow-y-auto">
             {notifications.length === 0 && (
-              <p className="p-6 text-center text-sm text-muted-foreground">You&apos;re all caught up.</p>
+              <p className="p-6 text-center text-sm text-muted-foreground">{t('shell.notifications.empty')}</p>
             )}
             {notifications.map((n) => {
               const Icon = icons[n.type]
@@ -105,7 +107,7 @@ export function NotificationBell({
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="text-sm text-foreground">{n.body}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{timeAgo(n.createdAt)}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{timeAgo(n.createdAt, t)}</p>
                   </div>
                   {!n.read && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-icesco-blue" />}
                 </Link>

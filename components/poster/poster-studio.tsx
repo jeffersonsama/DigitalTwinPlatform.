@@ -5,9 +5,11 @@ import Image from 'next/image'
 import { Image as ImageIcon, Download, Sparkles, Type, Palette, CheckCircle2, UploadCloud } from 'lucide-react'
 import { posterTemplates } from '@/lib/data'
 import { publishPoster } from '@/lib/actions/poster-studio'
+import { useLocale } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 export function PosterStudio() {
+  const { t } = useLocale()
   const [template, setTemplate] = useState(posterTemplates[0])
   const [title, setTitle] = useState('Building Resilient Communities')
   const [subtitle, setSubtitle] = useState('ICESCO Crisis Management Knowledge Forum 2026')
@@ -23,15 +25,15 @@ export function PosterStudio() {
             <ImageIcon className="h-5 w-5" />
           </span>
           <div>
-            <h1 className="font-display text-xl font-bold text-foreground md:text-2xl">Poster Studio</h1>
-            <p className="text-sm text-muted-foreground">Create shareable forum posters.</p>
+            <h1 className="font-display text-xl font-bold text-foreground md:text-2xl">{t('posterStudio')}</h1>
+            <p className="text-sm text-muted-foreground">{t('poster.subtitle')}</p>
           </div>
         </header>
 
         {/* Templates */}
         <section className="rounded-2xl border border-border bg-card p-4">
           <p className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            <Palette className="h-3.5 w-3.5" /> Template
+            <Palette className="h-3.5 w-3.5" /> {t('poster.template')}
           </p>
           <div className="grid grid-cols-2 gap-2">
             {posterTemplates.map((tpl) => (
@@ -56,10 +58,10 @@ export function PosterStudio() {
         {/* Text inputs */}
         <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4">
           <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            <Type className="h-3.5 w-3.5" /> Content
+            <Type className="h-3.5 w-3.5" /> {t('poster.content')}
           </p>
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-muted-foreground">Headline</span>
+            <span className="text-muted-foreground">{t('poster.headline')}</span>
             <input
               value={title}
               onChange={(e) => {
@@ -70,7 +72,7 @@ export function PosterStudio() {
             />
           </label>
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-muted-foreground">Subtitle</span>
+            <span className="text-muted-foreground">{t('poster.subtitleLabel')}</span>
             <input
               value={subtitle}
               onChange={(e) => {
@@ -84,10 +86,10 @@ export function PosterStudio() {
 
         <div className="flex gap-2">
           <button className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-icesco-blue px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-icesco">
-            <Sparkles className="h-4 w-4" /> AI Enhance
+            <Sparkles className="h-4 w-4" /> {t('poster.aiEnhance')}
           </button>
           <button className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent">
-            <Download className="h-4 w-4" /> Export
+            <Download className="h-4 w-4" /> {t('poster.export')}
           </button>
         </div>
 
@@ -135,7 +137,7 @@ export function PosterStudio() {
               </div>
             </div>
           </div>
-          <p className="mt-3 text-center text-xs text-muted-foreground">Live preview · updates as you type</p>
+          <p className="mt-3 text-center text-xs text-muted-foreground">{t('poster.livePreview')}</p>
         </div>
       </section>
     </main>

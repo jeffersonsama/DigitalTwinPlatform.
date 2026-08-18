@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps'
 import type { CountryEngagement } from '@/lib/stats'
+import { useLocale } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 const GEO_URL =
@@ -15,6 +16,7 @@ const activityColor: Record<'high' | 'medium' | 'low', string> = {
 }
 
 export function GlobalMap({ markers }: { markers: CountryEngagement[] }) {
+  const { t } = useLocale()
   const [hover, setHover] = useState<string | null>(null)
 
   return (
@@ -84,15 +86,15 @@ export function GlobalMap({ markers }: { markers: CountryEngagement[] }) {
       <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-white/70">
         <span className="flex items-center gap-1.5">
           <span className={cn('h-2.5 w-2.5 rounded-full')} style={{ background: activityColor.high }} />
-          High Activity
+          {t('worldMap.legend.high')}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full" style={{ background: activityColor.medium }} />
-          Medium Activity
+          {t('worldMap.legend.medium')}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full" style={{ background: activityColor.low }} />
-          Low Activity
+          {t('worldMap.legend.low')}
         </span>
       </div>
     </div>

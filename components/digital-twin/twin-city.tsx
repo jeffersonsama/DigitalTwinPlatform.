@@ -11,9 +11,11 @@ import {
   Gauge,
 } from 'lucide-react'
 import { TwinScene, statusStyles, type TwinBuilding } from './twin-scene'
+import { useLocale } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 export function TwinCity({ buildings: twinBuildings }: { buildings: TwinBuilding[] }) {
+  const { t } = useLocale()
   const [selectedId, setSelectedId] = useState<string | null>(twinBuildings[0]?.id ?? null)
   const selected = twinBuildings.find((b) => b.id === selectedId)
 
@@ -29,10 +31,10 @@ export function TwinCity({ buildings: twinBuildings }: { buildings: TwinBuilding
         {/* Status header + controls */}
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-navy-900 px-4 py-3">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-white">Live City Status</span>
+            <span className="text-sm font-semibold text-white">{t('digitalTwin.liveCityStatus')}</span>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-500/15 px-2.5 py-1 text-xs font-semibold text-amber-300">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400" />
-              Moderate Risk
+              {t('digitalTwin.moderateRisk')}
             </span>
           </div>
           <div className="flex items-center gap-1">
@@ -40,7 +42,7 @@ export function TwinCity({ buildings: twinBuildings }: { buildings: TwinBuilding
               <button
                 key={i}
                 className="flex h-8 w-8 items-center justify-center rounded-md text-white/60 transition-colors hover:bg-white/10 hover:text-cyan-accent"
-                aria-label="City control"
+                aria-label={t('digitalTwin.cityControl')}
               >
                 <Icon className="h-4 w-4" />
               </button>
@@ -53,13 +55,16 @@ export function TwinCity({ buildings: twinBuildings }: { buildings: TwinBuilding
         {/* Legend + quick counts */}
         <div className="flex flex-wrap items-center gap-4 rounded-xl border border-white/10 bg-navy-900 px-4 py-3 text-xs text-white/70">
           <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-emerald-400" /> Operational · {counts.operational}
+            <span className="h-2 w-2 rounded-full bg-emerald-400" />{' '}
+            {t('digitalTwin.legendCount', { status: t('digitalTwin.status.operational'), count: counts.operational })}
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-amber-400" /> Warning · {counts.warning}
+            <span className="h-2 w-2 rounded-full bg-amber-400" />{' '}
+            {t('digitalTwin.legendCount', { status: t('digitalTwin.status.warning'), count: counts.warning })}
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-red-500" /> Flood Risk · {counts.risk}
+            <span className="h-2 w-2 rounded-full bg-red-500" />{' '}
+            {t('digitalTwin.legendCount', { status: t('digitalTwin.status.floodRisk'), count: counts.risk })}
           </span>
         </div>
       </div>
@@ -79,16 +84,16 @@ export function TwinCity({ buildings: twinBuildings }: { buildings: TwinBuilding
               )}
             >
               <span className={cn('h-1.5 w-1.5 rounded-full', statusStyles[selected.status].dot)} />
-              {statusStyles[selected.status].label}
+              {t(statusStyles[selected.status].labelKey)}
             </span>
             <dl className="mt-4 grid grid-cols-2 gap-3 text-xs">
               <div className="rounded-lg bg-white/5 p-3">
-                <dt className="text-white/50">Capacity</dt>
+                <dt className="text-white/50">{t('digitalTwin.capacity')}</dt>
                 <dd className="mt-1 font-display text-lg font-bold text-white">84%</dd>
               </div>
               <div className="rounded-lg bg-white/5 p-3">
-                <dt className="text-white/50">Power</dt>
-                <dd className="mt-1 font-display text-lg font-bold text-white">Stable</dd>
+                <dt className="text-white/50">{t('digitalTwin.power')}</dt>
+                <dd className="mt-1 font-display text-lg font-bold text-white">{t('digitalTwin.stable')}</dd>
               </div>
             </dl>
           </section>
@@ -97,7 +102,7 @@ export function TwinCity({ buildings: twinBuildings }: { buildings: TwinBuilding
         <section className="rounded-xl border border-white/10 bg-navy-900 p-4">
           <div className="mb-3 flex items-center gap-2 text-white">
             <Activity className="h-4 w-4 text-cyan-accent" />
-            <h2 className="text-sm font-semibold">Infrastructure</h2>
+            <h2 className="text-sm font-semibold">{t('digitalTwin.infrastructure')}</h2>
           </div>
           <div className="flex flex-col gap-1">
             {twinBuildings.map((b) => (
@@ -112,7 +117,7 @@ export function TwinCity({ buildings: twinBuildings }: { buildings: TwinBuilding
                 <span className="text-white/80">{b.name}</span>
                 <span
                   className={cn('h-2 w-2 rounded-full', statusStyles[b.status].dot)}
-                  aria-label={statusStyles[b.status].label}
+                  aria-label={t(statusStyles[b.status].labelKey)}
                 />
               </button>
             ))}
@@ -122,10 +127,10 @@ export function TwinCity({ buildings: twinBuildings }: { buildings: TwinBuilding
         <section className="rounded-xl border border-white/10 bg-gradient-to-br from-icesco-blue to-icesco p-4">
           <div className="mb-2 flex items-center gap-2 text-white">
             <Gauge className="h-4 w-4 text-cyan-accent" />
-            <h2 className="text-sm font-semibold">Resilience Index</h2>
+            <h2 className="text-sm font-semibold">{t('digitalTwin.resilienceIndex')}</h2>
           </div>
           <p className="font-display text-3xl font-bold text-white">7.8</p>
-          <p className="text-xs text-white/70">out of 10 · improving</p>
+          <p className="text-xs text-white/70">{t('digitalTwin.outOf10Improving')}</p>
         </section>
       </aside>
     </main>

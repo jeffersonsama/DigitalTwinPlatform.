@@ -10,15 +10,17 @@ import { SessionAttendanceMeter } from '@/components/live/session-attendance-met
 import { prisma } from '@/lib/db'
 import { getCurrentUser, requireEnabledPage } from '@/lib/auth'
 import { PANEL_ATTENDANCE_RATIO } from '@/lib/gamification/config'
+import { getTranslations } from '@/lib/i18n-server'
 
 export default async function LivePage() {
   await requireEnabledPage('live')
 
   const now = new Date()
-  const [user, resources, liveSession] = await Promise.all([
+  const [user, resources, liveSession, { t }] = await Promise.all([
     getCurrentUser(),
     prisma.resource.findMany({ where: { featured: true }, take: 3 }),
     prisma.programSession.findFirst({ where: { startsAt: { lte: now }, endsAt: { gte: now } } }),
+    getTranslations(),
   ])
 
   const note = user ? await prisma.liveNote.findUnique({ where: { userId: user.id } }) : null
@@ -28,7 +30,7 @@ export default async function LivePage() {
       : null
 
   return (
-    <AppShell title="Live Session">
+    <AppShell title={t('live.pageTitle')}>
       <LiveRoomProvider isLoggedIn={!!user}>
         <main className="mx-auto grid max-w-[1500px] grid-cols-1 gap-4 p-4 md:p-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <div className="flex flex-col gap-4">

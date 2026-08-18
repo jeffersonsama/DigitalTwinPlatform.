@@ -3,16 +3,13 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Bot, Send, X, ArrowUpRight } from 'lucide-react'
-
-const quickReplies = [
-  'What sessions are live now?',
-  'Show me the program',
-  'How do I earn a certificate?',
-]
+import { useLocale } from '@/lib/i18n'
 
 export function AiAssistantCard() {
+  const { t } = useLocale()
+  const quickReplies = [t('home.aiCard.quickReply1'), t('home.aiCard.quickReply2'), t('home.aiCard.quickReply3')]
   const [messages, setMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([
-    { role: 'ai', text: "Hello! I'm your forum assistant. Ask me anything about sessions, speakers, or the program." },
+    { role: 'ai', text: t('home.aiCard.greeting') },
   ])
   const [value, setValue] = useState('')
 
@@ -22,7 +19,7 @@ export function AiAssistantCard() {
     setMessages((m) => [
       ...m,
       { role: 'user', text: q },
-      { role: 'ai', text: 'Here is what I found for you — check the Live page and Knowledge Hub for detailed resources.' },
+      { role: 'ai', text: t('home.aiCard.reply') },
     ])
     setValue('')
   }
@@ -34,9 +31,9 @@ export function AiAssistantCard() {
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent">
             <Bot className="h-4 w-4 text-icesco-blue" />
           </div>
-          <span className="text-sm font-semibold text-foreground">AI Assistant</span>
+          <span className="text-sm font-semibold text-foreground">{t('home.aiCard.title')}</span>
         </div>
-        <button aria-label="Close" className="text-muted-foreground hover:text-foreground">
+        <button aria-label={t('home.aiCard.close')} className="text-muted-foreground hover:text-foreground">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -78,12 +75,12 @@ export function AiAssistantCard() {
           <input
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            placeholder="Ask me anything…"
+            placeholder={t('home.aiCard.placeholder')}
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
           <button
             type="submit"
-            aria-label="Send"
+            aria-label={t('home.aiCard.send')}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-icesco-blue text-white transition-colors hover:bg-icesco"
           >
             <Send className="h-4 w-4" />
@@ -93,7 +90,7 @@ export function AiAssistantCard() {
           href="/ai"
           className="mt-2 flex items-center justify-center gap-1 text-xs font-medium text-icesco-blue hover:underline"
         >
-          Open full AI Concierge
+          {t('home.aiCard.openFull')}
           <ArrowUpRight className="h-3 w-3" />
         </Link>
       </div>

@@ -5,9 +5,11 @@ import { MessagesInbox } from '@/components/messaging/messages-inbox'
 import { prisma } from '@/lib/db'
 import { requireUser, requireEnabledPage } from '@/lib/auth'
 import { getConversations, isConnected } from '@/lib/messages'
+import { getTranslations } from '@/lib/i18n-server'
 
-export const metadata: Metadata = {
-  title: 'Messages | ICESCO Crisis Forum 2026',
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslations()
+  return { title: `${t('messages')} | ICESCO Crisis Forum 2026` }
 }
 
 export default async function MessageThreadPage({ params }: { params: Promise<{ userId: string }> }) {
@@ -19,7 +21,7 @@ export default async function MessageThreadPage({ params }: { params: Promise<{ 
     redirect('/messages')
   }
 
-  const [conversations, messages] = await Promise.all([
+  const [conversations, messages, { t }] = await Promise.all([
     getConversations(user.id),
     prisma.directMessage.findMany({
       where: {
@@ -30,10 +32,11 @@ export default async function MessageThreadPage({ params }: { params: Promise<{ 
       },
       orderBy: { createdAt: 'asc' },
     }),
+    getTranslations(),
   ])
 
   return (
-    <AppShell title="Messages">
+    <AppShell title={t('messages')}>
       <MessagesInbox
         viewerId={user.id}
         conversations={conversations}

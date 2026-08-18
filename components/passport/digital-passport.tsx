@@ -26,6 +26,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { avatarSrc } from '@/lib/avatar'
+import { useLocale, type TranslationKey } from '@/lib/i18n'
 import { EditProfileModal } from '@/components/passport/edit-profile-modal'
 import { recordShareIntent } from '@/lib/actions/gamification'
 
@@ -33,6 +34,12 @@ const badgeIcons: Record<string, typeof Zap> = { zap: Zap, users: Users, book: B
 
 const tabs = ['Activity', 'Certificates', 'Skills', 'Progress'] as const
 type Tab = (typeof tabs)[number]
+const tabLabelKeys: Record<Tab, TranslationKey> = {
+  Activity: 'passport.tabs.activity',
+  Certificates: 'certificates',
+  Skills: 'passport.tabs.skills',
+  Progress: 'passport.tabs.progress',
+}
 
 export interface PassportView {
   id: string
@@ -97,6 +104,7 @@ export function DigitalPassport({
   activity: ActivityView[]
   certificates: PassportCertView[]
 }) {
+  const { t } = useLocale()
   const [tab, setTab] = useState<Tab>('Activity')
   const [showShare, setShowShare] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
@@ -109,7 +117,7 @@ export function DigitalPassport({
         <section className="overflow-hidden rounded-2xl border border-border bg-card">
           <div className="relative h-20 rounded-t-2xl bg-gradient-to-r from-icesco via-icesco-blue to-cyan-accent">
             <button
-              aria-label="Edit profile"
+              aria-label={t('passport.editProfile')}
               onClick={() => setShowEdit(true)}
               className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30"
             >
@@ -131,7 +139,7 @@ export function DigitalPassport({
                   <MapPin className="h-3 w-3" /> {passport.country}
                 </span>
                 <Link href={`/profile/${passport.id}`} target="_blank" className="font-medium text-icesco-blue hover:underline">
-                  View public profile ↗
+                  {t('passport.viewPublicProfile')}
                 </Link>
               </div>
             </div>
@@ -141,23 +149,24 @@ export function DigitalPassport({
                 onClick={() => setShowShare(true)}
                 className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-icesco-blue px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-icesco"
               >
-                <Share2 className="h-4 w-4" /> Share profile
+                <Share2 className="h-4 w-4" /> {t('passport.shareProfile')}
               </button>
               <Link
                 href="/scan"
                 className="flex items-center justify-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
               >
-                <ScanLine className="h-4 w-4" /> Scan
+                <ScanLine className="h-4 w-4" /> {t('passport.scan')}
               </Link>
             </div>
 
             <div className="mt-5 rounded-xl bg-accent/60 p-4">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-1.5 text-sm font-semibold text-icesco-blue">
-                  <Sparkles className="h-4 w-4" /> Level {passport.level} · {passport.levelTitle}
+                  <Sparkles className="h-4 w-4" />{' '}
+                  {t('passport.levelLabel', { level: passport.level, title: passport.levelTitle })}
                 </span>
                 <span className="text-xs font-medium text-muted-foreground">
-                  {passport.xp.toLocaleString()} / {passport.xpMax.toLocaleString()} XP
+                  {t('passport.xpOf', { xp: passport.xp.toLocaleString(), xpMax: passport.xpMax.toLocaleString() })}
                 </span>
               </div>
               <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-border">
@@ -170,9 +179,9 @@ export function DigitalPassport({
 
             <div className="mt-4 grid grid-cols-3 gap-2 text-center">
               {[
-                { icon: Trophy, value: passport.stats.missions, label: 'Missions', color: 'text-forum-orange' },
-                { icon: Handshake, value: passport.stats.connections, label: 'Connections', color: 'text-icesco-teal' },
-                { icon: Award, value: passport.stats.certificates, label: 'Certificates', color: 'text-icesco-blue' },
+                { icon: Trophy, value: passport.stats.missions, label: t('passport.stats.missions'), color: 'text-forum-orange' },
+                { icon: Handshake, value: passport.stats.connections, label: t('passport.stats.connections'), color: 'text-icesco-teal' },
+                { icon: Award, value: passport.stats.certificates, label: t('certificates'), color: 'text-icesco-blue' },
               ].map((s) => (
                 <div key={s.label} className="rounded-xl border border-border p-3">
                   <s.icon className={cn('mx-auto h-4 w-4', s.color)} />
@@ -186,8 +195,8 @@ export function DigitalPassport({
 
         <section className="rounded-2xl border border-border bg-card p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-foreground">Badges</h2>
-            <span className="text-xs text-muted-foreground">{badges.length} earned</span>
+            <h2 className="text-sm font-semibold text-foreground">{t('passport.badgesHeading')}</h2>
+            <span className="text-xs text-muted-foreground">{t('passport.badgesEarned', { count: badges.length })}</span>
           </div>
           <div className="grid grid-cols-5 gap-2 text-center">
             {badges.map((b) => {
@@ -208,16 +217,16 @@ export function DigitalPassport({
       {/* Tabbed content */}
       <section className="flex flex-col rounded-2xl border border-border bg-card p-5">
         <div className="scrollbar-thin flex gap-1 overflow-x-auto rounded-xl bg-accent/60 p-1">
-          {tabs.map((t) => (
+          {tabs.map((tabKey) => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
+              key={tabKey}
+              onClick={() => setTab(tabKey)}
               className={cn(
                 'flex-1 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors',
-                tab === t ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
+                tab === tabKey ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
               )}
             >
-              {t}
+              {t(tabLabelKeys[tabKey])}
             </button>
           ))}
         </div>
@@ -325,6 +334,7 @@ export function DigitalPassport({
 }
 
 function SharePassportModal({ userId, name, onClose }: { userId: string; name: string; onClose: () => void }) {
+  const { t } = useLocale()
   const [dataUrl, setDataUrl] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const shareUrl = `${window.location.origin}/profile/${userId}`
@@ -343,7 +353,7 @@ function SharePassportModal({ userId, name, onClose }: { userId: string; name: s
 
   async function nativeShare() {
     try {
-      await navigator.share({ title: 'ICESCO Crisis Forum', text: `Connect with ${name} on the ICESCO Crisis Forum.`, url: shareUrl })
+      await navigator.share({ title: t('passport.share.nativeTitle'), text: t('passport.share.nativeText', { name }), url: shareUrl })
       recordShareIntent('native').catch(() => {})
     } catch {
       // user cancelled the native share sheet — nothing to do
@@ -362,8 +372,8 @@ function SharePassportModal({ userId, name, onClose }: { userId: string; name: s
         className="flex w-full max-w-sm flex-col items-center gap-4 rounded-2xl bg-card p-6 text-center shadow-2xl"
       >
         <div className="flex w-full items-center justify-between">
-          <p className="text-sm font-semibold text-foreground">Share your profile</p>
-          <button aria-label="Close" onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <p className="text-sm font-semibold text-foreground">{t('passport.share.title')}</p>
+          <button aria-label={t('common.close')} onClick={onClose} className="text-muted-foreground hover:text-foreground">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -371,15 +381,13 @@ function SharePassportModal({ userId, name, onClose }: { userId: string; name: s
         <div className="flex h-56 w-56 items-center justify-center rounded-xl border border-border bg-white p-3">
           {dataUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={dataUrl} alt={`QR code to connect with ${name}`} className="h-full w-full" />
+            <img src={dataUrl} alt={t('passport.share.qrAlt', { name })} className="h-full w-full" />
           ) : (
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-icesco-blue border-t-transparent" />
           )}
         </div>
 
-        <p className="text-xs text-muted-foreground">
-          Have another delegate scan this to instantly connect with {name} — or share the link below.
-        </p>
+        <p className="text-xs text-muted-foreground">{t('passport.share.instructions', { name })}</p>
 
         <div className="flex w-full gap-2">
           <button
@@ -387,14 +395,14 @@ function SharePassportModal({ userId, name, onClose }: { userId: string; name: s
             className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             {copied ? <Check className="h-3.5 w-3.5 text-icesco-teal" /> : <Copy className="h-3.5 w-3.5" />}
-            {copied ? 'Link copied' : 'Copy link'}
+            {copied ? t('common.linkCopied') : t('common.copyLink')}
           </button>
           {typeof navigator !== 'undefined' && !!navigator.share && (
             <button
               onClick={nativeShare}
               className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-icesco-blue px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-icesco"
             >
-              <Share2 className="h-3.5 w-3.5" /> Share
+              <Share2 className="h-3.5 w-3.5" /> {t('common.share')}
             </button>
           )}
         </div>

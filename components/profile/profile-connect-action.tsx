@@ -10,6 +10,7 @@ import {
   declineConnectionRequest,
   connectFromQr,
 } from '@/lib/actions/networking'
+import { useLocale } from '@/lib/i18n'
 import type { ConnectionState } from '@/lib/networking'
 
 export function ProfileConnectAction({
@@ -23,6 +24,7 @@ export function ProfileConnectAction({
   initialState: ConnectionState
   autoConnect: boolean
 }) {
+  const { t } = useLocale()
   const [state, setState] = useState<ConnectionState>(initialState)
   const [connecting, setConnecting] = useState(autoConnect && initialState !== 'connected')
   const [pending, startTransition] = useTransition()
@@ -41,7 +43,7 @@ export function ProfileConnectAction({
     return (
       <p className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
         <span className="h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-icesco-blue border-t-transparent" />
-        Connecting with {targetName}…
+        {t('profile.connectAction.connectingWith', { name: targetName })}
       </p>
     )
   }
@@ -50,13 +52,13 @@ export function ProfileConnectAction({
     return (
       <div className="flex items-center gap-2">
         <span className="flex items-center gap-1.5 rounded-lg border border-border bg-accent px-4 py-2 text-sm font-semibold text-icesco-blue">
-          <Check className="h-4 w-4" /> Connected
+          <Check className="h-4 w-4" /> {t('profile.connectAction.connected')}
         </span>
         <Link
           href={`/messages/${targetId}`}
           className="flex items-center gap-1.5 rounded-lg bg-icesco-blue px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-icesco"
         >
-          <MessageCircle className="h-4 w-4" /> Message
+          <MessageCircle className="h-4 w-4" /> {t('profile.connectAction.message')}
         </Link>
       </div>
     )
@@ -70,14 +72,14 @@ export function ProfileConnectAction({
           onClick={() => startTransition(async () => { await acceptConnectionRequest(targetId); setState('connected') })}
           className="flex items-center gap-1.5 rounded-lg bg-icesco-blue px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-icesco disabled:opacity-60"
         >
-          <Check className="h-4 w-4" /> Accept request
+          <Check className="h-4 w-4" /> {t('profile.connectAction.acceptRequest')}
         </button>
         <button
           disabled={pending}
           onClick={() => startTransition(async () => { await declineConnectionRequest(targetId); setState('none') })}
           className="flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground disabled:opacity-60"
         >
-          <X className="h-4 w-4" /> Decline
+          <X className="h-4 w-4" /> {t('profile.connectAction.decline')}
         </button>
       </div>
     )
@@ -90,7 +92,7 @@ export function ProfileConnectAction({
         onClick={() => startTransition(async () => { await cancelConnectionRequest(targetId); setState('none') })}
         className="flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground disabled:opacity-60"
       >
-        <Clock className="h-4 w-4" /> Request sent · Cancel
+        <Clock className="h-4 w-4" /> {t('profile.connectAction.requestSentCancel')}
       </button>
     )
   }
@@ -101,7 +103,7 @@ export function ProfileConnectAction({
       onClick={() => startTransition(async () => { await sendConnectionRequest(targetId); setState('pending-sent') })}
       className="flex items-center gap-1.5 rounded-lg bg-icesco-blue px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-icesco disabled:opacity-60"
     >
-      <UserPlus className="h-4 w-4" /> Connect
+      <UserPlus className="h-4 w-4" /> {t('profile.connectAction.connect')}
     </button>
   )
 }

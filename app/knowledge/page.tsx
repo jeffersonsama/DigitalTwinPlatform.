@@ -4,11 +4,11 @@ import { SiteFooter } from '@/components/site-footer'
 import { KnowledgeHub, type ResourceView } from '@/components/knowledge/knowledge-hub'
 import { prisma } from '@/lib/db'
 import { requireEnabledPage } from '@/lib/auth'
+import { getTranslations } from '@/lib/i18n-server'
 
-export const metadata: Metadata = {
-  title: 'Knowledge Hub | ICESCO Crisis Forum 2026',
-  description:
-    'Discover, learn and share crisis-management knowledge — case studies, reports, tools, training and policies.',
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslations()
+  return { title: `${t('knowledgeHub')} | ICESCO Crisis Forum 2026`, description: t('knowledge.pageDescription') }
 }
 
 const CATEGORIES = ['All', 'Case Studies', 'Reports', 'Tools', 'Training', 'Policies']
@@ -19,6 +19,7 @@ export default async function KnowledgePage({
   searchParams: Promise<{ category?: string; q?: string }>
 }) {
   await requireEnabledPage('knowledgeHub')
+  const { t } = await getTranslations()
 
   const params = await searchParams
   const activeCategory = CATEGORIES.includes(params.category ?? '') ? params.category! : 'All'
@@ -48,7 +49,7 @@ export default async function KnowledgePage({
   })
 
   return (
-    <AppShell title="Knowledge Hub">
+    <AppShell title={t('knowledgeHub')}>
       <KnowledgeHub
         categories={CATEGORIES}
         featured={featuredRows.map(toView)}

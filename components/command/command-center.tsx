@@ -11,6 +11,10 @@ import {
 } from 'lucide-react'
 import { commandStreams, topCountries } from '@/lib/data'
 import { PageVisibilityPanel, type TogglePageView } from '@/components/command/page-visibility-panel'
+import { getTranslations } from '@/lib/i18n-server'
+import type { TranslationKey } from '@/lib/i18n'
+
+type T = (key: TranslationKey, vars?: Record<string, string | number>) => string
 
 function Panel({
   title,
@@ -32,9 +36,9 @@ function Panel({
   )
 }
 
-function StreamGrid() {
+function StreamGrid({ t }: { t: T }) {
   return (
-    <Panel title="Live Streams" action="4 active">
+    <Panel title={t('command.liveStreams')} action={t('command.activeCount', { count: 4 })}>
       <div className="grid grid-cols-2 gap-3">
         {commandStreams.map((s, i) => (
           <div
@@ -43,7 +47,7 @@ function StreamGrid() {
           >
             <div className="grid-glow absolute inset-0 opacity-60" />
             <div className="absolute left-2 top-2 flex items-center gap-1 rounded bg-red-600/90 px-1.5 py-0.5 text-[10px] font-bold text-white">
-              <Radio className="h-2.5 w-2.5" /> LIVE
+              <Radio className="h-2.5 w-2.5" /> {t('home.liveBadge')}
             </div>
             <MonitorPlay className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 text-white/20" />
             <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-center justify-between gap-x-1 bg-black/50 px-2 py-1">
@@ -57,14 +61,14 @@ function StreamGrid() {
   )
 }
 
-function AnalyticsBars() {
+function AnalyticsBars({ t }: { t: T }) {
   const bars = [
-    { label: 'Engagement', value: 85 },
-    { label: 'Retention', value: 78 },
-    { label: 'Interactions', value: 92 },
+    { label: t('command.analytics.engagement'), value: 85 },
+    { label: t('command.analytics.retention'), value: 78 },
+    { label: t('command.analytics.interactions'), value: 92 },
   ]
   return (
-    <Panel title="Real-time Analytics">
+    <Panel title={t('command.realtimeAnalytics')}>
       <div className="flex flex-col gap-4">
         {bars.map((b) => (
           <div key={b.label}>
@@ -85,10 +89,10 @@ function AnalyticsBars() {
   )
 }
 
-function TopCountriesPanel() {
+function TopCountriesPanel({ t }: { t: T }) {
   const max = Math.max(...topCountries.map((c) => c.value))
   return (
-    <Panel title="Top Countries">
+    <Panel title={t('command.topCountries')}>
       <div className="flex flex-col gap-2.5">
         {topCountries.slice(0, 5).map((c) => (
           <div key={c.name} className="flex items-center gap-2 text-xs">
@@ -109,15 +113,15 @@ function TopCountriesPanel() {
   )
 }
 
-function SystemStatus() {
+function SystemStatus({ t }: { t: T }) {
   const items = [
-    { icon: Radio, label: 'Streaming', value: 'Online', ok: true },
-    { icon: Wifi, label: 'Network', value: 'Stable', ok: true },
-    { icon: Server, label: 'Servers', value: 'Operational', ok: true },
-    { icon: Cpu, label: 'AI Services', value: 'Running', ok: true },
+    { icon: Radio, label: t('command.status.streaming'), value: t('command.status.online'), ok: true },
+    { icon: Wifi, label: t('command.status.network'), value: t('digitalTwin.stable'), ok: true },
+    { icon: Server, label: t('command.status.servers'), value: t('digitalTwin.status.operational'), ok: true },
+    { icon: Cpu, label: t('command.status.aiServices'), value: t('command.status.running'), ok: true },
   ]
   return (
-    <Panel title="System Status">
+    <Panel title={t('command.systemStatus')}>
       <div className="flex flex-col gap-2.5">
         {items.map((it) => (
           <div
@@ -139,21 +143,26 @@ function SystemStatus() {
   )
 }
 
-function DiscussedTopics() {
+function DiscussedTopics({ t }: { t: T }) {
   const topics = [
-    { label: 'Early Warning Systems', sentiment: 'Positive', pct: 88, tone: 'text-emerald-400' },
-    { label: 'Climate Adaptation', sentiment: 'Positive', pct: 82, tone: 'text-emerald-400' },
-    { label: 'Youth Empowerment', sentiment: 'Neutral', pct: 74, tone: 'text-amber-400' },
-    { label: 'Cultural Heritage Protection', sentiment: 'Negative', pct: 41, tone: 'text-red-400' },
+    { label: 'Early Warning Systems', sentiment: t('command.sentiment.positive'), pct: 88, tone: 'text-emerald-400' },
+    { label: 'Climate Adaptation', sentiment: t('command.sentiment.positive'), pct: 82, tone: 'text-emerald-400' },
+    { label: 'Youth Empowerment', sentiment: t('command.sentiment.neutral'), pct: 74, tone: 'text-amber-400' },
+    {
+      label: 'Cultural Heritage Protection',
+      sentiment: t('command.sentiment.negative'),
+      pct: 41,
+      tone: 'text-red-400',
+    },
   ]
   return (
-    <Panel title="Most Discussed Topics">
+    <Panel title={t('command.mostDiscussedTopics')}>
       <div className="flex flex-col gap-3">
-        {topics.map((t) => (
-          <div key={t.label} className="flex items-center justify-between text-sm">
-            <span className="text-white/80">{t.label}</span>
-            <span className={`text-xs font-medium ${t.tone}`}>
-              {t.sentiment} · {t.pct}%
+        {topics.map((topic) => (
+          <div key={topic.label} className="flex items-center justify-between text-sm">
+            <span className="text-white/80">{topic.label}</span>
+            <span className={`text-xs font-medium ${topic.tone}`}>
+              {topic.sentiment} · {topic.pct}%
             </span>
           </div>
         ))}
@@ -162,7 +171,7 @@ function DiscussedTopics() {
   )
 }
 
-function ParticipantsPanel() {
+function ParticipantsPanel({ t }: { t: T }) {
   const points = [20, 35, 30, 48, 44, 62, 58, 75, 70, 88, 82, 96]
   const w = 240
   const h = 70
@@ -170,10 +179,10 @@ function ParticipantsPanel() {
   const step = w / (points.length - 1)
   const line = points.map((p, i) => `${i * step},${h - (p / max) * h}`).join(' ')
   return (
-    <Panel title="Participants" action="Live">
+    <Panel title={t('pulse.stats.participants')} action={t('live')}>
       <p className="font-display text-3xl font-bold text-white">31,420</p>
       <p className="mb-3 flex items-center gap-1 text-xs text-emerald-400">
-        <TrendingUp className="h-3.5 w-3.5" /> +2,345 today
+        <TrendingUp className="h-3.5 w-3.5" /> {t('home.stat.newToday', { count: '2,345' })}
       </p>
       <svg viewBox={`0 0 ${w} ${h}`} className="h-20 w-full" preserveAspectRatio="none">
         <polyline
@@ -187,9 +196,9 @@ function ParticipantsPanel() {
   )
 }
 
-function AiInsights() {
+function AiInsights({ t }: { t: T }) {
   return (
-    <Panel title="AI Insights">
+    <Panel title={t('command.aiInsights')}>
       <div className="flex gap-3 rounded-lg bg-cyan-accent/10 p-3">
         <Sparkles className="h-5 w-5 shrink-0 text-cyan-accent" />
         <p className="text-sm text-white/80">
@@ -201,13 +210,13 @@ function AiInsights() {
   )
 }
 
-function Alerts() {
+function Alerts({ t }: { t: T }) {
   const alerts = [
     { level: 'High Traffic', detail: 'Workshop A', tone: 'text-amber-400 bg-amber-400/10' },
     { level: 'Translation Delay', detail: 'French Channel', tone: 'text-red-400 bg-red-400/10' },
   ]
   return (
-    <Panel title="Alerts">
+    <Panel title={t('command.alerts')}>
       <div className="flex flex-col gap-2">
         {alerts.map((a) => (
           <div key={a.level} className={`flex items-center gap-2 rounded-lg p-2.5 ${a.tone}`}>
@@ -223,31 +232,32 @@ function Alerts() {
   )
 }
 
-export function CommandCenter({ pages }: { pages: TogglePageView[] }) {
+export async function CommandCenter({ pages }: { pages: TogglePageView[] }) {
+  const { t } = await getTranslations()
   return (
     <main className="mx-auto flex max-w-[1500px] flex-col gap-4 p-4 md:p-6">
       <PageVisibilityPanel pages={pages} />
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="flex flex-col gap-4">
-          <StreamGrid />
-          <AnalyticsBars />
-          <TopCountriesPanel />
+          <StreamGrid t={t} />
+          <AnalyticsBars t={t} />
+          <TopCountriesPanel t={t} />
         </div>
         <div className="flex flex-col gap-4">
-          <SystemStatus />
-          <DiscussedTopics />
+          <SystemStatus t={t} />
+          <DiscussedTopics t={t} />
           <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-gradient-to-br from-icesco-blue to-icesco p-4">
             <Users className="h-8 w-8 text-cyan-accent" />
             <div>
               <p className="font-display text-2xl font-bold text-white">31,420</p>
-              <p className="text-xs text-white/70">Active participants right now</p>
+              <p className="text-xs text-white/70">{t('command.activeParticipantsNow')}</p>
             </div>
           </div>
         </div>
         <div className="flex flex-col gap-4">
-          <ParticipantsPanel />
-          <AiInsights />
-          <Alerts />
+          <ParticipantsPanel t={t} />
+          <AiInsights t={t} />
+          <Alerts t={t} />
         </div>
       </div>
     </main>

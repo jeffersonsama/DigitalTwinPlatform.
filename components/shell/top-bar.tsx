@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useTheme } from 'next-themes'
 import { Search, Sun, Moon, Monitor } from 'lucide-react'
-import { useLocale, type Locale } from '@/lib/i18n'
+import { useLocale, type Locale, type TranslationKey } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import { NotificationBell } from './notification-bell'
 import type { NotificationView } from '@/lib/notifications'
@@ -20,26 +20,28 @@ export interface CurrentUser {
   xpMax: number
 }
 
-const THEME_CYCLE: Array<{ value: 'light' | 'dark' | 'system'; icon: typeof Sun; label: string }> = [
-  { value: 'light', icon: Sun, label: 'Light theme' },
-  { value: 'dark', icon: Moon, label: 'Dark theme' },
-  { value: 'system', icon: Monitor, label: 'System theme' },
+const THEME_CYCLE: Array<{ value: 'light' | 'dark' | 'system'; icon: typeof Sun; labelKey: TranslationKey }> = [
+  { value: 'light', icon: Sun, labelKey: 'shell.theme.light' },
+  { value: 'dark', icon: Moon, labelKey: 'shell.theme.dark' },
+  { value: 'system', icon: Monitor, labelKey: 'shell.theme.system' },
 ]
 
 export function ThemeToggle({ immersive = false }: { immersive?: boolean }) {
   const { theme, setTheme } = useTheme()
+  const { t } = useLocale()
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
 
-  const currentIndex = THEME_CYCLE.findIndex((t) => t.value === theme)
+  const currentIndex = THEME_CYCLE.findIndex((c) => c.value === theme)
   const current = mounted ? THEME_CYCLE[currentIndex === -1 ? 2 : currentIndex] : THEME_CYCLE[2]
   const Icon = current.icon
+  const currentLabel = t(current.labelKey)
 
   return (
     <button
       type="button"
-      aria-label={mounted ? `Theme: ${current.label}. Click to change.` : 'Toggle theme'}
-      title={mounted ? current.label : undefined}
+      aria-label={mounted ? t('shell.theme.ariaLabel', { label: currentLabel }) : t('shell.theme.toggle')}
+      title={mounted ? currentLabel : undefined}
       onClick={() => setTheme(THEME_CYCLE[(Math.max(currentIndex, 0) + 1) % THEME_CYCLE.length].value)}
       className={cn(
         'flex h-9 w-9 items-center justify-center rounded-full transition-colors',
@@ -170,13 +172,13 @@ export function TopBar({
                   immersive ? 'bg-white/10 text-cyan-accent' : 'bg-accent text-icesco-blue',
                 )}
               >
-                Admin
+                {t('shell.admin')}
               </span>
             )}
             <button
               type="button"
               onClick={handleLogout}
-              title={`Log out (${user.name})`}
+              title={t('shell.logOut', { name: user.name })}
               className={cn(
                 'flex h-8 w-8 items-center justify-center overflow-hidden rounded-full transition-opacity hover:opacity-80',
                 immersive ? 'bg-gradient-to-br from-cyan-accent to-icesco-blue' : 'bg-accent',
@@ -194,7 +196,7 @@ export function TopBar({
               immersive ? 'bg-white text-icesco hover:bg-white/90' : 'bg-icesco-blue text-white hover:bg-icesco',
             )}
           >
-            Log in
+            {t('shell.logIn')}
           </Link>
         )}
       </div>

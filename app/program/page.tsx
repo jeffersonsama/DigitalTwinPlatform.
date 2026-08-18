@@ -6,14 +6,16 @@ import { prisma } from '@/lib/db'
 import { getCurrentUser, requireEnabledPage } from '@/lib/auth'
 import { computeSessionStatus } from '@/lib/program'
 import { PANEL_ATTENDANCE_RATIO } from '@/lib/gamification/config'
+import { getTranslations } from '@/lib/i18n-server'
 
-export const metadata: Metadata = {
-  title: 'Program | ICESCO Crisis Forum 2026',
-  description: 'The full three-day agenda of the ICESCO Crisis Management Knowledge Forum 2026.',
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslations()
+  return { title: `${t('program')} | ICESCO Crisis Forum 2026`, description: t('program.pageDescription') }
 }
 
 export default async function ProgramPage() {
   await requireEnabledPage('program')
+  const { t } = await getTranslations()
 
   const [days, sessions, user] = await Promise.all([
     prisma.programDay.findMany({ orderBy: { id: 'asc' } }),
@@ -63,7 +65,7 @@ export default async function ProgramPage() {
   })
 
   return (
-    <AppShell title="Program">
+    <AppShell title={t('program')}>
       <ProgramSchedule days={days} sessions={sessionViews} isLoggedIn={!!user} />
       <SiteFooter />
     </AppShell>

@@ -1,8 +1,12 @@
+'use client'
+
 import { Sparkles, CircleDot, Lightbulb } from 'lucide-react'
 import { aiKeyPoints, aiDecisions } from '@/lib/data'
+import { useLocale } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 export function AiSummaryPanel({ className }: { className?: string }) {
+  const { t } = useLocale()
   return (
     <div className={cn('flex flex-col gap-4 rounded-xl border border-white/10 bg-navy-900 p-4', className)}>
       <div className="flex items-center gap-2">
@@ -10,14 +14,14 @@ export function AiSummaryPanel({ className }: { className?: string }) {
           <Sparkles className="h-4 w-4 text-cyan-accent" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-white">AI Summary</p>
-          <p className="text-[11px] text-white/50">Updated live</p>
+          <p className="text-sm font-semibold text-white">{t('live.aiSummary.title')}</p>
+          <p className="text-[11px] text-white/50">{t('live.aiSummary.updatedLive')}</p>
         </div>
       </div>
 
       <div>
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-white/50">
-          Key Points
+          {t('live.aiSummary.keyPoints')}
         </p>
         <ul className="flex flex-col gap-2">
           {aiKeyPoints.map((p) => (
@@ -31,7 +35,7 @@ export function AiSummaryPanel({ className }: { className?: string }) {
 
       <div className="border-t border-white/10 pt-3">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-white/50">
-          Decisions &amp; Recommendations
+          {t('live.aiSummary.decisions')}
         </p>
         <ul className="flex flex-col gap-2">
           {aiDecisions.map((p) => (

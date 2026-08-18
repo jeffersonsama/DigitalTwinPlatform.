@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { TwinScene } from '@/components/digital-twin/twin-scene'
 import { twinBuildings } from '@/lib/data'
+import { useLocale, type TranslationKey } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 const objectives = [
@@ -57,7 +58,14 @@ function useCountdown(start = 165) {
   return `${mm}:${ss}`
 }
 
+const simTabLabelKeys: Record<'log' | 'map' | 'media', TranslationKey> = {
+  log: 'simulation.tabs.log',
+  map: 'simulation.tabs.map',
+  media: 'simulation.tabs.media',
+}
+
 export function CrisisSimulation() {
+  const { t } = useLocale()
   const time = useCountdown()
   const [log, setLog] = useState<string[]>([
     'Simulation started · Earthquake scenario',
@@ -66,7 +74,7 @@ export function CrisisSimulation() {
   const [tab, setTab] = useState<'log' | 'map' | 'media'>('map')
 
   function decide(label: string) {
-    setLog((l) => [`Decision: ${label}`, ...l])
+    setLog((l) => [t('simulation.log.decisionPrefix', { label }), ...l])
   }
 
   return (
@@ -74,7 +82,7 @@ export function CrisisSimulation() {
       {/* Left: role + objectives + resources */}
       <aside className="flex flex-col gap-4">
         <section className="rounded-xl border border-white/10 bg-navy-900 p-4">
-          <p className="text-xs uppercase tracking-wide text-white/50">Your Role</p>
+          <p className="text-xs uppercase tracking-wide text-white/50">{t('simulation.yourRole')}</p>
           <div className="mt-3 flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-cyan-accent/20 text-cyan-accent">
               <ShieldCheck className="h-5 w-5" />
@@ -89,7 +97,7 @@ export function CrisisSimulation() {
         <section className="rounded-xl border border-white/10 bg-navy-900 p-4">
           <div className="mb-3 flex items-center gap-2 text-white">
             <Target className="h-4 w-4 text-cyan-accent" />
-            <h2 className="text-sm font-semibold">Objectives</h2>
+            <h2 className="text-sm font-semibold">{t('simulation.objectives')}</h2>
           </div>
           <ul className="flex flex-col gap-2">
             {objectives.map((o) => (
@@ -104,7 +112,7 @@ export function CrisisSimulation() {
         <section className="rounded-xl border border-white/10 bg-navy-900 p-4">
           <div className="mb-3 flex items-center gap-2 text-white">
             <Boxes className="h-4 w-4 text-cyan-accent" />
-            <h2 className="text-sm font-semibold">Resources</h2>
+            <h2 className="text-sm font-semibold">{t('live.tabs.resources')}</h2>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {resources.map((r) => (
@@ -123,13 +131,13 @@ export function CrisisSimulation() {
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/40 bg-red-500/15 px-2.5 py-1 text-xs font-semibold text-red-300">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
-              Simulation: Earthquake Scenario
+              {t('simulation.scenarioBadge')}
             </span>
           </div>
           <div className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5">
             <Timer className="h-4 w-4 text-cyan-accent" />
             <span className="font-mono text-sm font-semibold tabular-nums text-white">{time}</span>
-            <span className="text-[11px] text-white/50">remaining</span>
+            <span className="text-[11px] text-white/50">{t('simulation.remaining')}</span>
           </div>
         </div>
 
@@ -138,17 +146,17 @@ export function CrisisSimulation() {
         {/* Tabs */}
         <div className="rounded-xl border border-white/10 bg-navy-900">
           <div className="flex items-center gap-1 border-b border-white/10 px-2">
-            {(['log', 'map', 'media'] as const).map((t) => (
+            {(['log', 'map', 'media'] as const).map((tabKey) => (
               <button
-                key={t}
-                onClick={() => setTab(t)}
+                key={tabKey}
+                onClick={() => setTab(tabKey)}
                 className={cn(
                   'relative px-3 py-2.5 text-sm capitalize transition-colors',
-                  tab === t ? 'text-white' : 'text-white/50 hover:text-white/80',
+                  tab === tabKey ? 'text-white' : 'text-white/50 hover:text-white/80',
                 )}
               >
-                {t === 'log' ? 'Team Log' : t}
-                {tab === t && <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-cyan-accent" />}
+                {t(simTabLabelKeys[tabKey])}
+                {tab === tabKey && <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-cyan-accent" />}
               </button>
             ))}
           </div>
@@ -163,15 +171,16 @@ export function CrisisSimulation() {
                 ))}
               </ul>
             )}
-            {tab === 'map' && (
-              <p className="text-sm text-white/60">
-                Interactive hazard map. Markers reflect infrastructure status; the pulsing red
-                epicenter marks the quake origin near the telemetry center.
-              </p>
-            )}
+            {tab === 'map' && <p className="text-sm text-white/60">{t('simulation.hazardMapDescription')}</p>}
             {tab === 'media' && (
               <div className="relative h-28 w-full overflow-hidden rounded-lg">
-                <Image src="/images/hero-city.png" alt="Field footage" fill className="object-cover" sizes="600px" />
+                <Image
+                  src="/images/hero-city.png"
+                  alt={t('simulation.fieldFootageAlt')}
+                  fill
+                  className="object-cover"
+                  sizes="600px"
+                />
               </div>
             )}
           </div>
@@ -181,7 +190,7 @@ export function CrisisSimulation() {
       {/* Right: situation + decisions */}
       <aside className="flex flex-col gap-4">
         <section className="rounded-xl border border-white/10 bg-navy-900 p-4">
-          <h2 className="mb-3 text-sm font-semibold text-white">Situation Report</h2>
+          <h2 className="mb-3 text-sm font-semibold text-white">{t('simulation.situationReport')}</h2>
           <dl className="flex flex-col gap-2">
             {situation.map(([k, v]) => (
               <div key={k} className="flex items-center justify-between border-b border-white/5 pb-2 text-sm last:border-0">
@@ -193,7 +202,7 @@ export function CrisisSimulation() {
         </section>
 
         <section className="rounded-xl border border-white/10 bg-navy-900 p-4">
-          <h2 className="mb-3 text-sm font-semibold text-white">Make a Decision</h2>
+          <h2 className="mb-3 text-sm font-semibold text-white">{t('simulation.makeADecision')}</h2>
           <div className="flex flex-col gap-2">
             {decisions.map((d) => (
               <button
@@ -218,7 +227,7 @@ export function CrisisSimulation() {
             e.preventDefault()
             const input = e.currentTarget.elements.namedItem('msg') as HTMLInputElement
             if (input.value.trim()) {
-              setLog((l) => [`You: ${input.value.trim()}`, ...l])
+              setLog((l) => [t('simulation.log.youPrefix', { message: input.value.trim() }), ...l])
               input.value = ''
             }
           }}
@@ -226,13 +235,13 @@ export function CrisisSimulation() {
         >
           <input
             name="msg"
-            placeholder="Send update…"
+            placeholder={t('simulation.sendUpdatePlaceholder')}
             className="min-w-0 flex-1 bg-transparent px-2 py-1.5 text-sm text-white placeholder:text-white/40 focus:outline-none"
           />
           <button
             type="submit"
             className="flex h-8 w-8 items-center justify-center rounded-md bg-cyan-accent text-navy-950 transition-colors hover:bg-cyan-accent/90"
-            aria-label="Send update"
+            aria-label={t('simulation.sendUpdate')}
           >
             <Send className="h-4 w-4" />
           </button>

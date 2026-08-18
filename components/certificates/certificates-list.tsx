@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { Playfair_Display } from 'next/font/google'
 import { Award, Download, Share2, CheckCircle2, Clock, Lock, Calendar, MapPin } from 'lucide-react'
+import { useLocale, type TranslationKey } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 const playfair = Playfair_Display({ subsets: ['latin'], weight: ['600', '700'] })
@@ -31,10 +32,10 @@ export interface CertificateView {
 }
 
 const statusMeta = {
-  issued: { label: 'Issued', tone: 'bg-icesco-teal/10 text-icesco-teal', Icon: CheckCircle2 },
-  'in-progress': { label: 'In Progress', tone: 'bg-forum-orange/10 text-forum-orange', Icon: Clock },
-  locked: { label: 'Locked', tone: 'bg-secondary text-muted-foreground', Icon: Lock },
-} as const
+  issued: { labelKey: 'certificates.status.issued', tone: 'bg-icesco-teal/10 text-icesco-teal', Icon: CheckCircle2 },
+  'in-progress': { labelKey: 'certificates.status.inProgress', tone: 'bg-forum-orange/10 text-forum-orange', Icon: Clock },
+  locked: { labelKey: 'certificates.status.locked', tone: 'bg-secondary text-muted-foreground', Icon: Lock },
+} satisfies Record<string, { labelKey: TranslationKey; tone: string; Icon: typeof CheckCircle2 }>
 
 const PARTNERS = [
   { src: '/partners/icesco.png', alt: 'ICESCO', badge: '#0f4c4f' },
@@ -54,6 +55,7 @@ export function CertificatesList({
   certificates: CertificateView[]
   recipientName: string
 }) {
+  const { t } = useLocale()
   const issued = certificates.filter((c) => c.status === 'issued').length
   const [selectedId, setSelectedId] = useState(certificates[0]?.id)
   const selected = certificates.find((c) => c.id === selectedId) ?? certificates[0]
@@ -66,12 +68,12 @@ export function CertificatesList({
             <Award className="h-5 w-5" />
           </span>
           <div>
-            <h1 className="font-display text-xl font-bold text-foreground md:text-2xl">Certificates</h1>
-            <p className="text-sm text-muted-foreground">Your verified forum achievements.</p>
+            <h1 className="font-display text-xl font-bold text-foreground md:text-2xl">{t('certificates')}</h1>
+            <p className="text-sm text-muted-foreground">{t('certificates.subtitle')}</p>
           </div>
         </div>
         <span className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-icesco-blue">
-          {issued} earned
+          {t('certificates.earned', { count: issued })}
         </span>
       </header>
 
@@ -96,12 +98,14 @@ export function CertificatesList({
                   <Award className="h-5 w-5 text-icesco-blue" />
                   <span className={cn('inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold', meta.tone)}>
                     <meta.Icon className="h-3 w-3" />
-                    {meta.label}
+                    {t(meta.labelKey)}
                   </span>
                 </div>
                 <h3 className="text-pretty text-sm font-semibold leading-snug text-foreground">{c.title}</h3>
                 <p className="text-xs text-muted-foreground">
-                  {c.status === 'issued' ? `Issued ${c.issuedAt}` : (c.progressLabel ?? meta.label)}
+                  {c.status === 'issued'
+                    ? t('certificates.issuedOn', { date: c.issuedAt ?? '' })
+                    : (c.progressLabel ?? t(meta.labelKey))}
                 </p>
               </button>
             )
@@ -157,18 +161,18 @@ export function CertificatesList({
                     className="relative font-display font-extrabold uppercase leading-none"
                     style={{ color: TEAL, marginTop: s(28), fontSize: s(44), letterSpacing: '0.08em' }}
                   >
-                    Certificate
+                    {t('certificates.template.heading')}
                   </h2>
                   <div className="relative flex items-center justify-center" style={{ marginTop: s(10), gap: s(12) }}>
                     <span style={{ height: '1px', width: s(48), background: GOLD }} />
                     <p className="font-semibold uppercase" style={{ color: GOLD, fontSize: s(14), letterSpacing: '0.3em' }}>
-                      of {selected.type}
+                      {t('certificates.template.of', { type: selected.type })}
                     </p>
                     <span style={{ height: '1px', width: s(48), background: GOLD }} />
                   </div>
 
                   <p className="relative text-slate-500" style={{ marginTop: s(28), fontSize: s(14) }}>
-                    This is to certify that
+                    {t('certificates.template.certifyThat')}
                   </p>
                   <p
                     className={cn(playfair.className, 'relative font-bold')}
@@ -182,10 +186,10 @@ export function CertificatesList({
                   />
 
                   <p className="relative text-slate-500" style={{ marginTop: s(20), fontSize: s(14) }}>
-                    has participated in the
+                    {t('certificates.template.participatedIn')}
                   </p>
                   <p className="relative font-bold" style={{ color: NAVY, marginTop: s(4), fontSize: s(18) }}>
-                    Youth Knowledge Forum — {selected.title}
+                    {t('certificates.template.forumName', { title: selected.title })}
                   </p>
 
                   <div
@@ -193,11 +197,11 @@ export function CertificatesList({
                     style={{ color: MUTED, marginTop: s(16), gap: s(16), fontSize: s(14) }}
                   >
                     <span className="flex items-center" style={{ gap: s(6) }}>
-                      <Calendar style={{ color: TEAL, height: s(16), width: s(16) }} /> 7–8 September 2026
+                      <Calendar style={{ color: TEAL, height: s(16), width: s(16) }} /> {t('certificates.template.dateRange')}
                     </span>
                     <span style={{ height: s(14), width: '1px', background: GOLD }} />
                     <span className="flex items-center" style={{ gap: s(6) }}>
-                      <MapPin style={{ color: TEAL, height: s(16), width: s(16) }} /> ICESCO Headquarters, Rabat, Morocco
+                      <MapPin style={{ color: TEAL, height: s(16), width: s(16) }} /> {t('certificates.template.location')}
                     </span>
                   </div>
 
@@ -219,7 +223,7 @@ export function CertificatesList({
                         <span className="rotate-45" style={{ height: s(4), width: s(4), background: GOLD }} />
                       </div>
                       <p className="font-semibold text-slate-700" style={{ marginTop: s(6), fontSize: s(12) }}>
-                        Director-General
+                        {t('certificates.template.directorGeneral')}
                       </p>
                       <p className="text-slate-400" style={{ fontSize: s(11) }}>
                         ICESCO
@@ -233,7 +237,7 @@ export function CertificatesList({
                           className="whitespace-nowrap font-semibold uppercase"
                           style={{ color: GOLD, fontSize: s(10), letterSpacing: '0.15em' }}
                         >
-                          In Partnership With
+                          {t('certificates.template.partnership')}
                         </p>
                         <span className="shrink-0" style={{ height: '1px', width: s(20), background: GOLD }} />
                       </div>
@@ -273,7 +277,7 @@ export function CertificatesList({
             </div>
           ) : (
             <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-              No certificates yet.
+              {t('certificates.noneYet')}
             </div>
           )}
 
@@ -282,11 +286,11 @@ export function CertificatesList({
               disabled={selected?.status !== 'issued'}
               className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-icesco-blue px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-icesco disabled:cursor-not-allowed disabled:bg-secondary disabled:text-muted-foreground"
             >
-              <Download className="h-4 w-4" /> Download PDF
+              <Download className="h-4 w-4" /> {t('certificates.downloadPdf')}
             </button>
             <button
               disabled={selected?.status !== 'issued'}
-              aria-label="Share certificate"
+              aria-label={t('certificates.shareCertificate')}
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Share2 className="h-4 w-4" />

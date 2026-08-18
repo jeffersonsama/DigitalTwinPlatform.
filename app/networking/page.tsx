@@ -5,10 +5,11 @@ import { NetworkingDirectory, type DelegateView, type NetworkingStatView } from 
 import { prisma } from '@/lib/db'
 import { getCurrentUser, requireEnabledPage } from '@/lib/auth'
 import { resolveAvatar } from '@/lib/avatar'
+import { getTranslations } from '@/lib/i18n-server'
 
-export const metadata: Metadata = {
-  title: 'Networking | ICESCO Crisis Forum 2026',
-  description: 'Connect and collaborate with delegates from across the Islamic world.',
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslations()
+  return { title: `${t('networking')} | ICESCO Crisis Forum 2026`, description: t('networking.pageDescription') }
 }
 
 const ONLINE_WINDOW_MS = 5 * 60 * 1000
@@ -16,11 +17,12 @@ const ONLINE_WINDOW_MS = 5 * 60 * 1000
 export default async function NetworkingPage() {
   await requireEnabledPage('networking')
 
-  const [users, countries, acceptedConnections, viewer] = await Promise.all([
+  const [users, countries, acceptedConnections, viewer, { t }] = await Promise.all([
     prisma.user.findMany({ orderBy: { name: 'asc' } }),
     prisma.country.findMany(),
     prisma.connection.findMany({ where: { status: 'accepted' } }),
     getCurrentUser(),
+    getTranslations(),
   ])
 
   const [pendingCount, distinctCountries, viewerConnections] = await Promise.all([
@@ -71,14 +73,17 @@ export default async function NetworkingPage() {
     })
 
   const stats: NetworkingStatView[] = [
-    { label: 'Delegates Online', value: String(users.filter((u) => now - u.lastSeenAt.getTime() < ONLINE_WINDOW_MS).length) },
-    { label: 'Connections Made', value: String(acceptedConnections.length) },
-    { label: 'Pending Requests', value: String(pendingCount) },
-    { label: 'Countries', value: String(distinctCountries.length) },
+    {
+      label: t('networking.stats.delegatesOnline'),
+      value: String(users.filter((u) => now - u.lastSeenAt.getTime() < ONLINE_WINDOW_MS).length),
+    },
+    { label: t('networking.stats.connectionsMade'), value: String(acceptedConnections.length) },
+    { label: t('networking.stats.pendingRequests'), value: String(pendingCount) },
+    { label: t('networking.stats.countries'), value: String(distinctCountries.length) },
   ]
 
   return (
-    <AppShell title="Networking">
+    <AppShell title={t('networking')}>
       <NetworkingDirectory delegates={delegates} stats={stats} isLoggedIn={!!viewer} />
       <SiteFooter />
     </AppShell>

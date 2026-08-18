@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { setPageEnabled } from '@/lib/actions/page-flags'
+import { useLocale } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 export interface TogglePageView {
@@ -35,6 +36,7 @@ function Toggle({ checked, onChange, pending }: { checked: boolean; onChange: ()
 }
 
 export function PageVisibilityPanel({ pages }: { pages: TogglePageView[] }) {
+  const { t } = useLocale()
   const [state, setState] = useState(pages)
   const [pendingKey, setPendingKey] = useState<string | null>(null)
   const [, startTransition] = useTransition()
@@ -51,12 +53,12 @@ export function PageVisibilityPanel({ pages }: { pages: TogglePageView[] }) {
   return (
     <section className="rounded-xl border border-white/10 bg-navy-900 p-4">
       <div className="mb-1 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-white">Page Visibility</h2>
-        <span className="text-[11px] text-white/40">{state.filter((p) => !p.enabled).length} hidden</span>
+        <h2 className="text-sm font-semibold text-white">{t('command.pageVisibility.title')}</h2>
+        <span className="text-[11px] text-white/40">
+          {t('command.pageVisibility.hiddenCount', { count: state.filter((p) => !p.enabled).length })}
+        </span>
       </div>
-      <p className="mb-3 text-xs text-white/50">
-        Turning a page off removes it from the menu for delegates and blocks the URL directly. Admins keep full access.
-      </p>
+      <p className="mb-3 text-xs text-white/50">{t('command.pageVisibility.helper')}</p>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {state.map((p) => (
           <div

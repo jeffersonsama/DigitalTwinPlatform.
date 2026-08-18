@@ -4,8 +4,10 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { COUNTRIES } from '@/lib/countries'
+import { useLocale } from '@/lib/i18n'
 
 export function RegisterForm() {
+  const { t } = useLocale()
   const router = useRouter()
   const [values, setValues] = useState({ name: '', email: '', password: '', role: '', country: '' })
   const [error, setError] = useState('')
@@ -28,7 +30,7 @@ export function RegisterForm() {
     setSubmitting(false)
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
-      setError(body.error || 'Something went wrong')
+      setError(body.error || t('auth.errorGeneric'))
       return
     }
     router.push('/passport')
@@ -39,7 +41,7 @@ export function RegisterForm() {
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <label htmlFor="name" className="text-sm font-medium text-foreground">
-          Full name
+          {t('auth.register.fullNameLabel')}
         </label>
         <input
           id="name"
@@ -52,12 +54,12 @@ export function RegisterForm() {
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="role" className="text-sm font-medium text-foreground">
-            Role
+            {t('auth.register.roleLabel')}
           </label>
           <input
             id="role"
             required
-            placeholder="e.g. Civil Protection Officer"
+            placeholder={t('auth.register.rolePlaceholder')}
             value={values.role}
             onChange={update('role')}
             className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
@@ -65,7 +67,7 @@ export function RegisterForm() {
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="country" className="text-sm font-medium text-foreground">
-            Country
+            {t('auth.register.countryLabel')}
           </label>
           <select
             id="country"
@@ -87,7 +89,7 @@ export function RegisterForm() {
       </div>
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="text-sm font-medium text-foreground">
-          Email
+          {t('auth.emailLabel')}
         </label>
         <input
           id="email"
@@ -100,7 +102,7 @@ export function RegisterForm() {
       </div>
       <div className="flex flex-col gap-1.5">
         <label htmlFor="password" className="text-sm font-medium text-foreground">
-          Password
+          {t('auth.passwordLabel')}
         </label>
         <input
           id="password"
@@ -111,7 +113,7 @@ export function RegisterForm() {
           onChange={update('password')}
           className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
         />
-        <p className="text-xs text-muted-foreground">At least 8 characters.</p>
+        <p className="text-xs text-muted-foreground">{t('auth.register.passwordHint')}</p>
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
@@ -121,13 +123,13 @@ export function RegisterForm() {
         disabled={submitting}
         className="mt-1 rounded-lg bg-icesco-blue px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-icesco disabled:opacity-60"
       >
-        {submitting ? 'Creating account…' : 'Create account'}
+        {submitting ? t('auth.register.submitting') : t('auth.register.submit')}
       </button>
 
       <p className="text-center text-sm text-muted-foreground">
-        Already have an account?{' '}
+        {t('auth.register.haveAccount')}{' '}
         <Link href="/login" className="font-medium text-icesco-blue hover:underline">
-          Log in
+          {t('shell.logIn')}
         </Link>
       </p>
     </form>

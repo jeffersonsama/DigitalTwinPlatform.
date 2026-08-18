@@ -5,15 +5,17 @@ import { DigitalPassport } from '@/components/passport/digital-passport'
 import { prisma } from '@/lib/db'
 import { requireUser, requireEnabledPage } from '@/lib/auth'
 import { resolveAvatarId } from '@/lib/avatar'
+import { getTranslations } from '@/lib/i18n-server'
 
-export const metadata: Metadata = {
-  title: 'My Passport | ICESCO Crisis Forum 2026',
-  description: 'Your digital forum passport — level, badges, certificates, skills and progress.',
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslations()
+  return { title: `${t('passport')} | ICESCO Crisis Forum 2026`, description: t('passport.pageDescription') }
 }
 
 export default async function PassportPage() {
   await requireEnabledPage('passport')
   const user = await requireUser()
+  const { t } = await getTranslations()
 
   const [badges, skills, progress, activity, certs, connectionsCount, certificatesCount, countries] = await Promise.all([
     prisma.badge.findMany({ where: { userId: user.id } }),
@@ -31,7 +33,7 @@ export default async function PassportPage() {
   const missions = progress.find((p) => p.label === 'Missions Completed')?.value ?? 0
 
   return (
-    <AppShell title="My Passport">
+    <AppShell title={t('passport')}>
       <DigitalPassport
         passport={{
           id: user.id,
@@ -57,8 +59,8 @@ export default async function PassportPage() {
           issuedLabel: c.issuedAt
             ? c.issuedAt.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })
             : c.status === 'in_progress'
-              ? 'In progress'
-              : 'Locked',
+              ? t('certificates.status.inProgress')
+              : t('certificates.status.locked'),
         }))}
       />
       <SiteFooter />
