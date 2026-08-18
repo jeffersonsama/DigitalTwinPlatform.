@@ -8,6 +8,7 @@
 // il ne connaît que la partie en cours, exactement comme le prescrit la section 3.1.
 import { SCENARIOS } from '../data/scenarios.js';
 import { applyChoice, tickRecurring, applyPendingActEnd, checkDefeat } from './effects.js';
+import { XP_BAREME } from './xp.js';
 
 function newSessionId() {
   return `s${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
@@ -104,7 +105,7 @@ export function gameReducer(state, action) {
       return pushXp(
         next,
         `CONSULTER_DOSSIER:${state.sessionId}:${state.scenarioId}:${acte.id}`,
-        10,
+        XP_BAREME.CONSULTER_DOSSIER.xp,
         'Dossier de données consulté'
       );
     }
@@ -174,12 +175,12 @@ export function gameReducer(state, action) {
         },
       };
 
-      next = pushXp(next, `NODE_RESOLVED:${state.sessionId}:${node.id}`, 15, node.titre);
+      next = pushXp(next, `NODE_RESOLVED:${state.sessionId}:${node.id}`, XP_BAREME.NODE_RESOLVED.xp, node.titre);
       if (node.timerSec && !timedOut) {
-        next = pushXp(next, `NODE_TIMED_BONUS:${state.sessionId}:${node.id}`, 5, 'Décision rendue à temps');
+        next = pushXp(next, `NODE_TIMED_BONUS:${state.sessionId}:${node.id}`, XP_BAREME.NODE_TIMED_BONUS.xp, 'Décision rendue à temps');
       }
       for (const cardId of newlyUnlockedCards) {
-        next = pushXp(next, `CARTE_DEBLOQUEE:${cardId}`, 25, 'Carte de savoir débloquée');
+        next = pushXp(next, `CARTE_DEBLOQUEE:${cardId}`, XP_BAREME.CARTE_DEBLOQUEE.xp, 'Carte de savoir débloquée');
       }
       return next;
     }
@@ -189,7 +190,7 @@ export function gameReducer(state, action) {
       const wordCount = action.text.trim().split(/\s+/).filter(Boolean).length;
       if (wordCount < 15) return state;
       const next = { ...state, openQuestionAnswered: true, openQuestionText: action.text };
-      return pushXp(next, `QUESTION_OUVERTE:${state.sessionId}:${state.scenarioId}`, 40, 'Question ouverte');
+      return pushXp(next, `QUESTION_OUVERTE:${state.sessionId}:${state.scenarioId}`, XP_BAREME.QUESTION_OUVERTE.xp, 'Question ouverte');
     }
 
     case 'ACK_FEEDBACK': {
@@ -206,11 +207,11 @@ export function gameReducer(state, action) {
           currentNodeId: null,
         };
         if (allResolved) {
-          next = pushXp(next, `ACT_COMPLETE:${state.sessionId}:${acte.id}`, 50, acte.titre);
+          next = pushXp(next, `ACT_COMPLETE:${state.sessionId}:${acte.id}`, XP_BAREME.ACT_COMPLETE.xp, acte.titre);
         }
         if (state.defeatText) {
-          next = pushXp(next, `SCENARIO_COMPLETE:${state.sessionId}:${state.scenarioId}`, 200, 'Scénario terminé');
-          next = pushXp(next, `PAYS_PREMIERE_FOIS:${state.scenarioId}`, 100, 'Première complétion du pays');
+          next = pushXp(next, `SCENARIO_COMPLETE:${state.sessionId}:${state.scenarioId}`, XP_BAREME.SCENARIO_COMPLETE.xp, 'Scénario terminé');
+          next = pushXp(next, `PAYS_PREMIERE_FOIS:${state.scenarioId}`, XP_BAREME.PAYS_PREMIERE_FOIS.xp, 'Première complétion du pays');
         }
         return next;
       }
@@ -228,8 +229,8 @@ export function gameReducer(state, action) {
         };
       }
       let next = { ...state, screen: 'FINAL_DEBRIEF' };
-      next = pushXp(next, `SCENARIO_COMPLETE:${state.sessionId}:${state.scenarioId}`, 200, 'Scénario terminé');
-      next = pushXp(next, `PAYS_PREMIERE_FOIS:${state.scenarioId}`, 100, 'Première complétion du pays');
+      next = pushXp(next, `SCENARIO_COMPLETE:${state.sessionId}:${state.scenarioId}`, XP_BAREME.SCENARIO_COMPLETE.xp, 'Scénario terminé');
+      next = pushXp(next, `PAYS_PREMIERE_FOIS:${state.scenarioId}`, XP_BAREME.PAYS_PREMIERE_FOIS.xp, 'Première complétion du pays');
       return next;
     }
 

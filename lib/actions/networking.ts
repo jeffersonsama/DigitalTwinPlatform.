@@ -4,10 +4,40 @@ import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { requireUser } from '@/lib/auth'
 import { notify } from '@/lib/notifications'
+import { awardXp } from '@/lib/gamification/xp'
+import { XP } from '@/lib/gamification/config'
 
 function refresh(otherUserId: string) {
   revalidatePath('/networking')
   revalidatePath(`/profile/${otherUserId}`)
+}
+
+/** 10 XP pour chacune des deux parties d'une connexion mutuelle acceptée, plafonné à
+ * XP.CONNECTION_DAILY_CAP par jour et par participant — jamais à l'envoi d'une demande, seulement
+ * quand les deux parties sont effectivement connectées (docs/xp-certification-system.md §3.3). */
+async function awardConnectionXpBothSides(connectionId: string, fromUserId: string, toUserId: string) {
+  await Promise.all([awardConnectionXpForUser(fromUserId, connectionId), awardConnectionXpForUser(toUserId, connectionId)])
+}
+
+async function awardConnectionXpForUser(userId: string, connectionId: string) {
+  const startOfDay = new Date()
+  startOfDay.setHours(0, 0, 0, 0)
+
+  const acceptedToday = await prisma.connection.count({
+    where: {
+      status: 'accepted',
+      acceptedAt: { gte: startOfDay },
+      OR: [{ fromUserId: userId }, { toUserId: userId }],
+    },
+  })
+  if (acceptedToday > XP.CONNECTION_DAILY_CAP) return
+
+  await awardXp(userId, {
+    key: `CONNECTION_ACCEPTED:${connectionId}:${userId}`,
+    amount: XP.CONNECTION_ACCEPTED,
+    title: 'Nouvelle connexion',
+    meta: 'Réseautage',
+  })
 }
 
 /** Connect button on the Networking directory — creates a *pending* request.
@@ -22,7 +52,8 @@ export async function sendConnectionRequest(targetUserId: string) {
     where: { fromUserId: targetUserId, toUserId: user.id },
   })
   if (reverse) {
-    await prisma.connection.update({ where: { id: reverse.id }, data: { status: 'accepted' } })
+    await prisma.connection.update({ where: { id: reverse.id }, data: { status: 'accepted', acceptedAt: new Date() } })
+    await awardConnectionXpBothSides(reverse.id, reverse.fromUserId, reverse.toUserId)
     await notify({
       userId: targetUserId,
       actorId: user.id,
@@ -60,10 +91,12 @@ export async function cancelConnectionRequest(targetUserId: string) {
 /** Accepts an incoming pending request — unlocks messaging both ways. */
 export async function acceptConnectionRequest(fromUserId: string) {
   const user = await requireUser()
-  await prisma.connection.updateMany({
+  const connection = await prisma.connection.findFirst({
     where: { fromUserId, toUserId: user.id, status: 'pending' },
-    data: { status: 'accepted' },
   })
+  if (!connection) return
+  await prisma.connection.update({ where: { id: connection.id }, data: { status: 'accepted', acceptedAt: new Date() } })
+  await awardConnectionXpBothSides(connection.id, connection.fromUserId, connection.toUserId)
   await notify({
     userId: fromUserId,
     actorId: user.id,
@@ -99,15 +132,20 @@ export async function connectFromQr(targetUserId: string) {
   })
 
   const alreadyAccepted = existing?.status === 'accepted'
+  let connectionId = existing?.id
   if (existing) {
     if (!alreadyAccepted) {
-      await prisma.connection.update({ where: { id: existing.id }, data: { status: 'accepted' } })
+      await prisma.connection.update({ where: { id: existing.id }, data: { status: 'accepted', acceptedAt: new Date() } })
     }
   } else {
-    await prisma.connection.create({ data: { fromUserId: user.id, toUserId: targetUserId, status: 'accepted' } })
+    const created = await prisma.connection.create({
+      data: { fromUserId: user.id, toUserId: targetUserId, status: 'accepted', acceptedAt: new Date() },
+    })
+    connectionId = created.id
   }
 
-  if (!alreadyAccepted) {
+  if (!alreadyAccepted && connectionId) {
+    await awardConnectionXpBothSides(connectionId, user.id, targetUserId)
     await notify({
       userId: targetUserId,
       actorId: user.id,

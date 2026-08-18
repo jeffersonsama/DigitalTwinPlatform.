@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { backend } from '../engine/backend.js';
 import { RADAR_QUESTIONS, emptyEngagement, engagementComplet, computeTargets } from './s4.js';
 import { awardAtelierCompletion } from '../engine/xpBridge.js';
+import PromotionModal from '../../ui/PromotionModal.jsx';
 
 export default function ParticipantS4({ session, participant, submitResponse }) {
   const phase = session.phase;
@@ -253,6 +254,9 @@ export default function ParticipantS4({ session, participant, submitResponse }) 
             <p>Badge débloqué : « Bâtisseur du Jour 1 »</p>
             {xpResult.jour1Complet && <p className="highlight">🏆 Badge « Jour 1 complet » débloqué !</p>}
           </div>
+        )}
+        {xpResult?.leveledUp && (
+          <PromotionModal grade={xpResult.leveledUp} onDismiss={() => setXpResult((r) => r && { ...r, leveledUp: null })} />
         )}
         <p className="muted">Retrouvez cet engagement dans votre bilan Crisis City.</p>
       </div>

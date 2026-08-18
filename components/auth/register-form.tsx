@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { COUNTRIES } from '@/lib/countries'
 
 export function RegisterForm() {
   const router = useRouter()
@@ -11,7 +12,8 @@ export function RegisterForm() {
   const [submitting, setSubmitting] = useState(false)
 
   function update(field: keyof typeof values) {
-    return (e: React.ChangeEvent<HTMLInputElement>) => setValues((v) => ({ ...v, [field]: e.target.value }))
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      setValues((v) => ({ ...v, [field]: e.target.value }))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -65,13 +67,22 @@ export function RegisterForm() {
           <label htmlFor="country" className="text-sm font-medium text-foreground">
             Country
           </label>
-          <input
+          <select
             id="country"
             required
             value={values.country}
             onChange={update('country')}
             className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
-          />
+          >
+            <option value="" disabled>
+              Select a country…
+            </option>
+            {COUNTRIES.map((c) => (
+              <option key={c.isoCode} value={c.name}>
+                {c.name}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
       <div className="flex flex-col gap-1.5">

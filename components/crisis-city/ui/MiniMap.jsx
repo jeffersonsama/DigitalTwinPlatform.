@@ -8,11 +8,11 @@ import React, { useEffect, useRef } from 'react';
 // joueur est repositionné à chaque image directement en style DOM par Scene3D.jsx (via
 // `playerDotRef`), sans passer par l'état React, pour ne pas re-render à 60 im/s.
 const PLAN_COLORS = {
-  water: '#2f5f82',
-  sand: '#c9ad7a',
-  ground: '#24262c',
+  water: '#1e5c8f',
+  sand: '#caa08a',
+  ground: '#16283f',
   vegetation: '#3f5c3c',
-  building: '#a89a82',
+  building: '#6a86a6',
 };
 const PLAN_ORDER = ['water', 'sand', 'ground', 'vegetation', 'building'];
 const CANVAS_SIZE = 300; // résolution interne (affichée à ~150px CSS, cf. index.css) — netteté écrans retina

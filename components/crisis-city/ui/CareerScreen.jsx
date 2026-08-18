@@ -1,5 +1,5 @@
 import React from 'react';
-import { GRADES, gradePourXp } from '../engine/xp.js';
+import { GRADES, gradePourXp, niveauPourXp } from '../engine/xp.js';
 import { BADGES } from '../engine/badges.js';
 import { unlockedCardIdsEver, totalXp } from '../engine/persistence.js';
 import { KNOWLEDGE_CARDS } from '../data/knowledgeCards.js';
@@ -27,7 +27,9 @@ function exportJournal(scenarioId, history) {
 export default function CareerScreen({ progress, onClose, exportableRuns, completedScenarios, pack }) {
   const xp = totalXp(progress);
   const grade = gradePourXp(xp);
+  const niveau = niveauPourXp(xp);
   const unlockedCards = unlockedCardIdsEver(progress);
+  const totalCards = Object.keys(KNOWLEDGE_CARDS).length;
 
   function downloadJournal(scenarioId) {
     const text = exportJournal(scenarioId, exportableRuns[scenarioId]);
@@ -58,16 +60,13 @@ export default function CareerScreen({ progress, onClose, exportableRuns, comple
         </div>
 
         <section className="career-section">
-          <h3>Grades — {xp} XP</h3>
+          <h3>Grades — {xp} XP · Niveau {niveau}/10</h3>
           <ol className="grade-ladder">
             {GRADES.map((g, i) => (
               <li key={g.titre} className={`grade-ladder-item ${i === grade.index ? 'current' : ''} ${i < grade.index ? 'past' : ''}`}>
                 <span className="grade-ladder-chevron">{i + 1}</span>
                 <span className="grade-ladder-titre">{g.titre}</span>
-                <span className="grade-ladder-deblocage">
-                  {g.deblocage}
-                  {!g.implemente && <em className="muted"> (à venir)</em>}
-                </span>
+                <span className="grade-ladder-deblocage">{g.deblocage}</span>
               </li>
             ))}
           </ol>
@@ -113,7 +112,7 @@ export default function CareerScreen({ progress, onClose, exportableRuns, comple
         </section>
 
         <section className="career-section">
-          <h3>Cartes de savoir ({unlockedCards.length}/20)</h3>
+          <h3>Cartes de savoir ({unlockedCards.length}/{totalCards})</h3>
           <div className="collection-grid">
             {Object.values(KNOWLEDGE_CARDS).map((c) => {
               const has = unlockedCards.includes(c.id);

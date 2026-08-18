@@ -14,6 +14,10 @@ export interface CurrentUser {
   name: string
   avatar: string
   isAdmin: boolean
+  xp: number
+  level: number
+  levelTitle: string
+  xpMax: number
 }
 
 const THEME_CYCLE: Array<{ value: 'light' | 'dark' | 'system'; icon: typeof Sun; label: string }> = [
@@ -140,6 +144,25 @@ export function TopBar({
 
         {user ? (
           <div className="flex items-center gap-2">
+            <Link
+              href="/passport"
+              title={`${user.levelTitle} · ${user.xp.toLocaleString()} / ${user.xpMax.toLocaleString()} XP`}
+              className={cn(
+                'hidden items-center gap-2 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors sm:flex',
+                immersive ? 'bg-white/10 text-white/80 hover:bg-white/15' : 'bg-accent text-icesco-blue hover:bg-accent/80',
+              )}
+            >
+              <span className="whitespace-nowrap">Niv. {user.level}</span>
+              <span
+                className={cn('h-1.5 w-12 overflow-hidden rounded-full', immersive ? 'bg-white/15' : 'bg-icesco-blue/15')}
+              >
+                <span
+                  className={cn('block h-full rounded-full', immersive ? 'bg-cyan-accent' : 'bg-icesco-blue')}
+                  style={{ width: `${Math.min(100, Math.round((user.xp / Math.max(user.xpMax, 1)) * 100))}%` }}
+                />
+              </span>
+              <span className="whitespace-nowrap">{user.xp.toLocaleString()} XP</span>
+            </Link>
             {user.isAdmin && (
               <span
                 className={cn(

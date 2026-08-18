@@ -18,7 +18,7 @@ import PromotionModal from './ui/PromotionModal.jsx';
 import CareerScreen from './ui/CareerScreen.jsx';
 import { REACTIONS } from './data/reactions.js';
 import { PACKS, DEFAULT_PACK_ID, resolveAutoPack } from './data/packs.js';
-import { detectCountryCode } from './atelier/engine/geoip.js';
+import { getIsoCodeByCountryName } from '@/lib/countries';
 import {
   TitleScreen, CountrySelectScreen, BriefingScreen, FeedbackScreen,
   ActDebriefScreen, CommitmentScreen, EndScreen,
@@ -26,7 +26,8 @@ import {
 
 const FONT_CLASSES = ['font-small', 'font-normal', 'font-large'];
 
-export default function CrisisCityGame() {
+export default function CrisisCityGame({ country }) {
+  const countryCode = getIsoCodeByCountryName(country);
   const [state, dispatch] = useReducer(gameReducer, undefined, initialState);
   const [fontScale, setFontScale] = useState(1);
   const [toast, setToast] = useState(null);
@@ -40,23 +41,21 @@ export default function CrisisCityGame() {
   const pack = (autoPack && packId === autoPack.id) ? autoPack : (PACKS[packId] || PACKS[DEFAULT_PACK_ID]);
   const packCycleIds = autoPack ? [autoPack.id, ...Object.keys(PACKS)] : Object.keys(PACKS);
 
-  // Détection automatique du pays via géolocalisation IP (réutilise atelier/engine/geoip.js tel
-  // quel) : ne personnalise QUE la couleur civique et le nom de la ville (donnée factuelle et
-  // publique, le drapeau officiel) — jamais la toponymie/les prénoms, qui restent gated par la
-  // LOI 2 (validation native). Repli silencieux si la détection échoue ou si le pays n'est pas
-  // couvert (cf. data/countryFlags.js) : le pack neutre reste actif, comportement inchangé.
+  // Pack civique dérivé du pays renseigné à l'inscription (User.country, plateforme) — remplace
+  // l'ancienne détection par géolocalisation IP (ipapi.co/ipwho.is), peu fiable en salle avec des
+  // centaines de connexions simultanées sur le même wifi. Ne personnalise QUE la couleur civique
+  // et le nom de la ville (donnée factuelle et publique, le drapeau officiel) — jamais la
+  // toponymie/les prénoms, qui restent gated par la LOI 2 (validation native). Repli silencieux
+  // si le pays n'est pas couvert (cf. data/countryFlags.js) : le pack neutre reste actif.
   useEffect(() => {
-    let cancelled = false;
-    detectCountryCode().then((countryCode) => {
-      if (cancelled || packTouchedRef.current) return;
-      const resolved = resolveAutoPack(countryCode);
-      if (resolved) {
-        setAutoPack(resolved);
-        setPackId(resolved.id);
-      }
-    });
-    return () => { cancelled = true; };
-  }, []);
+    if (packTouchedRef.current) return;
+    const resolved = resolveAutoPack(countryCode);
+    if (resolved) {
+      setAutoPack(resolved);
+      setPackId(resolved.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countryCode]);
   const [exportableRuns, setExportableRuns] = useState(() =>
     Object.fromEntries(Object.keys(SCENARIOS).map((id) => [id, null]))
   );
@@ -67,7 +66,7 @@ export default function CrisisCityGame() {
 
   const progress = useProgress();
   const xp = totalXp(progress.progress);
-  useGameSession(state.sessionId, state.scenarioId);
+  useGameSession(state.sessionId, state.scenarioId, countryCode);
 
   // Couleurs civiques du pack appliquées en direct, sans remount (Doc n°6 §J5 : "changer de
   // pack change... sans recharger"). Repli implicite : si le pack n'a pas de `couleurs`, on ne
@@ -99,6 +98,7 @@ export default function CrisisCityGame() {
     prevScreenRef.current = state.screen;
     if (state.screen === 'COMMITMENT' && prevScreen !== 'COMMITMENT') {
       progress.completeScenario(state.scenarioId, {
+        sessionId: state.sessionId,
         history: state.history,
         knowledgeCards: state.knowledgeCards,
         marqueurs: state.marqueurs,
@@ -186,7 +186,7 @@ export default function CrisisCityGame() {
       break;
 
     case 'COUNTRY_SELECT':
-      content = <CountrySelectScreen onSelect={handleSelectCountry} />;
+      content = <CountrySelectScreen onSelect={handleSelectCountry} xp={xp} />;
       break;
 
     case 'BRIEFING':

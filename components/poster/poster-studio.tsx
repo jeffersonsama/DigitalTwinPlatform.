@@ -1,15 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import Image from 'next/image'
-import { Image as ImageIcon, Download, Sparkles, Type, Palette } from 'lucide-react'
+import { Image as ImageIcon, Download, Sparkles, Type, Palette, CheckCircle2, UploadCloud } from 'lucide-react'
 import { posterTemplates } from '@/lib/data'
+import { publishPoster } from '@/lib/actions/poster-studio'
 import { cn } from '@/lib/utils'
 
 export function PosterStudio() {
   const [template, setTemplate] = useState(posterTemplates[0])
   const [title, setTitle] = useState('Building Resilient Communities')
   const [subtitle, setSubtitle] = useState('ICESCO Crisis Management Knowledge Forum 2026')
+  const [published, setPublished] = useState(false)
+  const [pending, startTransition] = useTransition()
 
   return (
     <main className="mx-auto grid w-full max-w-[1400px] flex-1 grid-cols-1 gap-4 px-4 py-6 md:px-6 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
@@ -34,7 +37,10 @@ export function PosterStudio() {
             {posterTemplates.map((tpl) => (
               <button
                 key={tpl.id}
-                onClick={() => setTemplate(tpl)}
+                onClick={() => {
+                  setTemplate(tpl)
+                  setPublished(false)
+                }}
                 className={cn(
                   'overflow-hidden rounded-xl border p-2 text-left transition-colors',
                   template.id === tpl.id ? 'border-icesco-blue ring-2 ring-ring/40' : 'border-border hover:border-icesco-blue',
@@ -56,7 +62,10 @@ export function PosterStudio() {
             <span className="text-muted-foreground">Headline</span>
             <input
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value)
+                setPublished(false)
+              }}
               className="rounded-lg border border-border bg-background px-3 py-2 text-foreground outline-none focus:border-icesco-blue focus:ring-2 focus:ring-ring/40"
             />
           </label>
@@ -64,7 +73,10 @@ export function PosterStudio() {
             <span className="text-muted-foreground">Subtitle</span>
             <input
               value={subtitle}
-              onChange={(e) => setSubtitle(e.target.value)}
+              onChange={(e) => {
+                setSubtitle(e.target.value)
+                setPublished(false)
+              }}
               className="rounded-lg border border-border bg-background px-3 py-2 text-foreground outline-none focus:border-icesco-blue focus:ring-2 focus:ring-ring/40"
             />
           </label>
@@ -78,6 +90,23 @@ export function PosterStudio() {
             <Download className="h-4 w-4" /> Export
           </button>
         </div>
+
+        <button
+          disabled={pending}
+          onClick={() => {
+            startTransition(async () => {
+              await publishPoster({ template: template.id, title, subtitle })
+              setPublished(true)
+            })
+          }}
+          className={cn(
+            'flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-60',
+            published ? 'bg-icesco-teal hover:bg-icesco-teal/90' : 'bg-forum-orange hover:bg-forum-orange/90',
+          )}
+        >
+          {published ? <CheckCircle2 className="h-4 w-4" /> : <UploadCloud className="h-4 w-4" />}
+          {pending ? 'Publication…' : published ? 'Publiée · +20 XP' : 'Publier cette affiche'}
+        </button>
       </div>
 
       {/* Live preview */}

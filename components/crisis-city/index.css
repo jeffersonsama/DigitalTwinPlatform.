@@ -1,13 +1,17 @@
+/* Palette alignée sur celle de la plateforme (app/globals.css, mode sombre) — navy en base,
+   corail en accent principal, cyan ICESCO en accent secondaire. Remplace l'ancien duo neutre/
+   ochre/teal du jeu, propre à Crisis City et sans lien avec l'identité visuelle du forum. */
 :root {
-  --bg: #17181c;
-  --panel: #21232a;
-  --panel-light: #2b2e37;
-  --accent: #d9a253;
-  --accent-2: #5aa9a3;
-  --text: #f1ede4;
-  --text-muted: #b7b3a8;
-  --danger: #c9564a;
+  --bg: #050d1f;
+  --panel: #0e1f3d;
+  --panel-light: #132a4f;
+  --accent: #f2705c;
+  --accent-2: #2bb8de;
+  --text: #eef4fb;
+  --text-muted: #93a6c0;
+  --danger: #e0392b;
   --good: #6fae72;
+  --border: #1c3a66;
   --radius: 10px;
   --font-scale: 1;
 }
@@ -54,6 +58,17 @@ button {
 .screen h1 { font-size: 1.7em; margin: 0 0 4px; color: var(--accent); }
 .screen h2 { font-size: 1.25em; margin: 0 0 4px; }
 
+/* Retour à la plateforme — le jeu occupe tout le viewport sans le rail/topbar habituel
+   (app/crisis-city/page.tsx), donc sans ce lien la seule sortie serait le bouton "précédent"
+   du navigateur. */
+.screen-home-link {
+  align-self: flex-start;
+  font-size: 0.85em;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.screen-home-link:hover { color: var(--accent); text-decoration: underline; }
+
 .btn-primary, .btn-secondary {
   border: none;
   border-radius: var(--radius);
@@ -69,9 +84,9 @@ button {
 .btn-secondary {
   background: var(--panel-light);
   color: var(--text);
-  border: 1px solid #3d4048;
+  border: 1px solid var(--border);
 }
-.btn-secondary:hover { background: #363944; }
+.btn-secondary:hover { background: #274b7e; }
 
 /* --- Title / country select --- */
 .title-screen {
@@ -94,7 +109,7 @@ button {
 }
 .country-card {
   background: var(--panel);
-  border: 1px solid #3d4048;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 24px;
   width: 240px;
@@ -104,6 +119,9 @@ button {
 }
 .country-card:hover { transform: translateY(-3px); border-color: var(--accent); }
 .country-card h2 { color: var(--accent); }
+.country-card.is-locked { opacity: 0.55; cursor: default; }
+.country-card.is-locked:hover { transform: none; border-color: var(--border); }
+.country-card.is-locked h2 { color: var(--text); }
 
 /* --- Briefing --- */
 .briefing-soustitre { text-transform: uppercase; letter-spacing: 1px; color: var(--accent-2); font-size: 0.85em; }
@@ -233,7 +251,7 @@ button {
   border-radius: 50%;
   background: #fff;
   border: 2px solid var(--accent-2);
-  box-shadow: 0 0 8px 2px rgba(90, 169, 163, 0.7);
+  box-shadow: 0 0 8px 2px rgba(43, 184, 222, 0.7);
 }
 .minimap-legend {
   display: flex;
@@ -258,11 +276,11 @@ button {
   .minimap-legend { font-size: 0.62em; }
 }
 
-.city2d { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 20px; background: linear-gradient(160deg,#2c2418,#181a1e); }
+.city2d { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 20px; background: linear-gradient(160deg,#132a4f,#050d1f); }
 .city2d-note { color: var(--text-muted); }
 .city2d-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; width: 100%; max-width: 640px; }
-.city2d-tile { position: relative; background: var(--panel); border: 2px solid #3d4048; border-radius: var(--radius); padding: 18px 10px; color: var(--text); }
-.city2d-tile.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(217,162,83,0.3); }
+.city2d-tile { position: relative; background: var(--panel); border: 2px solid var(--border); border-radius: var(--radius); padding: 18px 10px; color: var(--text); }
+.city2d-tile.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(242,112,92,0.3); }
 .city2d-tile:disabled { opacity: 0.45; cursor: default; }
 .city2d-tile.done { border-color: var(--good); }
 .city2d-tile-badge { position: absolute; top: 4px; right: 8px; color: var(--good); }
@@ -286,15 +304,16 @@ button {
 .hud-btn {
   background: var(--panel-light);
   color: var(--text);
-  border: 1px solid #3d4048;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 8px 12px;
 }
+a.hud-btn { text-decoration: none; display: inline-block; }
 .hud-font { display: flex; gap: 2px; }
 .hud-font-btn {
   background: var(--panel-light);
   color: var(--text);
-  border: 1px solid #3d4048;
+  border: 1px solid var(--border);
   border-radius: 6px;
   width: 28px; height: 28px;
 }
@@ -305,7 +324,7 @@ button {
 .hud-gauges { display: flex; gap: 14px; flex-wrap: wrap; }
 .hud-gauge { display: flex; flex-direction: column; gap: 3px; min-width: 110px; background: rgba(33,35,42,0.75); border-radius: 8px; padding: 6px 10px; }
 .hud-gauge-label { font-size: 0.75em; color: var(--text-muted); }
-.hud-gauge-bar { height: 6px; border-radius: 4px; background: #3a3d46; overflow: hidden; }
+.hud-gauge-bar { height: 6px; border-radius: 4px; background: var(--border); overflow: hidden; }
 .hud-gauge-fill { height: 100%; background: var(--accent-2); }
 .hud-gauge-value { font-size: 0.85em; font-weight: 600; }
 .hud-gauge-budget .hud-gauge-value { color: var(--accent); }
@@ -344,11 +363,11 @@ button {
 
 .knowledge-card {
   background: var(--panel-light);
-  border: 1px solid #3d4048;
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px;
 }
-.knowledge-card.just-unlocked { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(217,162,83,0.25); }
+.knowledge-card.just-unlocked { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(242,112,92,0.25); }
 .knowledge-card-flip { perspective: 900px; }
 .knowledge-card-flip.just-unlocked .knowledge-card {
   animation: card-materialize 550ms cubic-bezier(0.2, 0.7, 0.3, 1);
@@ -408,7 +427,7 @@ button {
   gap: 10px;
   text-align: left;
   background: var(--panel);
-  border: 1px solid #3d4048;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 12px 14px;
   color: var(--text);
@@ -460,9 +479,9 @@ button {
 .debrief-grid { display: flex; gap: 24px; flex-wrap: wrap; }
 .debrief-radar-block, .debrief-profile-block { flex: 1; min-width: 260px; }
 .radar-svg { display: block; margin: 0 auto; }
-.radar-grid { fill: none; stroke: #3a3d46; stroke-width: 1; }
-.radar-axis { stroke: #3a3d46; stroke-width: 1; }
-.radar-shape { fill: rgba(217,162,83,0.35); stroke: var(--accent); stroke-width: 2; }
+.radar-grid { fill: none; stroke: var(--border); stroke-width: 1; }
+.radar-axis { stroke: var(--border); stroke-width: 1; }
+.radar-shape { fill: rgba(242,112,92,0.35); stroke: var(--accent); stroke-width: 2; }
 .radar-label { fill: var(--text-muted); font-size: 11px; }
 .radar-legend { list-style: none; padding: 0; margin: 10px 0 0; font-size: 0.9em; }
 .radar-legend li { margin-bottom: 4px; }
@@ -471,14 +490,14 @@ button {
 .debrief-moment { background: var(--panel); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
 .debrief-moment-titre { font-weight: 700; color: var(--accent); }
 .debrief-moment-choix { margin: 4px 0; }
-.debrief-question textarea { width: 100%; margin-top: 8px; background: var(--panel); color: var(--text); border: 1px solid #3d4048; border-radius: 8px; padding: 10px; }
+.debrief-question textarea { width: 100%; margin-top: 8px; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px; }
 
 /* --- Commitment --- */
 .commitment-screen label { display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
 .commitment-screen textarea {
   background: var(--panel);
   color: var(--text);
-  border: 1px solid #3d4048;
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px;
   font-family: inherit;
@@ -499,7 +518,8 @@ button {
 }
 .grade-badge-info { min-width: 100px; }
 .grade-badge-titre { font-size: 0.8em; font-weight: 700; }
-.grade-badge-bar { height: 4px; background: #3a3d46; border-radius: 2px; margin-top: 3px; overflow: hidden; width: 90px; }
+.grade-badge-niveau { font-size: 0.68em; }
+.grade-badge-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: 3px; overflow: hidden; width: 90px; }
 .grade-badge-fill { height: 100%; background: var(--accent); }
 .grade-badge-xp { font-size: 0.68em; color: var(--text-muted); margin-top: 2px; }
 
@@ -543,7 +563,7 @@ button {
   stroke: var(--accent);
   stroke-dasharray: 170;
   stroke-dashoffset: 170;
-  filter: drop-shadow(0 0 6px rgba(217,162,83,0.7));
+  filter: drop-shadow(0 0 6px rgba(242,112,92,0.7));
   animation: insigne-draw 900ms ease forwards;
 }
 @keyframes insigne-draw {
@@ -588,7 +608,7 @@ button {
 .grade-ladder-deblocage { font-size: 0.82em; color: var(--text-muted); }
 .figure-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
 .figure-card {
-  background: var(--panel-light); border: 1px solid #3d4048; border-radius: 8px;
+  background: var(--panel-light); border: 1px solid var(--border); border-radius: 8px;
   padding: 12px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;
 }
 .figure-card.locked { opacity: 0.5; }
@@ -598,7 +618,7 @@ button {
 .figure-tag { font-size: 0.72em; padding: 2px 7px; border-radius: 999px; background: rgba(255,255,255,0.08); color: var(--text-muted); }
 .figure-tag.yes { background: rgba(111,174,114,0.18); color: var(--good); }
 
-.badge-card { background: var(--panel-light); border: 1px solid #3d4048; border-radius: 8px; padding: 12px; opacity: 0.6; }
+.badge-card { background: var(--panel-light); border: 1px solid var(--border); border-radius: 8px; padding: 12px; opacity: 0.6; }
 .badge-card.earned { opacity: 1; border-color: var(--good); }
 .badge-card-titre { font-weight: 700; margin-bottom: 4px; }
 .badge-card.earned .badge-card-titre { color: var(--good); }

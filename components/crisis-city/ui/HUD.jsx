@@ -18,6 +18,7 @@ export default function HUD({
           Acte {acteIndex + 1}/3 · actions restantes : {actionsLeft}/{actionsMax}
         </div>
         <div className="hud-controls">
+          <a href="/" className="hud-btn" title="Retour à l'accueil de la plateforme">🏠 Accueil</a>
           <GradeBadge xp={xp} compact />
           <button className="hud-btn" onClick={onOpenCareer}>Carrière</button>
           <button className="hud-btn" onClick={() => setShowCollection(true)}>

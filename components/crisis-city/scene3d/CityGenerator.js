@@ -8,10 +8,11 @@ const GRID = 14;
 const CELL = 10;
 
 // Doc n°6 (pivot 2.0), LOI 1 : "la géométrie est universelle" — une seule palette de repli
-// procédural pour toute la ville, plus de variante par pays.
+// procédural pour toute la ville, plus de variante par pays. Palette alignée sur l'identité de
+// la plateforme (bleu-navy en base, corail en accent d'activité) plutôt que le grès/ochre d'origine.
 const PALETTE_ALWASL = {
-  centre: 0xd9a86b, peripherie: 0xb9835a, activite: 0x8a7d6e,
-  ambiance: 0xf2e2c5, sol: 0xdcc79a,
+  centre: 0x2e4a6e, peripherie: 0x4a6684, activite: 0xc97b62,
+  ambiance: 0xd8c4b8, sol: 0x3a4a5e,
 };
 
 // Les 14 lieux des deux anciens scénarios coexistent tous sur la ville-monde Al-Wasl (aplati,
@@ -103,17 +104,17 @@ function landmarkPrimitive(id) {
     case 'centre_operationnel':
     case 'bureau_coordinateur':
     case 'cellule_crise': {
-      const base = new THREE.Mesh(new THREE.BoxGeometry(9, 7, 9), mat(0xc9b28a));
+      const base = new THREE.Mesh(new THREE.BoxGeometry(9, 7, 9), mat(0x4a6484));
       base.position.y = 3.5;
       g.add(base);
-      const roof = new THREE.Mesh(new THREE.ConeGeometry(7, 2.5, 4), mat(0x6f5a44));
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(7, 2.5, 4), mat(0xd97a5e));
       roof.position.y = 8.2;
       roof.rotation.y = Math.PI / 4;
       g.add(roof);
       break;
     }
     case 'radio': {
-      const base = new THREE.Mesh(new THREE.BoxGeometry(7, 6, 7), mat(0xb0a58f));
+      const base = new THREE.Mesh(new THREE.BoxGeometry(7, 6, 7), mat(0x4a6484));
       base.position.y = 3;
       g.add(base);
       const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 10, 6), mat(0x333333));
@@ -122,7 +123,7 @@ function landmarkPrimitive(id) {
       break;
     }
     case 'hopital': {
-      const base = new THREE.Mesh(new THREE.BoxGeometry(11, 9, 8), mat(0xe8e2d5));
+      const base = new THREE.Mesh(new THREE.BoxGeometry(11, 9, 8), mat(0x7a91ab));
       base.position.y = 4.5;
       g.add(base);
       const crossV = new THREE.Mesh(new THREE.BoxGeometry(1.2, 4, 0.3), mat(0xc0392b));
@@ -142,24 +143,24 @@ function landmarkPrimitive(id) {
         leaves.position.set(x, 5.5, z);
         g.add(trunk, leaves);
       }
-      const tower = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.6, 6, 10), mat(0xa8875f));
+      const tower = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.6, 6, 10), mat(0x5c7088));
       tower.position.set(-4, 3, -4);
-      const tank = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 2, 10), mat(0x8a715a));
+      const tank = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 2, 10), mat(0x4a6484));
       tank.position.set(-4, 7, -4);
       g.add(tower, tank);
       break;
     }
     case 'parvis_commune': {
-      const plaza = new THREE.Mesh(new THREE.CylinderGeometry(6, 6, 0.3, 16), mat(0xcbb98f));
+      const plaza = new THREE.Mesh(new THREE.CylinderGeometry(6, 6, 0.3, 16), mat(0x5c7088));
       plaza.position.y = 0.15;
-      const facade = new THREE.Mesh(new THREE.BoxGeometry(10, 8, 3), mat(0xd8c7a3));
+      const facade = new THREE.Mesh(new THREE.BoxGeometry(10, 8, 3), mat(0x6a86a6));
       facade.position.set(0, 4, -6);
       g.add(plaza, facade);
       break;
     }
     case 'ezbet': {
       for (let i = 0; i < 8; i++) {
-        const h = new THREE.Mesh(new THREE.BoxGeometry(3, 2.4, 3), mat(0xc7b28e));
+        const h = new THREE.Mesh(new THREE.BoxGeometry(3, 2.4, 3), mat(0x6a86a6));
         h.position.set((Math.random() - 0.5) * 9, 1.2, (Math.random() - 0.5) * 9);
         g.add(h);
       }
@@ -170,13 +171,13 @@ function landmarkPrimitive(id) {
       break;
     }
     case 'digue_est': {
-      const wall = new THREE.Mesh(new THREE.BoxGeometry(24, 3, 3), mat(0x8f9296));
+      const wall = new THREE.Mesh(new THREE.BoxGeometry(24, 3, 3), mat(0x5c7088));
       wall.position.y = 1.5;
       g.add(wall);
       break;
     }
     case 'ecole_refuge': {
-      const base = new THREE.Mesh(new THREE.BoxGeometry(10, 6, 8), mat(0xdcd3b8));
+      const base = new THREE.Mesh(new THREE.BoxGeometry(10, 6, 8), mat(0x7a91ab));
       base.position.y = 3;
       g.add(base);
       break;
@@ -202,7 +203,7 @@ function landmarkPrimitive(id) {
       break;
     }
     default: {
-      const base = new THREE.Mesh(new THREE.BoxGeometry(8, 6, 8), mat(0xb0a58f));
+      const base = new THREE.Mesh(new THREE.BoxGeometry(8, 6, 8), mat(0x4a6484));
       base.position.y = 3;
       g.add(base);
     }

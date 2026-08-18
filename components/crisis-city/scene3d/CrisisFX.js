@@ -10,11 +10,11 @@ export class CrisisFX {
     this.clock = 0;
 
     if (pays === 'maroc') {
-      this.scene.fog = new THREE.FogExp2(0xe8c98f, 0.006);
+      this.scene.fog = new THREE.FogExp2(0xf0b8a0, 0.006);
     } else {
       this.waterLevel = -2;
       const waterGeo = new THREE.PlaneGeometry(200, 200);
-      const waterMat = new THREE.MeshLambertMaterial({ color: 0x3a6b8a, transparent: true, opacity: 0.85 });
+      const waterMat = new THREE.MeshLambertMaterial({ color: 0x1c5a8c, transparent: true, opacity: 0.85 });
       this.water = new THREE.Mesh(waterGeo, waterMat);
       this.water.rotation.x = -Math.PI / 2;
       this.water.position.y = this.waterLevel;
@@ -28,14 +28,14 @@ export class CrisisFX {
         positions[i * 3 + 2] = (Math.random() - 0.5) * 160;
       }
       rainGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      const rainMat = new THREE.PointsMaterial({ color: 0xbcd6e6, size: 0.35, transparent: true, opacity: 0.7 });
+      const rainMat = new THREE.PointsMaterial({ color: 0xa8d0e8, size: 0.35, transparent: true, opacity: 0.7 });
       this.rain = new THREE.Points(rainGeo, rainMat);
       this.rain.visible = false;
       this.scene.add(this.rain);
 
       this.emergencyLights = [];
       for (let i = 0; i < 4; i++) {
-        const light = new THREE.PointLight(0xff8c3c, 0, 60, 2);
+        const light = new THREE.PointLight(0xe0392b, 0, 60, 2);
         light.position.set((Math.random() - 0.5) * 100, 12, (Math.random() - 0.5) * 100);
         this.scene.add(light);
         this.emergencyLights.push(light);
@@ -52,7 +52,7 @@ export class CrisisFX {
       const eau = resources.EAU ?? 55;
       const density = 0.002 + Math.max(0, (60 - eau) / 60) * 0.028;
       this.scene.fog.density = density;
-      this.scene.fog.color.set(heureDoree ? 0xe8a94a : 0xe8c98f);
+      this.scene.fog.color.set(heureDoree ? 0xe8845c : 0xf0b8a0);
     } else {
       const inf = resources.INF ?? 55;
       const tempete = acteIndex === 1;
@@ -60,7 +60,7 @@ export class CrisisFX {
       this.rain.visible = tempete;
       const intensity = tempete ? 1.4 : 0;
       for (const light of this.emergencyLights) light.intensity = intensity;
-      this.water.material.color.set(heureDoree ? 0xd8a24a : 0x3a6b8a);
+      this.water.material.color.set(heureDoree ? 0xe08a5c : 0x1c5a8c);
     }
   }
 

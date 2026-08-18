@@ -25,7 +25,19 @@ export async function AppShell({
     <AppShellClient
       title={title}
       right={right}
-      user={user ? { name: user.name, avatar: resolveAvatar(user), isAdmin: user.accessRole === 'admin' } : null}
+      user={
+        user
+          ? {
+              name: user.name,
+              avatar: resolveAvatar(user),
+              isAdmin: user.accessRole === 'admin',
+              xp: user.xp,
+              level: user.level,
+              levelTitle: user.levelTitle,
+              xpMax: user.xpMax,
+            }
+          : null
+      }
       notifications={notifications}
       unreadCount={unreadCount}
       disabledKeys={[...disabledKeys]}

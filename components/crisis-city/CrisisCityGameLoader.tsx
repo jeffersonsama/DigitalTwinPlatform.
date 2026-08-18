@@ -6,6 +6,6 @@ import dynamic from 'next/dynamic'
 // qui n'a aucun sens côté serveur — on ne le charge que dans le navigateur.
 const CrisisCityGame = dynamic(() => import('./CrisisCityGame.jsx'), { ssr: false })
 
-export default function CrisisCityGameLoader() {
-  return <CrisisCityGame />
+export default function CrisisCityGameLoader({ country }: { country?: string }) {
+  return <CrisisCityGame country={country} />
 }

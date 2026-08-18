@@ -5,6 +5,7 @@
 // l'est donc aussi désormais — ses appelants (atelier/games/ParticipantS{1,2,3,4}.jsx) l'attendent.
 import { loadProgress, saveProgress, totalXp } from '../../engine/persistence.js';
 import { gradePourXp } from '../../engine/xp.js';
+import { awardWorkshopXp } from '@/lib/actions/gamification';
 
 const ATELIER_BADGE_IDS = ['atelier_s1', 'atelier_s2', 'atelier_s3', 'atelier_s4'];
 
@@ -16,6 +17,11 @@ export async function awardAtelierCompletion(jeuId, badgeId) {
   const before = totalXp(progress);
   if (!alreadyDone) {
     progress.xpEvents[xpKey] = 60;
+    // Double crédit voulu, pas un doublon : le Passeport (plateforme) compte cet atelier comme
+    // une activité à part entière (XP + certificat de workshop), séparément de l'XP/badge
+    // Crisis City ci-dessus — voir docs/xp-certification-system.md §3.8. Ne doit jamais bloquer
+    // ni retarder le crédit interne du jeu en cas d'échec réseau.
+    awardWorkshopXp(jeuId).catch(() => {});
   }
   progress.badgesEarned[badgeId] = progress.badgesEarned[badgeId] || { earnedAt: new Date().toISOString() };
 

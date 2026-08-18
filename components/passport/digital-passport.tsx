@@ -27,6 +27,7 @@ import {
 import { cn } from '@/lib/utils'
 import { avatarSrc } from '@/lib/avatar'
 import { EditProfileModal } from '@/components/passport/edit-profile-modal'
+import { recordShareIntent } from '@/lib/actions/gamification'
 
 const badgeIcons: Record<string, typeof Zap> = { zap: Zap, users: Users, book: BookOpen, heart: Heart, globe: Globe }
 
@@ -337,11 +338,13 @@ function SharePassportModal({ userId, name, onClose }: { userId: string; name: s
     await navigator.clipboard.writeText(shareUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+    recordShareIntent('link').catch(() => {})
   }
 
   async function nativeShare() {
     try {
       await navigator.share({ title: 'ICESCO Crisis Forum', text: `Connect with ${name} on the ICESCO Crisis Forum.`, url: shareUrl })
+      recordShareIntent('native').catch(() => {})
     } catch {
       // user cancelled the native share sheet — nothing to do
     }

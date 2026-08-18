@@ -38,25 +38,24 @@ export function xpProchainNiveau(xp) {
   return NIVEAUX[n];
 }
 
-// 8.1 — l'échelle des grades. Les déblocages marqués `implemente: false` existent dans le
-// document de référence mais demandent un contenu ou une infrastructure hors du périmètre
-// actuel (mode difficile séparé, atelier de groupe, scénario bonus...) — annoncés comme
-// « à venir » plutôt que simulés.
+// 8.1 — l'échelle des grades. Chaque déblocage est soit une fonctionnalité réelle du jeu
+// (niveaux 0-3, 6, 9), soit un titre honorifique assumé comme tel (niveaux 4, 5, 7, 8) — jamais
+// une fonctionnalité promise puis non livrée.
 export const GRADES = [
-  { niveau: 0, titre: 'Volontaire', deblocage: 'Accès aux deux scénarios de base.', implemente: true },
-  { niveau: 1, titre: 'Agent de terrain', deblocage: 'Galerie des fins consultable.', implemente: true },
-  { niveau: 2, titre: 'Chef d\'équipe', deblocage: 'Journal de partie exportable.', implemente: true },
-  { niveau: 3, titre: 'Officier de liaison', deblocage: 'Palette « heure dorée » pour la ville.', implemente: true },
-  { niveau: 4, titre: 'Coordinateur adjoint', deblocage: 'Mode commentaires du mentor.', implemente: false },
-  { niveau: 5, titre: 'Coordinateur de crise', deblocage: 'Mode contrasté guidé.', implemente: false },
-  { niveau: 6, titre: 'Directeur de cellule', deblocage: 'Scénario bonus « La canicule ».', implemente: false },
-  { niveau: 7, titre: 'Conseiller régional', deblocage: 'Mode difficile (opt-in, hors évaluation comparée).', implemente: false },
-  { niveau: 8, titre: 'Émissaire résilience', deblocage: 'Atelier : héberger une session de groupe.', implemente: false },
-  { niveau: 9, titre: 'Bâtisseur de l\'avenir', deblocage: 'Insigne doré, mention au générique communautaire.', implemente: true },
+  { niveau: 0, titre: 'Volontaire', deblocage: 'Accès aux deux scénarios de base.' },
+  { niveau: 1, titre: 'Agent de terrain', deblocage: 'Galerie des fins consultable.' },
+  { niveau: 2, titre: 'Chef d\'équipe', deblocage: 'Journal de partie exportable.' },
+  { niveau: 3, titre: 'Officier de liaison', deblocage: 'Palette « heure dorée » pour la ville.' },
+  { niveau: 4, titre: 'Coordinateur adjoint', deblocage: 'Titre honorifique — votre expérience de terrain commence à être reconnue.' },
+  { niveau: 5, titre: 'Coordinateur de crise', deblocage: 'Titre honorifique — la cellule de crise vous consulte.' },
+  { niveau: 6, titre: 'Directeur de cellule', deblocage: 'Scénario bonus « La canicule ».' },
+  { niveau: 7, titre: 'Conseiller régional', deblocage: 'Titre honorifique — votre expertise dépasse désormais Al-Wasl.' },
+  { niveau: 8, titre: 'Émissaire résilience', deblocage: 'Titre honorifique — dernière étape avant le grade de Bâtisseur de l\'avenir.' },
+  { niveau: 9, titre: 'Bâtisseur de l\'avenir', deblocage: 'Insigne doré, mention au générique communautaire.' },
 ];
 
 // Les grades 9 et 10 (Émissaire résilience / Bâtisseur de l'avenir) sautent le niveau 9
-// (3390 XP) exactement comme dans le document — aucun grade n'exige ce palier.
+// (3360 XP) exactement comme dans le document — aucun grade n'exige ce palier.
 const GRADE_NIVEAU_REQUIS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 10];
 
 export function gradePourXp(xp) {

@@ -1,9 +1,21 @@
 import React, { useState } from 'react';
 import { generateCommitment, computeScores, computeProfile } from '../engine/scoring.js';
+import { GRADES, gradePourXp } from '../engine/xp.js';
 import { KNOWLEDGE_CARDS } from '../data/knowledgeCards.js';
 import { SCENARIOS } from '../data/scenarios.js';
 import KnowledgeCardView from './KnowledgeCard.jsx';
 import GradeBadge from './GradeBadge.jsx';
+
+// Grade minimal pour affronter le module bonus Canicule — cf. GRADES[CANICULE_GRADE_INDEX] dans
+// engine/xp.js (« Directeur de cellule »). Un seul point de vérité pour la condition ET son
+// libellé, pour ne jamais désynchroniser le verrou de son texte affiché.
+const CANICULE_GRADE_INDEX = 6;
+
+// Retour à l'accueil de la plateforme — réutilisé sur tous les écrans hors exploration (qui,
+// eux, ont ce lien dans le HUD, cf. HUD.jsx) puisque le jeu n'a pas d'AppShell/rail de navigation.
+export function HomeLink() {
+  return <a href="/" className="screen-home-link">← Retour à l'accueil</a>;
+}
 
 function capitalize(s) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
@@ -12,6 +24,7 @@ function capitalize(s) {
 export function TitleScreen({ onStart, xp, onOpenCareer, pack, packIds, packAutoDetected, onCyclePack }) {
   return (
     <div className="screen title-screen">
+      <HomeLink />
       <h1 className="title-logo">CRISIS CITY</h1>
       <p className="title-sub">Jeu sérieux de gestion de crise — Youth Knowledge Forum 2026</p>
       <p className="title-baseline">« Navigating Crises to Achieve Sustainability »</p>
@@ -41,14 +54,26 @@ export function TitleScreen({ onStart, xp, onOpenCareer, pack, packIds, packAuto
 // distincte (le nom technique `onSelect(scenarioId)` reste un détail d'implémentation invisible
 // du joueur). Rendu data-driven depuis SCENARIOS : un futur 4e module (Crue éclair, Crise de
 // l'information...) apparaît sans toucher ce composant.
-export function CountrySelectScreen({ onSelect }) {
+export function CountrySelectScreen({ onSelect, xp }) {
+  const grade = gradePourXp(xp || 0);
   return (
     <div className="screen country-select-screen">
+      <HomeLink />
       <h1>Al-Wasl a besoin de vous</h1>
       <p className="muted">Une seule ville. Quelle crise affrontez-vous ?</p>
       <div className="country-cards">
         {Object.values(SCENARIOS).map((scenario) => {
           const [nomCrise, sousTitre] = scenario.titre.split(' — ');
+          const locked = scenario.id === 'canicule' && grade.index < CANICULE_GRADE_INDEX;
+          if (locked) {
+            return (
+              <div key={scenario.id} className="country-card is-locked">
+                <h2>{nomCrise}</h2>
+                <p className="muted">{capitalize(sousTitre)}</p>
+                <p className="muted">🔒 Débloqué au grade {GRADES[CANICULE_GRADE_INDEX].titre}</p>
+              </div>
+            );
+          }
           return (
             <button key={scenario.id} className="country-card" onClick={() => onSelect(scenario.id)}>
               <h2>{nomCrise}</h2>
@@ -64,6 +89,7 @@ export function CountrySelectScreen({ onSelect }) {
 export function BriefingScreen({ scenario, acte, acteIndex, dossierConsulted, onConsultDossier, onStartAct }) {
   return (
     <div className="screen briefing-screen">
+      <HomeLink />
       <h1>{acte.titre}</h1>
       <p className="briefing-soustitre">{acte.soustitre}</p>
       {acteIndex === 0 && <p className="briefing-contexte">{scenario.contexte}</p>}
@@ -109,6 +135,7 @@ export function ActDebriefScreen({ scenario, acte, acteIndex, resources, onNextA
   const isLast = acteIndex === scenario.actes.length - 1;
   return (
     <div className="screen act-debrief-screen">
+      <HomeLink />
       <p className="gouverneur-label">Le gouverneur (voix off)</p>
       <h1>Fin de {acte.titre}</h1>
       <div className="act-debrief-indicateurs">
@@ -151,6 +178,7 @@ export function CommitmentScreen({ scenario, history, onRestartSame, onPlayOther
 
   return (
     <div className="screen commitment-screen">
+      <HomeLink />
       <h1>Votre engagement 30 / 60 / 90 jours</h1>
       <p className="muted">Éditez-le librement — c'est le pont entre le jeu et le réel.</p>
       <label>30 jours<textarea value={j30} onChange={(e) => setJ30(e.target.value)} rows={2} /></label>
@@ -173,6 +201,7 @@ export function CommitmentScreen({ scenario, history, onRestartSame, onPlayOther
 export function EndScreen({ onRestart, xp, onOpenCareer }) {
   return (
     <div className="screen end-screen">
+      <HomeLink />
       <h1>Merci d'avoir joué CRISIS CITY</h1>
       <p>L'XP mesure l'engagement, les compétences mesurent les décisions.</p>
       <div className="title-progress">

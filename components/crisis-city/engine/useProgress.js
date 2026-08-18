@@ -3,9 +3,10 @@
 // engine/persistence.js, conformément à la séparation décrite en tête de gameReducer.js.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { loadProgress, saveProgress, emptyProgress, totalXp } from './persistence.js';
-import { gradePourXp } from './xp.js';
+import { gradePourXp, XP_BAREME } from './xp.js';
 import { evaluateScenarioCompletion, evaluateReplay, earnAmbassadeur, serializeHistory, BADGES } from './badges.js';
 import { SCENARIOS } from '../data/scenarios.js';
+import { awardScenarioCompletion } from '@/lib/actions/gamification';
 
 function clone(obj) {
   return JSON.parse(JSON.stringify(obj));
@@ -88,14 +89,40 @@ export function useProgress() {
       draft.scenarios[scenarioId] = meta;
 
       const scenario = SCENARIOS[scenarioId];
+      const before = totalXp(draft);
       const newlyBadges = evaluateScenarioCompletion({
         scenarioId,
         runState: { ...runState, scenarioActesCount: scenario.actes.length },
         progress: draft,
       });
 
+      // XP_BAREME.PARCOURS_CONTRASTE / DEUX_PAYS n'ont pas de site d'émission dans gameReducer.js
+      // (qui reste pur et ignore l'historique inter-parties) — c'est ici, au même endroit que les
+      // badges correspondants (autre_versant/binational) qui viennent d'être évalués ci-dessus,
+      // qu'ils doivent être crédités.
+      if (newlyBadges.includes('autre_versant')) {
+        const key = `PARCOURS_CONTRASTE:${runState.sessionId}`;
+        if (draft.xpEvents[key] === undefined) {
+          draft.xpEvents[key] = XP_BAREME.PARCOURS_CONTRASTE.xp;
+          pushToast(`+${XP_BAREME.PARCOURS_CONTRASTE.xp} XP`, 'xp');
+        }
+      }
+      if (newlyBadges.includes('binational') && draft.xpEvents.DEUX_PAYS === undefined) {
+        draft.xpEvents.DEUX_PAYS = XP_BAREME.DEUX_PAYS.xp;
+        pushToast(`+${XP_BAREME.DEUX_PAYS.xp} XP`, 'xp');
+      }
+
       commit(draft);
       newlyBadges.forEach((id) => pushToast('Badge débloqué : ' + badgeTitre(id), 'badge'));
+      const after = totalXp(draft);
+      const grade = gradePourXp(after);
+      if (grade.index > gradePourXp(before).index) {
+        setPromotion(grade);
+      }
+      // Passeport (plateforme) : certificat de scénario + mise à jour du certificat de carrière —
+      // système entièrement séparé de l'XP/grade Crisis City ci-dessus (docs/xp-certification-
+      // system.md §4). Ne doit jamais bloquer ni retarder la progression du jeu en cas d'échec.
+      awardScenarioCompletion(scenarioId, scenario.titre, grade.titre).catch(() => {});
     },
     [commit, pushToast]
   );

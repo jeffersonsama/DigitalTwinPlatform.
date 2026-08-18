@@ -73,7 +73,7 @@ export default function Scene3D({ pays, resources, acteIndex, activeLieux, doneL
       return undefined;
     }
     const scene = new THREE.Scene();
-    const skyColor = new THREE.Color(pays === 'maroc' ? 0xf4e3c1 : 0xdfeef2);
+    const skyColor = new THREE.Color(pays === 'maroc' ? 0xf2c9b0 : 0xcfe4f2);
     scene.background = skyColor;
     // Brume atténuée vers l'horizon : donne de la profondeur à la grille et masque en douceur le
     // bord du monde / le chargement progressif des tuiles au loin.
@@ -89,9 +89,9 @@ export default function Scene3D({ pays, resources, acteIndex, activeLieux, doneL
 
     // Éclairage : ciel/sol doux en base + soleil chaud directionnel projetant des ombres nettes,
     // + une lumière d'appoint froide côté opposé pour décoller les façades à l'ombre.
-    const hemi = new THREE.HemisphereLight(0xfff4e0, 0x5a4a38, 0.75);
+    const hemi = new THREE.HemisphereLight(0xffe8dc, 0x2e3f52, 0.75);
     scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xfff2d8, 1.5);
+    const sun = new THREE.DirectionalLight(0xffe0c8, 1.5);
     sun.position.set(70, 110, 50);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
@@ -104,11 +104,11 @@ export default function Scene3D({ pays, resources, acteIndex, activeLieux, doneL
     sc.updateProjectionMatrix();
     scene.add(sun);
     scene.add(sun.target);
-    const fill = new THREE.DirectionalLight(0xbcd4ff, 0.35);
+    const fill = new THREE.DirectionalLight(0xa8d8f0, 0.35);
     fill.position.set(-50, 40, -30);
     scene.add(fill);
 
-    const player = new PlayerController(pack?.couleurs?.accent || 0xd9a253);
+    const player = new PlayerController(pack?.couleurs?.accent || 0xf2705c);
     scene.add(player.mesh); // visible en iso comme en fps : les deux vues sont désormais à la 3e personne
     const initialMode = 'fps';
     setViewModeReact(initialMode); // resynchronise le libellé du bouton si l'effet est reconstruit (ex. changement de `pays`) après un bascule iso précédente

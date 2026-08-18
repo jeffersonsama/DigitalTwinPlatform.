@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { Clock, MapPin, User, Radio, Check, CalendarDays, Play, Bookmark } from 'lucide-react'
 import { toggleBookmark } from '@/lib/actions/program'
+import { SessionAttendanceMeter } from '@/components/live/session-attendance-meter'
 import { cn } from '@/lib/utils'
 
 export interface DayView {
@@ -23,6 +24,7 @@ export interface SessionView {
   speaker: string | null
   status: 'done' | 'live' | 'upcoming'
   bookmarked: boolean
+  attendance: { activeSeconds: number; thresholdSeconds: number; suivi: boolean } | null
 }
 
 const trackTone: Record<string, string> = {
@@ -41,10 +43,11 @@ function SessionCard({ session, isLoggedIn }: { session: SessionView; isLoggedIn
   return (
     <li
       className={cn(
-        'flex flex-col gap-3 rounded-2xl border bg-card p-4 sm:flex-row sm:items-center sm:gap-5',
+        'flex flex-col gap-3 rounded-2xl border bg-card p-4',
         session.status === 'live' ? 'border-forum-orange/60' : 'border-border',
       )}
     >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
       <div className="flex shrink-0 items-center gap-2 sm:w-24 sm:flex-col sm:items-start sm:gap-0.5">
         <span className="font-display text-lg font-bold text-foreground">{session.time}</span>
         <span className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -117,6 +120,16 @@ function SessionCard({ session, isLoggedIn }: { session: SessionView; isLoggedIn
           </button>
         )}
       </div>
+      </div>
+
+      {session.status === 'live' && session.attendance && (
+        <SessionAttendanceMeter
+          sessionTitle={session.title}
+          initialActiveSeconds={session.attendance.activeSeconds}
+          thresholdSeconds={session.attendance.thresholdSeconds}
+          initialSuivi={session.attendance.suivi}
+        />
+      )}
     </li>
   )
 }

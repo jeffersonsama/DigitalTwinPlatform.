@@ -3,6 +3,7 @@ import CascadeBoard from '../ui/CascadeBoard.jsx';
 import { CRISE_OPTIONS, CASCADE_A, CHOC_DEPART, INTERVENTIONS, scoreManche1, scoreManche2, totalScoreSur10 } from './s1.js';
 import { awardAtelierCompletion } from '../engine/xpBridge.js';
 import { COUNTRIES } from '../data/countryGeo.js';
+import PromotionModal from '../../ui/PromotionModal.jsx';
 
 const COUNTRY_ENTRIES = Object.entries(COUNTRIES).sort((a, b) => a[1].name.localeCompare(b[1].name, 'fr'));
 
@@ -207,6 +208,9 @@ export default function ParticipantS1({ session, participant, submitResponse, up
             <p>Badge débloqué : « Cartographe du chaos »</p>
             {xpResult.jour1Complet && <p className="highlight">🏆 Badge « Jour 1 complet » débloqué !</p>}
           </div>
+        )}
+        {xpResult?.leveledUp && (
+          <PromotionModal grade={xpResult.leveledUp} onDismiss={() => setXpResult((r) => r && { ...r, leveledUp: null })} />
         )}
         <p className="muted">La Session 2 vous attend — gardez votre téléphone à portée.</p>
       </div>

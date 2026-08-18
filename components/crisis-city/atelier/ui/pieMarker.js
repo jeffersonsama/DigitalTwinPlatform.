@@ -1,7 +1,7 @@
 // Icône « camembert » dessinée en Canvas 2D — un segment par jeu (s1..s4), taille proportionnelle
 // au nombre de connexions. Partagée entre Globe3D.jsx (texture de sprite 3D) et
 // WorldMapFallback.jsx (dessin direct 2D) pour un rendu identique dans les deux modes.
-export function drawPieMarker(segments, { size = 64, inactiveColor = '#4a5a54', ringColor = '#10171c' } = {}) {
+export function drawPieMarker(segments, { size = 64, inactiveColor = '#3a4a5e', ringColor = '#050d1f' } = {}) {
   const total = segments.reduce((sum, s) => sum + s.count, 0);
   const canvas = document.createElement('canvas');
   canvas.width = size;

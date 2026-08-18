@@ -49,6 +49,10 @@ model User {
   crisisCityProfile   CrisisCityProfile?
   notifications       Notification[]     @relation("NotificationRecipient")
   notificationsCaused Notification[]     @relation("NotificationActor")
+  presenceDays        PresenceDay[]
+  sessionAttendance   SessionAttendance[]
+  resourceReads       ResourceRead[]
+  posters             Poster[]
 
   @@map("users")
 }
@@ -115,9 +119,29 @@ model ProgramSession {
   startsAt  DateTime
   endsAt    DateTime
 
-  bookmarks Bookmark[]
+  bookmarks         Bookmark[]
+  sessionAttendance SessionAttendance[]
 
   @@map("program_sessions")
+}
+
+// Assiduité mesurée par le heartbeat de présence (lib/gamification/presence.ts) — un
+// enregistrement par (participant, session). `suivi` bascule à `true` une fois le seuil de
+// présence active atteint (config.ts), ce qui déclenche le certificat de panel et alimente le
+// calcul du certificat de participation globale (75 % des panels programmés).
+model SessionAttendance {
+  id              String         @id @default(cuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id])
+  sessionId       String
+  session         ProgramSession @relation(fields: [sessionId], references: [id])
+  activeSeconds   Int            @default(0)
+  xpAwarded       Int            @default(0)
+  suivi           Boolean        @default(false)
+  lastHeartbeatAt DateTime?
+
+  @@unique([userId, sessionId])
+  @@map("session_attendance")
 }
 
 model Bookmark {
@@ -139,14 +163,18 @@ enum CertificateStatus {
 }
 
 model Certificate {
-  id       String            @id @default(cuid())
-  userId   String
-  user     User              @relation(fields: [userId], references: [id])
-  title    String
-  type     String
-  code     String?
-  status   CertificateStatus
-  issuedAt DateTime?
+  id        String            @id @default(cuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id])
+  title     String
+  type      String
+  code      String?
+  status    CertificateStatus
+  issuedAt  DateTime?
+  // Clé d'émission idempotente (ex. "PANEL_CERT:{sessionId}:{userId}") posée par
+  // lib/gamification/certificates.ts#issueCertificateOnce — évite les doublons si l'évaluation
+  // (heartbeat, pont atelier, etc.) est déclenchée plusieurs fois pour le même jalon.
+  sourceKey String?           @unique
 
   @@map("certificates")
 }
@@ -190,6 +218,10 @@ model ActivityLogEntry {
   meta      String
   xp        Int
   createdAt DateTime @default(now())
+  // Clé d'idempotence posée par lib/gamification/xp.ts#awardXp (ex.
+  // "PRESENCE_PANEL:{userId}:{sessionId}:{n}") — nullable pour ne pas casser les lignes
+  // hardcodées de prisma/seed.ts, qui n'en ont pas besoin (jamais rejouées).
+  key       String?  @unique
 
   @@map("activity_log_entries")
 }
@@ -207,6 +239,9 @@ model Connection {
   toUser     User             @relation("ConnectionReceiver", fields: [toUserId], references: [id])
   status     ConnectionStatus @default(pending)
   createdAt  DateTime         @default(now())
+  // Posé au moment où `status` passe à `accepted` — sert au plafond journalier d'XP de
+  // réseautage et à la fenêtre de 48h du bonus "premier message" (lib/gamification).
+  acceptedAt DateTime?
 
   @@unique([fromUserId, toUserId])
   @@map("connections")
@@ -280,7 +315,27 @@ model Resource {
   url      String?
   addedAt  DateTime     @default(now())
 
+  reads ResourceRead[]
+
   @@map("resources")
+}
+
+// Suivi de lecture Knowledge Hub — un enregistrement par (participant, ressource). Le temps de
+// lecture est accumulé par le même heartcheat de présence que l'assiduité aux panels
+// (lib/gamification/presence.ts) ; `completedAt` se pose une fois le seuil de lecture minimal
+// franchi, ce qui octroie l'XP une seule fois.
+model ResourceRead {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  resourceId      String
+  resource        Resource  @relation(fields: [resourceId], references: [id])
+  secondsSpent    Int       @default(0)
+  completedAt     DateTime?
+  lastHeartbeatAt DateTime?
+
+  @@unique([userId, resourceId])
+  @@map("resource_reads")
 }
 
 enum TwinStatus {
@@ -384,4 +439,39 @@ model LiveNote {
   updatedAt DateTime @updatedAt
 
   @@map("live_notes")
+}
+
+// Présence générale (hors panel en direct, hors lecture Knowledge Hub) — un enregistrement par
+// (participant, jour calendaire), alimenté par le même heartbeat que SessionAttendance/
+// ResourceRead. `generalXpAwarded` mémorise l'XP déjà créditée pour ce jour afin que
+// awardXp() ne recrédite jamais la même tranche de 6 minutes deux fois.
+model PresenceDay {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id])
+  day              String
+  generalSeconds   Int       @default(0)
+  generalXpAwarded Int       @default(0)
+  lastHeartbeatAt  DateTime?
+
+  @@unique([userId, day])
+  @@map("presence_days")
+}
+
+// Poster Studio n'avait aucune persistance avant le système XP — cette table remplace l'état
+// purement client de components/poster/poster-studio.tsx. `published` ne bascule qu'une fois
+// (jamais republié à `false`), ce qui rend l'octroi des 20 XP naturellement unique par affiche.
+model Poster {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  template    String
+  title       String
+  subtitle    String?
+  published   Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("posters")
 }

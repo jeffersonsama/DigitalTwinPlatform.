@@ -5,6 +5,7 @@ import { ProgramSchedule, type SessionView } from '@/components/program/program-
 import { prisma } from '@/lib/db'
 import { getCurrentUser, requireEnabledPage } from '@/lib/auth'
 import { computeSessionStatus } from '@/lib/program'
+import { PANEL_ATTENDANCE_RATIO } from '@/lib/gamification/config'
 
 export const metadata: Metadata = {
   title: 'Program | ICESCO Crisis Forum 2026',
@@ -28,18 +29,38 @@ export default async function ProgramPage() {
       )
     : new Set<string>()
 
-  const sessionViews: SessionView[] = sessions.map((s) => ({
-    id: s.id,
-    day: s.dayId,
-    time: s.time,
-    duration: s.duration,
-    title: s.title,
-    track: s.track,
-    room: s.room,
-    speaker: s.speaker?.name ?? null,
-    status: computeSessionStatus(s.startsAt, s.endsAt),
-    bookmarked: bookmarkedIds.has(s.id),
-  }))
+  const attendanceBySessionId = user
+    ? new Map(
+        (await prisma.sessionAttendance.findMany({ where: { userId: user.id } })).map((a) => [a.sessionId, a]),
+      )
+    : new Map()
+
+  const sessionViews: SessionView[] = sessions.map((s) => {
+    const status = computeSessionStatus(s.startsAt, s.endsAt)
+    const attendance = attendanceBySessionId.get(s.id)
+    return {
+      id: s.id,
+      day: s.dayId,
+      time: s.time,
+      duration: s.duration,
+      title: s.title,
+      track: s.track,
+      room: s.room,
+      speaker: s.speaker?.name ?? null,
+      status,
+      bookmarked: bookmarkedIds.has(s.id),
+      attendance:
+        status === 'live' && user
+          ? {
+              activeSeconds: attendance?.activeSeconds ?? 0,
+              thresholdSeconds: Math.round(
+                ((s.endsAt.getTime() - s.startsAt.getTime()) / 1000) * PANEL_ATTENDANCE_RATIO,
+              ),
+              suivi: attendance?.suivi ?? false,
+            }
+          : null,
+    }
+  })
 
   return (
     <AppShell title="Program">

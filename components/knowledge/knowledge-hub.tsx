@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Search, BookOpen, FileText, Wrench, GraduationCap, Scale, ArrowUpRight } from 'lucide-react'
@@ -112,8 +113,9 @@ export function KnowledgeHub({
           {featured.map((r) => {
             const Icon = typeIcon[r.type] ?? FileText
             return (
-              <article
+              <Link
                 key={r.id}
+                href={`/knowledge/${r.id}`}
                 className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-lg"
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
@@ -135,7 +137,7 @@ export function KnowledgeHub({
                     {r.tag}
                   </p>
                 </div>
-              </article>
+              </Link>
             )
           })}
         </div>
@@ -175,10 +177,13 @@ export function KnowledgeHub({
                           {r.language}
                         </span>
                       )}
-                      <button className="flex items-center gap-1 text-xs font-medium text-icesco-blue hover:underline">
+                      <Link
+                        href={`/knowledge/${r.id}`}
+                        className="flex items-center gap-1 text-xs font-medium text-icesco-blue hover:underline"
+                      >
                         Open
                         <ArrowUpRight className="h-3 w-3" />
-                      </button>
+                      </Link>
                     </div>
                   </li>
                 )

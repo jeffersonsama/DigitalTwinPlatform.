@@ -53,7 +53,7 @@ export default function Globe3D({ points = [], total = 0, hint = 'Cliquez-glisse
     mount.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0f12);
+    scene.background = new THREE.Color(0x050d1f);
 
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
     camera.position.set(0, 0, 2.6);
@@ -97,7 +97,7 @@ export default function Globe3D({ points = [], total = 0, hint = 'Cliquez-glisse
 
     const glow = new THREE.Mesh(
       new THREE.SphereGeometry(1.03, 48, 48),
-      new THREE.MeshBasicMaterial({ color: 0x3fae8a, transparent: true, opacity: 0.05, side: THREE.BackSide }),
+      new THREE.MeshBasicMaterial({ color: 0xf2705c, transparent: true, opacity: 0.05, side: THREE.BackSide }),
     );
     scene.add(glow);
 

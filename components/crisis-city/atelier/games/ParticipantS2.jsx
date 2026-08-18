@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { SITUATIONS, FAMILLES, MINI_PROJETS, PROFILS_PORTE_ENTREE, scoreManche1, scoreManche2, scoreManche3, totalScoreSur10 } from './s2.js';
 import { awardAtelierCompletion } from '../engine/xpBridge.js';
+import PromotionModal from '../../ui/PromotionModal.jsx';
 
 const SITUATION_SECONDS = 20;
 
@@ -235,6 +236,9 @@ export default function ParticipantS2({ session, submitResponse }) {
             <p>Badge débloqué : « Permis 53001 »</p>
             {xpResult.jour1Complet && <p className="highlight">🏆 Badge « Jour 1 complet » débloqué !</p>}
           </div>
+        )}
+        {xpResult?.leveledUp && (
+          <PromotionModal grade={xpResult.leveledUp} onDismiss={() => setXpResult((r) => r && { ...r, leveledUp: null })} />
         )}
         <p className="muted">La Session 3 vous attend.</p>
       </div>

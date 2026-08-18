@@ -23,7 +23,7 @@ export const PACKS = {
   neutre: {
     id: 'neutre',
     nom: 'Ville neutre',
-    couleurs: { accent: '#d9a253', accent2: '#5aa9a3' }, // valeurs par défaut de index.css — statu quo
+    couleurs: { accent: '#f2705c', accent2: '#2bb8de' }, // valeurs par défaut de index.css — statu quo
     figures: {},
     lieux: {},
     ambiance: { radio_boucle: null, sons_lointains: ['klaxons lointains', 'cloches d\'horloge'], script_enseignes: 'latin' },

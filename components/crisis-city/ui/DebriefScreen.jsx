@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { computeScores, computeProfile, keyMoments, COMPETENCES } from '../engine/scoring.js';
 import { XP_BAREME } from '../engine/xp.js';
+import { HomeLink } from './Screens.jsx';
 
 const SIZE = 240;
 const CENTER = SIZE / 2;
@@ -104,6 +105,7 @@ export default function DebriefScreen({ scenario, history, knowledgeCardsIds, kn
 
   return (
     <div className="screen debrief-screen">
+      <HomeLink />
       <h1>Bilan final — {scenario.ville}</h1>
 
       <div className="debrief-grid">

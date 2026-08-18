@@ -16,7 +16,7 @@ const WALK_FREQ = 9; // vitesse du cycle de jambes (radians/seconde à pleine vi
 const SWING = 0.7; // amplitude du balancement des membres (radians)
 
 export class PlayerController {
-  constructor(color = 0xd9a253) {
+  constructor(color = 0xf2705c) {
     this.position = new THREE.Vector3(0, 0, 0);
     this.facing = 0; // radians — 0 = regarde vers +Z, cohérent avec l'orientation du mesh
     this.inputX = 0;

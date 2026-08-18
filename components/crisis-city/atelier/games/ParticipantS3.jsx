@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { CRISE_OPTIONS } from './s1.js';
 import { DOSSIERS, scoreVote, voteScoreSur10, goulotFor, scoreGoulot } from './s3.js';
 import { awardAtelierCompletion } from '../engine/xpBridge.js';
+import PromotionModal from '../../ui/PromotionModal.jsx';
 
 const VERDICT_LABEL = { financer: 'FINANCER', ecarter: 'ÉCARTER', hesiter: 'HÉSITER' };
 
@@ -170,6 +171,9 @@ export default function ParticipantS3({ session, submitResponse, updateProfil })
             <p>Badge débloqué : « Détecteur de washing »</p>
             {xpResult.jour1Complet && <p className="highlight">🏆 Badge « Jour 1 complet » débloqué !</p>}
           </div>
+        )}
+        {xpResult?.leveledUp && (
+          <PromotionModal grade={xpResult.leveledUp} onDismiss={() => setXpResult((r) => r && { ...r, leveledUp: null })} />
         )}
         <p className="muted">La Session 4 vous attend.</p>
       </div>

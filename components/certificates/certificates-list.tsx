@@ -24,6 +24,10 @@ export interface CertificateView {
   code: string | null
   status: 'issued' | 'in-progress' | 'locked'
   issuedAt: string | null
+  /** Résumé statique de progression (ex. "3/8 panels suivis (38% — objectif 75%)"), calculé
+   * côté serveur pour les certificats pas encore émis — jamais un décompte en temps réel, qui
+   * reste sur la page source de l'activité (Live, Program, lecteur Knowledge Hub). */
+  progressLabel?: string | null
 }
 
 const statusMeta = {
@@ -97,7 +101,7 @@ export function CertificatesList({
                 </div>
                 <h3 className="text-pretty text-sm font-semibold leading-snug text-foreground">{c.title}</h3>
                 <p className="text-xs text-muted-foreground">
-                  {c.status === 'issued' ? `Issued ${c.issuedAt}` : meta.label}
+                  {c.status === 'issued' ? `Issued ${c.issuedAt}` : (c.progressLabel ?? meta.label)}
                 </p>
               </button>
             )

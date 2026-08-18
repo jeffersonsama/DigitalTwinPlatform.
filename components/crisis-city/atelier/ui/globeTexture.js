@@ -17,12 +17,12 @@ export function buildWorldTexture() {
   canvas.height = HEIGHT;
   const ctx = canvas.getContext('2d');
 
-  ctx.fillStyle = '#10171c';
+  ctx.fillStyle = '#050d1f';
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
   const geo = feature(countriesTopology, countriesTopology.objects.countries);
-  ctx.fillStyle = '#2b3a35';
-  ctx.strokeStyle = '#3d4d47';
+  ctx.fillStyle = '#12233d';
+  ctx.strokeStyle = '#274b7e';
   ctx.lineWidth = 1.2;
 
   for (const f of geo.features) {
