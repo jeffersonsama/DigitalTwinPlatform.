@@ -57,7 +57,7 @@ export function MessagesInbox({
   }
 
   return (
-    <main className="mx-auto flex h-[calc(100vh-4rem)] w-full max-w-[1400px]">
+    <main className="flex h-[calc(100vh-4rem)] w-full">
       {/* Conversation list */}
       <aside className="flex w-full max-w-[320px] shrink-0 flex-col border-r border-border">
         <div className="flex items-center gap-2 border-b border-border p-4">

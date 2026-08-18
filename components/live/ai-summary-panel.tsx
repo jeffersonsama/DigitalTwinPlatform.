@@ -15,6 +15,7 @@ interface Props {
    * ProgramSession en cours) une fois la page /live liee a une session
    * precise plutot qu'affichee de facon statique. */
   sessionId?: string
+  className?: string
 }
 
 interface SummaryState {
@@ -24,7 +25,7 @@ interface SummaryState {
   usingFallback: boolean
 }
 
-export function AiSummaryPanel({ sessionId = 'current-live-session' }: Props) {
+export function AiSummaryPanel({ sessionId = 'current-live-session', className = '' }: Props) {
   // Tant qu'aucun resume reel n'a encore ete genere (pipeline STT/LLM pas
   // encore branche en amont), on affiche les exemples de lib/data.ts plutot
   // qu'un panneau vide — clairement marque comme tel dans l'UI.
@@ -76,7 +77,7 @@ export function AiSummaryPanel({ sessionId = 'current-live-session' }: Props) {
   }, [fetchSummary])
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-white/10 bg-navy-900 p-4">
+    <div className={`flex flex-col gap-4 rounded-xl border border-white/10 bg-navy-900 p-4 ${className}`}>
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-accent/15">

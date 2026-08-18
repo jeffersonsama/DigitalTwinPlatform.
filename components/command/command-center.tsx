@@ -10,6 +10,7 @@ import {
   MonitorPlay,
 } from 'lucide-react'
 import { commandStreams, topCountries } from '@/lib/data'
+import { PageVisibilityPanel, type TogglePageView } from '@/components/command/page-visibility-panel'
 
 function Panel({
   title,
@@ -222,29 +223,32 @@ function Alerts() {
   )
 }
 
-export function CommandCenter() {
+export function CommandCenter({ pages }: { pages: TogglePageView[] }) {
   return (
-    <main className="mx-auto grid max-w-[1500px] grid-cols-1 gap-4 p-4 md:p-6 lg:grid-cols-3">
-      <div className="flex flex-col gap-4">
-        <StreamGrid />
-        <AnalyticsBars />
-        <TopCountriesPanel />
-      </div>
-      <div className="flex flex-col gap-4">
-        <SystemStatus />
-        <DiscussedTopics />
-        <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-gradient-to-br from-icesco-blue to-icesco p-4">
-          <Users className="h-8 w-8 text-cyan-accent" />
-          <div>
-            <p className="font-display text-2xl font-bold text-white">31,420</p>
-            <p className="text-xs text-white/70">Active participants right now</p>
+    <main className="mx-auto flex max-w-[1500px] flex-col gap-4 p-4 md:p-6">
+      <PageVisibilityPanel pages={pages} />
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="flex flex-col gap-4">
+          <StreamGrid />
+          <AnalyticsBars />
+          <TopCountriesPanel />
+        </div>
+        <div className="flex flex-col gap-4">
+          <SystemStatus />
+          <DiscussedTopics />
+          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-gradient-to-br from-icesco-blue to-icesco p-4">
+            <Users className="h-8 w-8 text-cyan-accent" />
+            <div>
+              <p className="font-display text-2xl font-bold text-white">31,420</p>
+              <p className="text-xs text-white/70">Active participants right now</p>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex flex-col gap-4">
-        <ParticipantsPanel />
-        <AiInsights />
-        <Alerts />
+        <div className="flex flex-col gap-4">
+          <ParticipantsPanel />
+          <AiInsights />
+          <Alerts />
+        </div>
       </div>
     </main>
   )

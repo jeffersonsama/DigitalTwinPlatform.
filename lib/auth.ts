@@ -4,9 +4,10 @@ import { cache } from 'react'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
+import { isPageEnabled } from '@/lib/page-flags'
 import type { User } from '@/lib/generated/prisma/client'
 
-const SESSION_COOKIE = 'session'
+export const SESSION_COOKIE = 'session'
 const SESSION_TTL = '30d'
 
 function jwtSecret() {
@@ -40,6 +41,18 @@ export async function clearSession() {
   cookieStore.delete(SESSION_COOKIE)
 }
 
+/** Shared by the cookie-based Next.js path and the Socket.IO handshake (which
+ * has no `next/headers` — it reads the raw `Cookie` header instead). */
+export function verifySessionToken(token: string): string | null {
+  try {
+    const payload = jwt.verify(token, jwtSecret())
+    if (typeof payload === 'string' || !payload.sub) return null
+    return payload.sub
+  } catch {
+    return null
+  }
+}
+
 /** Verifies the session cookie, loads the user, and bumps `lastSeenAt` — this
  * doubles as the presence signal behind the Home page's "online" count.
  * Wrapped in React's per-request `cache()` so calling it from both AppShell
@@ -49,14 +62,8 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
   const token = cookieStore.get(SESSION_COOKIE)?.value
   if (!token) return null
 
-  let userId: string
-  try {
-    const payload = jwt.verify(token, jwtSecret())
-    if (typeof payload === 'string' || !payload.sub) return null
-    userId = payload.sub
-  } catch {
-    return null
-  }
+  const userId = verifySessionToken(token)
+  if (!userId) return null
 
   const user = await prisma.user.findUnique({ where: { id: userId } })
   if (!user) return null
@@ -69,4 +76,24 @@ export async function requireUser(): Promise<User> {
   const user = await getCurrentUser()
   if (!user) redirect('/login')
   return user
+}
+
+/** Gates admin-only surfaces (e.g. the Command Center). Delegates are sent
+ * home rather than shown a 403 — the nav rail already hides these entries
+ * for them, so landing here at all means a stale link or a direct hit. */
+export async function requireAdmin(): Promise<User> {
+  const user = await requireUser()
+  if (user.accessRole !== 'admin') redirect('/')
+  return user
+}
+
+/** Gates a page an admin has switched off via Command Center's Page
+ * Visibility panel. Admins always bypass — they're the ones who'd need to
+ * turn it back on, and the nav rail already marks it "disabled" for them
+ * rather than hiding it outright. Delegates get bounced home, matching the
+ * admin-only route pattern above. */
+export async function requireEnabledPage(key: string): Promise<void> {
+  const user = await getCurrentUser()
+  if (user?.accessRole === 'admin') return
+  if (!(await isPageEnabled(key))) redirect('/')
 }
