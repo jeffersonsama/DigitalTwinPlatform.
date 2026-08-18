@@ -4,15 +4,16 @@ import { TwinCity } from '@/components/digital-twin/twin-city'
 import { prisma } from '@/lib/db'
 import { requireEnabledPage } from '@/lib/auth'
 import type { TwinBuilding } from '@/components/digital-twin/twin-scene'
+import { getTranslations } from '@/lib/i18n-server'
 
-export const metadata: Metadata = {
-  title: 'Digital Twin City | ICESCO Crisis Forum 2026',
-  description:
-    'Explore a live digital twin of a smart city, monitoring the real-time status of critical infrastructure.',
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslations()
+  return { title: `${t('digitalTwin.pageTitle')} | ICESCO Crisis Forum 2026`, description: t('digitalTwin.pageDescription') }
 }
 
 export default async function DigitalTwinPage() {
   await requireEnabledPage('digitalTwin')
+  const { t } = await getTranslations()
 
   const rows = await prisma.twinBuilding.findMany({ orderBy: { name: 'asc' } })
   const buildings: TwinBuilding[] = rows.map((b) => ({
@@ -24,7 +25,7 @@ export default async function DigitalTwinPage() {
   }))
 
   return (
-    <AppShell title="ICESCO Digital Twin City">
+    <AppShell title={t('digitalTwin.pageTitle')}>
       <TwinCity buildings={buildings} />
     </AppShell>
   )

@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { Clock, MapPin, User, Radio, Check, CalendarDays, Play, Bookmark } from 'lucide-react'
 import { toggleBookmark } from '@/lib/actions/program'
+import { useLocale } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 export interface DayView {
@@ -36,6 +37,7 @@ const trackTone: Record<string, string> = {
 }
 
 function SessionCard({ session, isLoggedIn }: { session: SessionView; isLoggedIn: boolean }) {
+  const { t } = useLocale()
   const [pending, startTransition] = useTransition()
 
   return (
@@ -61,12 +63,12 @@ function SessionCard({ session, isLoggedIn }: { session: SessionView; isLoggedIn
           </span>
           {session.status === 'live' && (
             <span className="inline-flex items-center gap-1 rounded-full bg-forum-orange/10 px-2 py-0.5 text-[11px] font-semibold text-forum-orange">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-forum-orange" /> LIVE
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-forum-orange" /> {t('home.liveBadge')}
             </span>
           )}
           {session.status === 'done' && (
             <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
-              <Check className="h-3 w-3 text-icesco-teal" /> Completed
+              <Check className="h-3 w-3 text-icesco-teal" /> {t('program.completed')}
             </span>
           )}
         </div>
@@ -89,11 +91,11 @@ function SessionCard({ session, isLoggedIn }: { session: SessionView; isLoggedIn
             href="/live"
             className="inline-flex items-center gap-1.5 rounded-lg bg-forum-orange px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-forum-orange/90"
           >
-            <Radio className="h-4 w-4" /> Join
+            <Radio className="h-4 w-4" /> {t('program.join')}
           </Link>
         ) : session.status === 'done' ? (
           <button className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent">
-            <Play className="h-3.5 w-3.5" /> Replay
+            <Play className="h-3.5 w-3.5" /> {t('program.replay')}
           </button>
         ) : (
           <button
@@ -113,7 +115,7 @@ function SessionCard({ session, isLoggedIn }: { session: SessionView; isLoggedIn
             )}
           >
             <Bookmark className={cn('h-3.5 w-3.5', session.bookmarked && 'fill-current')} />
-            {session.bookmarked ? 'In your plan' : 'Add to plan'}
+            {session.bookmarked ? t('program.inPlan') : t('program.addToPlan')}
           </button>
         )}
       </div>
@@ -130,6 +132,7 @@ export function ProgramSchedule({
   sessions: SessionView[]
   isLoggedIn: boolean
 }) {
+  const { t } = useLocale()
   const [day, setDay] = useState(days[0]?.id)
   const daySessions = sessions.filter((s) => s.day === day)
 
@@ -140,8 +143,8 @@ export function ProgramSchedule({
           <CalendarDays className="h-5 w-5" />
         </span>
         <div>
-          <h1 className="font-display text-xl font-bold text-foreground md:text-2xl">Forum Program</h1>
-          <p className="text-sm text-muted-foreground">Three days of sessions, workshops and simulations.</p>
+          <h1 className="font-display text-xl font-bold text-foreground md:text-2xl">{t('program.title')}</h1>
+          <p className="text-sm text-muted-foreground">{t('program.subtitle')}</p>
         </div>
       </header>
 

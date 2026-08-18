@@ -1,11 +1,12 @@
 import Link from 'next/link'
 import { Target, Globe2, Users, CalendarClock, ArrowRight } from 'lucide-react'
+import { getTranslations } from '@/lib/i18n-server'
 
 function formatNum(n: number) {
   return n.toLocaleString('en-US')
 }
 
-export function StatRow({
+export async function StatRow({
   countriesConnected,
   participantsOnline,
   participantsDelta,
@@ -16,36 +17,45 @@ export function StatRow({
   participantsDelta: number
   sessionsToday: number
 }) {
+  const { t } = await getTranslations()
   return (
     <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
       <div className="flex flex-col justify-between rounded-2xl border border-border bg-gradient-to-br from-icesco to-icesco-blue p-5 text-white">
         <div>
           <div className="flex items-center gap-2 text-cyan-accent">
             <Target className="h-4 w-4" />
-            <span className="text-xs font-semibold uppercase tracking-wide">Today&apos;s Mission</span>
+            <span className="text-xs font-semibold uppercase tracking-wide">{t('home.todaysMission')}</span>
           </div>
-          <p className="mt-3 text-sm font-medium leading-snug text-white/90">
-            Strengthen Early Warning Systems in Our Communities
-          </p>
+          <p className="mt-3 text-sm font-medium leading-snug text-white/90">{t('home.missionText')}</p>
         </div>
         <Link
           href="/crisis-simulation"
           className="mt-4 inline-flex w-fit items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-icesco transition-colors hover:bg-white/90"
         >
-          Start Mission
+          {t('home.startMission')}
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
 
-      <StatCard icon={Globe2} label="Countries Connected" value={formatNum(countriesConnected)} sub="Member States" />
+      <StatCard
+        icon={Globe2}
+        label={t('home.stat.countriesConnected')}
+        value={formatNum(countriesConnected)}
+        sub={t('home.stat.memberStates')}
+      />
       <StatCard
         icon={Users}
-        label="Participants Online"
+        label={t('home.stat.participantsOnline')}
         value={formatNum(participantsOnline)}
-        sub={`+${formatNum(participantsDelta)} today`}
+        sub={t('home.stat.newToday', { count: formatNum(participantsDelta) })}
         accent
       />
-      <StatCard icon={CalendarClock} label="Sessions Today" value={formatNum(sessionsToday)} sub="Live & On-demand" />
+      <StatCard
+        icon={CalendarClock}
+        label={t('home.stat.sessionsToday')}
+        value={formatNum(sessionsToday)}
+        sub={t('home.stat.liveOnDemand')}
+      />
     </section>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useLocale, type TranslationKey } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 export type TwinStatus = 'operational' | 'warning' | 'flood-risk'
@@ -13,21 +14,21 @@ export interface TwinBuilding {
   y: number
 }
 
-const statusStyles: Record<TwinStatus, { dot: string; chip: string; label: string }> = {
+const statusStyles: Record<TwinStatus, { dot: string; chip: string; labelKey: TranslationKey }> = {
   operational: {
     dot: 'bg-emerald-400',
     chip: 'border-emerald-400/40 bg-emerald-500/15 text-emerald-300',
-    label: 'Operational',
+    labelKey: 'digitalTwin.status.operational',
   },
   warning: {
     dot: 'bg-amber-400',
     chip: 'border-amber-400/40 bg-amber-500/15 text-amber-300',
-    label: 'Warning',
+    labelKey: 'digitalTwin.status.warning',
   },
   'flood-risk': {
     dot: 'bg-red-500',
     chip: 'border-red-500/40 bg-red-500/15 text-red-300',
-    label: 'Flood Risk',
+    labelKey: 'digitalTwin.status.floodRisk',
   },
 }
 
@@ -57,6 +58,7 @@ export function TwinScene({
   epicenter,
   className,
 }: TwinSceneProps) {
+  const { t } = useLocale()
   return (
     <div
       className={cn(
@@ -67,7 +69,7 @@ export function TwinScene({
       {/* BaseLayer — replace with an R3F <Canvas> for a true 3D twin */}
       <Image
         src="/images/digital-twin-city.png"
-        alt="Isometric digital twin of the smart city"
+        alt={t('digitalTwin.sceneAlt')}
         fill
         className="object-cover"
         sizes="(max-width: 1024px) 100vw, 900px"
@@ -97,7 +99,7 @@ export function TwinScene({
             onClick={() => onSelect?.(b.id)}
             className="group absolute -translate-x-1/2 -translate-y-1/2"
             style={{ left: `${b.x}%`, top: `${b.y}%` }}
-            aria-label={`${b.name} — ${s.label}`}
+            aria-label={t('digitalTwin.markerLabel', { name: b.name, status: t(s.labelKey) })}
           >
             <span className="relative flex items-center justify-center">
               <span className={cn('absolute h-4 w-4 animate-ping rounded-full opacity-60', s.dot)} />

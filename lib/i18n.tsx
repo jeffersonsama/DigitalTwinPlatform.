@@ -1,117 +1,46 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
+import { STORAGE_KEY, COOKIE_KEY, translate, type Locale, type TranslationKey } from './i18n-shared'
 
-export type Locale = 'en' | 'fr' | 'ar'
-
-export const STORAGE_KEY = 'icesco-locale'
-
-const dictionaries = {
-  en: {
-    home: 'Home',
-    live: 'Live',
-    program: 'Program',
-    digitalTwin: 'Digital Twin',
-    worldMap: 'World Crisis Map',
-    simulation: 'Simulation',
-    knowledgeHub: 'Knowledge Hub',
-    networking: 'Networking',
-    messages: 'Messages',
-    passport: 'My Passport',
-    certificates: 'Certificates',
-    aiConcierge: 'AI Concierge',
-    commandCenter: 'Command Center',
-    globalPulse: 'Global Pulse',
-    onlineExperience: 'Online Experience',
-    posterStudio: 'Poster Studio',
-    search: 'Search',
-    notifications: 'Notifications',
-    theme: 'Theme',
-    language: 'Language',
-  },
-  fr: {
-    home: 'Accueil',
-    live: 'Direct',
-    program: 'Programme',
-    digitalTwin: 'Jumeau numérique',
-    worldMap: 'Carte mondiale des crises',
-    simulation: 'Simulation',
-    knowledgeHub: 'Centre de connaissances',
-    networking: 'Réseautage',
-    messages: 'Messages',
-    passport: 'Mon passeport',
-    certificates: 'Certificats',
-    aiConcierge: 'Assistant IA',
-    commandCenter: 'Centre de commandement',
-    globalPulse: 'Pouls mondial',
-    onlineExperience: 'Expérience en ligne',
-    posterStudio: "Atelier d'affiches",
-    search: 'Rechercher',
-    notifications: 'Notifications',
-    theme: 'Thème',
-    language: 'Langue',
-  },
-  ar: {
-    home: 'الرئيسية',
-    live: 'مباشر',
-    program: 'البرنامج',
-    digitalTwin: 'التوأم الرقمي',
-    worldMap: 'خريطة الأزمات العالمية',
-    simulation: 'المحاكاة',
-    knowledgeHub: 'مركز المعرفة',
-    networking: 'التواصل',
-    messages: 'الرسائل',
-    passport: 'جواز المنتدى',
-    certificates: 'الشهادات',
-    aiConcierge: 'المساعد الذكي',
-    commandCenter: 'مركز القيادة',
-    globalPulse: 'النبض العالمي',
-    onlineExperience: 'التجربة الرقمية',
-    posterStudio: 'استوديو الملصقات',
-    search: 'بحث',
-    notifications: 'الإشعارات',
-    theme: 'المظهر',
-    language: 'اللغة',
-  },
-} as const satisfies Record<Locale, Record<string, string>>
-
-export type TranslationKey = keyof (typeof dictionaries)['en']
+export type { Locale, TranslationKey }
 
 function applyDocumentLocale(locale: Locale) {
   document.documentElement.lang = locale
   document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr'
 }
 
-/**
- * Inlined into <head> so lang/dir flip before first paint — otherwise a
- * returning fr/ar visitor sees a flash of the LTR/English shell before React
- * hydrates and the effect below can run.
- */
-export const localeInitScript = `
-(function () {
-  try {
-    var stored = window.localStorage.getItem(${JSON.stringify(STORAGE_KEY)});
-    var locale = stored === 'fr' || stored === 'ar' ? stored : 'en';
-    document.documentElement.lang = locale;
-    document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
-  } catch (e) {}
-})();
-`
-
 interface LocaleContextValue {
   locale: Locale
   setLocale: (locale: Locale) => void
-  t: (key: TranslationKey) => string
+  t: (key: TranslationKey, vars?: Record<string, string | number>) => string
 }
 
 const LocaleContext = createContext<LocaleContextValue | null>(null)
 
-export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>('en')
+export function LocaleProvider({
+  children,
+  initialLocale = 'en',
+}: {
+  children: ReactNode
+  initialLocale?: Locale
+}) {
+  const router = useRouter()
+  const [locale, setLocaleState] = useState<Locale>(initialLocale)
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (stored === 'fr' || stored === 'ar') setLocaleState(stored)
+    const hasCookie = document.cookie.split('; ').some((c) => c.startsWith(`${COOKIE_KEY}=`))
+    if ((stored === 'fr' || stored === 'ar') && stored !== locale) {
+      setLocaleState(stored)
+    }
+    if ((stored === 'fr' || stored === 'ar') && !hasCookie) {
+      document.cookie = `${COOKIE_KEY}=${stored}; path=/; max-age=31536000`
+      router.refresh()
+    }
+    // Only ever needs to reconcile once, right after mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -121,10 +50,15 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   function setLocale(next: Locale) {
     setLocaleState(next)
     window.localStorage.setItem(STORAGE_KEY, next)
+    document.cookie = `${COOKIE_KEY}=${next}; path=/; max-age=31536000`
+    // Server Components render from the cookie, so nudge Next.js to
+    // re-fetch them with the new locale instead of leaving them stale
+    // until the next full navigation.
+    router.refresh()
   }
 
-  function t(key: TranslationKey): string {
-    return dictionaries[locale][key]
+  function t(key: TranslationKey, vars?: Record<string, string | number>): string {
+    return translate(locale, key, vars)
   }
 
   return <LocaleContext.Provider value={{ locale, setLocale, t }}>{children}</LocaleContext.Provider>

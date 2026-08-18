@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { X } from 'lucide-react'
 import { updateProfile } from '@/lib/actions/profile'
 import { AVATAR_IDS, avatarSrc } from '@/lib/avatar'
+import { useLocale } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 export function EditProfileModal({
@@ -21,6 +22,7 @@ export function EditProfileModal({
   countries: { name: string; flag: string }[]
   onClose: () => void
 }) {
+  const { t } = useLocale()
   const [nameValue, setNameValue] = useState(name)
   const [roleValue, setRoleValue] = useState(role)
   const [countryValue, setCountryValue] = useState(country)
@@ -50,14 +52,16 @@ export function EditProfileModal({
         className="flex w-full max-w-md flex-col gap-4 rounded-2xl bg-card p-6 shadow-2xl"
       >
         <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold text-foreground">Edit profile</p>
-          <button type="button" aria-label="Close" onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <p className="text-sm font-semibold text-foreground">{t('passport.editProfile')}</p>
+          <button type="button" aria-label={t('common.close')} onClick={onClose} className="text-muted-foreground hover:text-foreground">
             <X className="h-4 w-4" />
           </button>
         </div>
 
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Avatar</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {t('passport.editProfileModal.avatarLabel')}
+          </p>
           <div className="scrollbar-thin grid max-h-48 grid-cols-6 gap-2 overflow-y-auto sm:grid-cols-8">
             {AVATAR_IDS.map((id) => (
               <button
@@ -77,7 +81,7 @@ export function EditProfileModal({
         </div>
 
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium text-foreground">Name</span>
+          <span className="font-medium text-foreground">{t('passport.editProfileModal.nameLabel')}</span>
           <input
             value={nameValue}
             onChange={(e) => setNameValue(e.target.value)}
@@ -86,7 +90,7 @@ export function EditProfileModal({
         </label>
 
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium text-foreground">Role</span>
+          <span className="font-medium text-foreground">{t('auth.register.roleLabel')}</span>
           <input
             value={roleValue}
             onChange={(e) => setRoleValue(e.target.value)}
@@ -95,7 +99,7 @@ export function EditProfileModal({
         </label>
 
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium text-foreground">Country</span>
+          <span className="font-medium text-foreground">{t('auth.register.countryLabel')}</span>
           <select
             value={countryValue}
             onChange={(e) => setCountryValue(e.target.value)}
@@ -116,7 +120,7 @@ export function EditProfileModal({
           disabled={pending}
           className="rounded-lg bg-icesco-blue px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-icesco disabled:opacity-60"
         >
-          {pending ? 'Saving…' : 'Save changes'}
+          {pending ? t('passport.editProfileModal.saving') : t('passport.editProfileModal.saveChanges')}
         </button>
       </form>
     </div>

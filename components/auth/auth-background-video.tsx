@@ -1,3 +1,7 @@
+'use client'
+
+import { useLocale } from '@/lib/i18n'
+
 const VIDEO_ID = 'gqCKxEaPgOM'
 const START_SECONDS = 30
 
@@ -12,7 +16,9 @@ const START_SECONDS = 30
  * (unlike a fully inert decorative embed) as a fallback way to start it;
  * the dark overlay ignores pointer events so clicks reach the video below it.
  */
+
 export function AuthBackgroundVideo() {
+  const { t } = useLocale()
   const src =
     `https://www.youtube.com/embed/${VIDEO_ID}` +
     `?autoplay=1&loop=1&playlist=${VIDEO_ID}&start=${START_SECONDS}` +
@@ -25,7 +31,7 @@ export function AuthBackgroundVideo() {
         // overflow-hidden doesn't clip into a hard, un-blurred boundary
         className="absolute left-1/2 top-1/2 h-[56.25vw] min-h-full w-[177.78vh] min-w-full origin-center -translate-x-1/2 -translate-y-1/2 scale-105 blur-sm"
         src={src}
-        title="Background video"
+        title={t('auth.backgroundVideoTitle')}
         allow="autoplay; encrypted-media"
         frameBorder={0}
       />

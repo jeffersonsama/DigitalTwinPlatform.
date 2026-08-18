@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Search, BookOpen, FileText, Wrench, GraduationCap, Scale, ArrowUpRight } from 'lucide-react'
+import { useLocale } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 const typeIcon: Record<string, typeof FileText> = {
@@ -38,6 +39,7 @@ export function KnowledgeHub({
   activeCategory: string
   query: string
 }) {
+  const { t } = useLocale()
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -64,8 +66,8 @@ export function KnowledgeHub({
           <BookOpen className="h-5 w-5" />
         </span>
         <div>
-          <h1 className="font-display text-xl font-bold text-foreground md:text-2xl">Knowledge Hub</h1>
-          <p className="text-sm text-muted-foreground">Discover, learn and share knowledge.</p>
+          <h1 className="font-display text-xl font-bold text-foreground md:text-2xl">{t('knowledgeHub')}</h1>
+          <p className="text-sm text-muted-foreground">{t('knowledge.subtitle')}</p>
         </div>
       </header>
 
@@ -80,13 +82,13 @@ export function KnowledgeHub({
         <input
           value={queryInput}
           onChange={(e) => setQueryInput(e.target.value)}
-          placeholder="Search for sessions, documents, experts, cases…"
+          placeholder={t('knowledge.searchPlaceholder')}
           className="h-12 w-full rounded-xl border border-border bg-card pl-11 pr-4 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-icesco-blue focus:ring-2 focus:ring-ring/40"
         />
       </form>
 
       <div className="flex flex-col gap-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Categories</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('knowledge.categoriesHeading')}</p>
         <div className="flex flex-wrap gap-2">
           {categories.map((c) => (
             <button
@@ -107,7 +109,7 @@ export function KnowledgeHub({
       </div>
 
       <section className="flex flex-col gap-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured Resources</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('knowledge.featuredResources')}</p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {featured.map((r) => {
             const Icon = typeIcon[r.type] ?? FileText
@@ -143,12 +145,12 @@ export function KnowledgeHub({
 
       <section className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Recent Additions</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('knowledge.recentAdditions')}</p>
         </div>
 
         <div className="overflow-hidden rounded-2xl border border-border bg-card">
           {recent.length === 0 ? (
-            <p className="p-6 text-center text-sm text-muted-foreground">No resources match your filters.</p>
+            <p className="p-6 text-center text-sm text-muted-foreground">{t('knowledge.noResults')}</p>
           ) : (
             <ul className="divide-y divide-border">
               {recent.map((r) => {
@@ -165,7 +167,7 @@ export function KnowledgeHub({
                       <div className="min-w-0">
                         <p className="truncate font-medium text-foreground">{r.title}</p>
                         <p className="text-xs text-muted-foreground">
-                          {r.category} · {r.country ?? 'Global'}
+                          {r.category} · {r.country ?? t('knowledge.global')}
                         </p>
                       </div>
                     </div>
@@ -176,7 +178,7 @@ export function KnowledgeHub({
                         </span>
                       )}
                       <button className="flex items-center gap-1 text-xs font-medium text-icesco-blue hover:underline">
-                        Open
+                        {t('knowledge.open')}
                         <ArrowUpRight className="h-3 w-3" />
                       </button>
                     </div>

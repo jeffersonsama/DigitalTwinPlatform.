@@ -3,20 +3,23 @@ import { FullLogo } from '@/components/brand/full-logo'
 import { LoginForm } from '@/components/auth/login-form'
 import { AuthBackgroundVideo } from '@/components/auth/auth-background-video'
 import { AuthTopBar } from '@/components/auth/auth-top-bar'
+import { getTranslations } from '@/lib/i18n-server'
 
-export const metadata: Metadata = {
-  title: 'Log In | ICESCO Crisis Forum 2026',
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslations()
+  return { title: `${t('auth.login.pageTitle')} | ICESCO Crisis Forum 2026` }
 }
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const { t } = await getTranslations()
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
       <AuthBackgroundVideo />
       <AuthTopBar />
       <div className="relative z-10 w-full max-w-md rounded-2xl border border-border bg-card/45 p-8 text-center shadow-xl backdrop-blur-sm">
         <FullLogo height={64} className="mx-auto mb-6" />
-        <h1 className="font-display text-2xl font-bold text-foreground">Welcome back</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Log in to your forum passport.</p>
+        <h1 className="font-display text-2xl font-bold text-foreground">{t('auth.login.welcomeBack')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('auth.login.subtitle')}</p>
         <div className="mt-6 text-left">
           <LoginForm />
         </div>

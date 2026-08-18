@@ -3,19 +3,19 @@ import { AppShell } from '@/components/shell/app-shell'
 import { PulseWall } from '@/components/pulse/pulse-wall'
 import { getGlobalStats, getCountryEngagement } from '@/lib/stats'
 import { requireEnabledPage } from '@/lib/auth'
+import { getTranslations } from '@/lib/i18n-server'
 
-export const metadata: Metadata = {
-  title: 'Global Pulse | ICESCO Crisis Forum 2026',
-  description:
-    'The ICESCO Global Pulse LED wall — a live, big-screen view of forum-wide engagement and impact.',
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslations()
+  return { title: `${t('globalPulse')} | ICESCO Crisis Forum 2026`, description: t('pulse.pageDescription') }
 }
 
 export default async function GlobalPulsePage() {
   await requireEnabledPage('globalPulse')
-  const [stats, countries] = await Promise.all([getGlobalStats(), getCountryEngagement()])
+  const [stats, countries, { t }] = await Promise.all([getGlobalStats(), getCountryEngagement(), getTranslations()])
 
   return (
-    <AppShell title="ICESCO Global Pulse">
+    <AppShell title={t('pulse.pageTitle')}>
       <PulseWall
         countriesConnected={stats.countriesConnected}
         participantsOnline={stats.participantsOnline}

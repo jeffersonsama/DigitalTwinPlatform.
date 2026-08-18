@@ -9,6 +9,7 @@ import {
   acceptConnectionRequest,
   declineConnectionRequest,
 } from '@/lib/actions/networking'
+import { useLocale } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 export type ConnectionState = 'none' | 'pending-sent' | 'pending-received' | 'connected'
@@ -39,6 +40,7 @@ export function NetworkingDirectory({
   stats: NetworkingStatView[]
   isLoggedIn: boolean
 }) {
+  const { t } = useLocale()
   const [query, setQuery] = useState('')
   const [pending, startTransition] = useTransition()
 
@@ -69,15 +71,15 @@ export function NetworkingDirectory({
             <Users className="h-5 w-5" />
           </span>
           <div>
-            <h1 className="font-display text-xl font-bold text-foreground md:text-2xl">Networking</h1>
-            <p className="text-sm text-muted-foreground">Connect with delegates from across the Islamic world.</p>
+            <h1 className="font-display text-xl font-bold text-foreground md:text-2xl">{t('networking')}</h1>
+            <p className="text-sm text-muted-foreground">{t('networking.subtitle')}</p>
           </div>
         </div>
         <Link
           href="/scan"
           className="flex items-center gap-1.5 rounded-lg bg-icesco-blue px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-icesco"
         >
-          <ScanLine className="h-4 w-4" /> Scan QR
+          <ScanLine className="h-4 w-4" /> {t('networking.scanQr')}
         </Link>
       </header>
 
@@ -95,7 +97,7 @@ export function NetworkingDirectory({
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search delegates by name, role or country…"
+          placeholder={t('networking.searchPlaceholder')}
           className="h-12 w-full rounded-xl border border-border bg-card pl-11 pr-4 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-icesco-blue focus:ring-2 focus:ring-ring/40"
         />
       </div>
@@ -117,7 +119,7 @@ export function NetworkingDirectory({
                 <h3 className="truncate font-semibold text-foreground hover:underline">{d.name}</h3>
                 <p className="truncate text-xs text-muted-foreground">{d.role}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  <span aria-hidden>{d.flag}</span> {d.country} · {d.mutual} mutual
+                  <span aria-hidden>{d.flag}</span> {d.country} · {t('networking.mutualCount', { count: d.mutual })}
                 </p>
               </div>
             </Link>
@@ -130,12 +132,12 @@ export function NetworkingDirectory({
                     onClick={() => guardedAction(() => acceptConnectionRequest(d.id))}
                     className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-icesco-blue px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-icesco disabled:opacity-60"
                   >
-                    <Check className="h-4 w-4" /> Accept
+                    <Check className="h-4 w-4" /> {t('networking.accept')}
                   </button>
                   <button
                     disabled={pending}
                     onClick={() => guardedAction(() => declineConnectionRequest(d.id))}
-                    aria-label={`Decline ${d.name}`}
+                    aria-label={t('networking.declineName', { name: d.name })}
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:text-foreground disabled:opacity-60"
                   >
                     <X className="h-4 w-4" />
@@ -165,13 +167,17 @@ export function NetworkingDirectory({
                   {d.connectionState === 'connected' && <Check className="h-4 w-4" />}
                   {d.connectionState === 'pending-sent' && <Clock className="h-4 w-4" />}
                   {d.connectionState === 'none' && <UserPlus className="h-4 w-4" />}
-                  {d.connectionState === 'connected' ? 'Connected' : d.connectionState === 'pending-sent' ? 'Requested' : 'Connect'}
+                  {d.connectionState === 'connected'
+                    ? t('profile.connectAction.connected')
+                    : d.connectionState === 'pending-sent'
+                      ? t('networking.requested')
+                      : t('profile.connectAction.connect')}
                 </button>
               )}
               {d.connectionState === 'connected' ? (
                 <Link
                   href={`/messages/${d.id}`}
-                  aria-label={`Message ${d.name}`}
+                  aria-label={t('networking.messageName', { name: d.name })}
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <MessageCircle className="h-4 w-4" />
@@ -179,8 +185,8 @@ export function NetworkingDirectory({
               ) : d.connectionState !== 'pending-received' ? (
                 <button
                   disabled
-                  aria-label={`Message ${d.name} (connect first)`}
-                  title="Connect first to send a message"
+                  aria-label={t('networking.messageConnectFirst', { name: d.name })}
+                  title={t('networking.connectFirstTooltip')}
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground/40 disabled:cursor-not-allowed"
                 >
                   <MessageCircle className="h-4 w-4" />
@@ -193,7 +199,7 @@ export function NetworkingDirectory({
 
       {filtered.length === 0 && (
         <p className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-          No delegates match your search.
+          {t('networking.noMatches')}
         </p>
       )}
     </main>

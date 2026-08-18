@@ -9,6 +9,7 @@ import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
 import { getConnectionState } from '@/lib/networking'
 import { resolveAvatar } from '@/lib/avatar'
+import { getTranslations } from '@/lib/i18n-server'
 
 const badgeIcons: Record<string, string> = {
   zap: '⚡',
@@ -20,8 +21,8 @@ const badgeIcons: Record<string, string> = {
 
 export async function generateMetadata({ params }: { params: Promise<{ userId: string }> }): Promise<Metadata> {
   const { userId } = await params
-  const target = await prisma.user.findUnique({ where: { id: userId } })
-  return { title: target ? `${target.name} | ICESCO Crisis Forum 2026` : 'Profile | ICESCO Crisis Forum 2026' }
+  const [target, { t }] = await Promise.all([prisma.user.findUnique({ where: { id: userId } }), getTranslations()])
+  return { title: target ? `${target.name} | ICESCO Crisis Forum 2026` : `${t('profile.pageTitle')} | ICESCO Crisis Forum 2026` }
 }
 
 export default async function PublicProfilePage({
@@ -34,7 +35,11 @@ export default async function PublicProfilePage({
   const { userId } = await params
   const { src } = await searchParams
 
-  const [target, viewer] = await Promise.all([prisma.user.findUnique({ where: { id: userId } }), getCurrentUser()])
+  const [target, viewer, { t }] = await Promise.all([
+    prisma.user.findUnique({ where: { id: userId } }),
+    getCurrentUser(),
+    getTranslations(),
+  ])
   if (!target) notFound()
   const isSelf = viewer?.id === target.id
 
@@ -46,7 +51,7 @@ export default async function PublicProfilePage({
   ])
 
   return (
-    <AppShell title="Profile">
+    <AppShell title={t('profile.pageTitle')}>
       <main className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-5 px-4 py-10">
         <BackButton />
 
@@ -65,16 +70,16 @@ export default async function PublicProfilePage({
           </div>
 
           <span className="flex items-center gap-1.5 rounded-full bg-accent/60 px-3 py-1.5 text-sm font-semibold text-icesco-blue">
-            <Sparkles className="h-4 w-4" /> Level {target.level} · {target.levelTitle}
+            <Sparkles className="h-4 w-4" /> {t('passport.levelLabel', { level: target.level, title: target.levelTitle })}
           </span>
 
           {isSelf ? (
             <div className="flex flex-col items-center gap-2">
               <span className="rounded-full bg-accent/60 px-3 py-1.5 text-xs font-semibold text-icesco-blue">
-                This is how others see you
+                {t('profile.howOthersSeeYou')}
               </span>
               <Link href="/passport" className="text-sm font-medium text-icesco-blue hover:underline">
-                Back to your Passport
+                {t('profile.backToPassport')}
               </Link>
             </div>
           ) : viewer ? (
@@ -89,14 +94,14 @@ export default async function PublicProfilePage({
               href="/login"
               className="rounded-lg bg-icesco-blue px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-icesco"
             >
-              Log in to connect with {target.name.split(' ')[0]}
+              {t('profile.loginToConnect', { name: target.name.split(' ')[0] })}
             </Link>
           )}
         </section>
 
         {badges.length > 0 && (
           <section className="rounded-2xl border border-border bg-card p-5">
-            <h2 className="mb-4 text-sm font-semibold text-foreground">Badges</h2>
+            <h2 className="mb-4 text-sm font-semibold text-foreground">{t('passport.badgesHeading')}</h2>
             <div className="grid grid-cols-5 gap-2 text-center">
               {badges.map((b) => (
                 <div key={b.id} className="flex flex-col items-center gap-1.5">
@@ -111,9 +116,9 @@ export default async function PublicProfilePage({
         )}
 
         <section className="rounded-2xl border border-border bg-card p-5">
-          <h2 className="mb-4 text-sm font-semibold text-foreground">Certificates</h2>
+          <h2 className="mb-4 text-sm font-semibold text-foreground">{t('certificates')}</h2>
           {certificates.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No certificates issued yet.</p>
+            <p className="text-sm text-muted-foreground">{t('certificates.noneYet')}</p>
           ) : (
             <ul className="flex flex-col gap-3">
               {certificates.map((c) => (

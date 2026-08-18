@@ -1,11 +1,14 @@
+'use client'
+
 import Image from 'next/image'
 import { GlobalMap } from '@/components/world-map/global-map'
+import { useLocale, type TranslationKey } from '@/lib/i18n'
 import type { CountryEngagement } from '@/lib/stats'
 
-const highlights = [
-  { label: 'Most Active Country', value: 'Türkiye' },
-  { label: 'Most Discussed Crisis', value: 'Floods' },
-  { label: 'Top AI Insight', value: 'Invest in early warning & community education' },
+const highlights: Array<{ labelKey: TranslationKey; value: string }> = [
+  { labelKey: 'pulse.highlights.mostActiveCountry', value: 'Türkiye' },
+  { labelKey: 'pulse.highlights.mostDiscussedCrisis', value: 'Floods' },
+  { labelKey: 'pulse.highlights.topAiInsight', value: 'Invest in early warning & community education' },
 ]
 
 export function PulseWall({
@@ -23,12 +26,13 @@ export function PulseWall({
   challengesCompleted: number
   countries: CountryEngagement[]
 }) {
+  const { t } = useLocale()
   const bigStats = [
-    { label: 'Countries Online', value: countriesConnected.toString() },
-    { label: 'Participants', value: participantsOnline.toLocaleString() },
-    { label: 'Ideas Shared', value: ideasShared.toLocaleString() },
-    { label: 'Projects Initiated', value: projectsInitiated.toString() },
-    { label: 'Challenges Completed', value: challengesCompleted.toString() },
+    { label: t('pulse.stats.countriesOnline'), value: countriesConnected.toString() },
+    { label: t('pulse.stats.participants'), value: participantsOnline.toLocaleString() },
+    { label: t('pulse.stats.ideasShared'), value: ideasShared.toLocaleString() },
+    { label: t('pulse.stats.projectsInitiated'), value: projectsInitiated.toString() },
+    { label: t('pulse.stats.challengesCompleted'), value: challengesCompleted.toString() },
   ]
   const topCountries = countries.slice(0, 6)
   const max = Math.max(1, ...topCountries.map((c) => c.value))
@@ -50,14 +54,12 @@ export function PulseWall({
       <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 py-14 text-center md:py-20">
         <span className="inline-flex items-center gap-2 rounded-full border border-cyan-accent/40 bg-cyan-accent/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-accent">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-accent" />
-          Live
+          {t('live')}
         </span>
         <h1 className="mt-5 font-display text-4xl font-extrabold tracking-tight text-white md:text-6xl">
-          ICESCO Global Pulse
+          {t('pulse.pageTitle')}
         </h1>
-        <p className="mt-3 text-balance text-sm text-white/70 md:text-lg">
-          Uniting the Islamic World for a Resilient Future
-        </p>
+        <p className="mt-3 text-balance text-sm text-white/70 md:text-lg">{t('pulse.subtitle')}</p>
 
         {/* Big stats */}
         <div className="mt-12 grid w-full grid-cols-2 gap-4 md:grid-cols-5 md:gap-6">
@@ -80,10 +82,10 @@ export function PulseWall({
         <div className="mt-10 grid w-full grid-cols-1 gap-4 md:grid-cols-3">
           {highlights.map((h) => (
             <div
-              key={h.label}
+              key={h.labelKey}
               className="rounded-xl border border-white/10 bg-gradient-to-br from-icesco/40 to-navy-900 p-5 text-left"
             >
-              <p className="text-[11px] uppercase tracking-wide text-cyan-accent">{h.label}</p>
+              <p className="text-[11px] uppercase tracking-wide text-cyan-accent">{t(h.labelKey)}</p>
               <p className="mt-1.5 text-pretty text-lg font-bold text-white">{h.value}</p>
             </div>
           ))}
@@ -94,7 +96,7 @@ export function PulseWall({
       <div className="relative mx-auto grid w-full max-w-[1400px] grid-cols-1 gap-4 px-4 pb-14 md:px-6 lg:grid-cols-[280px_minmax(0,1fr)]">
         <aside className="flex flex-col gap-4">
           <section className="rounded-xl border border-white/10 bg-navy-900 p-4 text-left">
-            <h2 className="mb-3 text-sm font-semibold text-white">Top Active Countries</h2>
+            <h2 className="mb-3 text-sm font-semibold text-white">{t('pulse.topActiveCountries')}</h2>
             <ul className="flex flex-col gap-3">
               {topCountries.map((c) => (
                 <li key={c.name}>
@@ -120,7 +122,7 @@ export function PulseWall({
           <div className="mb-2 flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-accent/40 bg-cyan-accent/10 px-2.5 py-1 text-xs font-semibold text-cyan-accent">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-accent" />
-              Global Engagement · Live
+              {t('pulse.globalEngagementLive')}
             </span>
           </div>
           <GlobalMap markers={countries} />

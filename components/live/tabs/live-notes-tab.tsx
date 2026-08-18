@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { saveLiveNotes } from '@/lib/actions/live'
+import { useLocale } from '@/lib/i18n'
 
 export function LiveNotesTab({ initialNote, isLoggedIn }: { initialNote: string; isLoggedIn: boolean }) {
+  const { t } = useLocale()
   const [value, setValue] = useState(initialNote)
   const [saving, setSaving] = useState(false)
   const [savedAt, setSavedAt] = useState<number | null>(null)
@@ -26,7 +28,7 @@ export function LiveNotesTab({ initialNote, isLoggedIn }: { initialNote: string;
         onChange={(e) => setValue(e.target.value)}
         disabled={!isLoggedIn}
         rows={5}
-        placeholder={isLoggedIn ? 'Your private notes for this session…' : 'Log in to take notes…'}
+        placeholder={isLoggedIn ? t('live.notes.placeholderLoggedIn') : t('live.notes.placeholderLoggedOut')}
         className="w-full resize-none rounded-lg border border-white/10 bg-navy-950 p-3 text-sm text-white outline-none placeholder:text-white/40 focus:border-cyan-accent disabled:opacity-60"
       />
       <div className="flex items-center justify-between">
@@ -35,9 +37,9 @@ export function LiveNotesTab({ initialNote, isLoggedIn }: { initialNote: string;
           disabled={saving}
           className="rounded-lg bg-cyan-accent px-4 py-1.5 text-sm font-semibold text-navy-950 transition-colors hover:bg-cyan-accent/90 disabled:opacity-60"
         >
-          {saving ? 'Saving…' : 'Save notes'}
+          {saving ? t('live.notes.saving') : t('live.notes.save')}
         </button>
-        {savedAt && <span className="text-[11px] text-white/40">Saved</span>}
+        {savedAt && <span className="text-[11px] text-white/40">{t('live.notes.saved')}</span>}
       </div>
     </div>
   )

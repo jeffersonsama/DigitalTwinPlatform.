@@ -3,12 +3,14 @@
 import { useState } from 'react'
 import { Bot, Send, Search, Sparkles, FileText, Languages } from 'lucide-react'
 import { aiSuggestions } from '@/lib/data'
+import { useLocale } from '@/lib/i18n'
 
 type Message = { role: 'user' | 'ai'; text: string }
 
 const suggestionIcons = [Search, Sparkles, FileText, Languages]
 
 export function Concierge() {
+  const { t } = useLocale()
   const [messages, setMessages] = useState<Message[]>([])
   const [value, setValue] = useState('')
   const started = messages.length > 0
@@ -19,10 +21,7 @@ export function Concierge() {
     setMessages((m) => [
       ...m,
       { role: 'user', text: q },
-      {
-        role: 'ai',
-        text: "Here's a concise answer based on the forum knowledge base. I can also connect you with relevant sessions, experts, and documents — just ask for details.",
-      },
+      { role: 'ai', text: t('ai.reply') },
     ])
     setValue('')
   }
@@ -37,9 +36,9 @@ export function Concierge() {
                   <Bot className="h-7 w-7 text-white" />
                 </div>
                 <h1 className="text-balance font-display text-2xl font-bold text-foreground md:text-3xl">
-                  Hello! I&apos;m your AI Concierge
+                  {t('ai.greeting')}
                 </h1>
-                <p className="mt-1 text-lg text-muted-foreground">How can I help you today?</p>
+                <p className="mt-1 text-lg text-muted-foreground">{t('ai.howCanIHelp')}</p>
 
                 <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {aiSuggestions.map((s, i) => {
@@ -95,12 +94,12 @@ export function Concierge() {
             <input
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              placeholder="Ask me anything…"
+              placeholder={t('home.aiCard.placeholder')}
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
             <button
               type="submit"
-              aria-label="Send message"
+              aria-label={t('ai.sendMessage')}
               className="flex h-9 w-9 items-center justify-center rounded-full bg-icesco-blue text-white transition-colors hover:bg-icesco"
             >
               <Send className="h-4 w-4" />

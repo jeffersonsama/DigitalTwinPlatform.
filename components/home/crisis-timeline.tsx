@@ -1,4 +1,5 @@
 import { Check, Radio, Clock } from 'lucide-react'
+import { getTranslations } from '@/lib/i18n-server'
 import { cn } from '@/lib/utils'
 
 export interface TimelineStep {
@@ -7,11 +8,12 @@ export interface TimelineStep {
   status: 'done' | 'live' | 'upcoming'
 }
 
-export function CrisisTimeline({ steps }: { steps: TimelineStep[] }) {
+export async function CrisisTimeline({ steps }: { steps: TimelineStep[] }) {
+  const { t } = await getTranslations()
   return (
     <section className="rounded-2xl border border-border bg-card p-5">
       <h2 className="mb-5 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        Crisis Timeline
+        {t('home.crisisTimeline')}
       </h2>
       <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:gap-0">
         {steps.map((step, i) => (
@@ -37,7 +39,7 @@ export function CrisisTimeline({ steps }: { steps: TimelineStep[] }) {
               {step.status === 'live' && (
                 <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-forum-orange/10 px-2 py-0.5 text-[10px] font-semibold text-forum-orange">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-forum-orange" />
-                  LIVE
+                  {t('home.liveBadge')}
                 </span>
               )}
             </div>

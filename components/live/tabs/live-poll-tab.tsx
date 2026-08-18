@@ -2,14 +2,16 @@
 
 import { useState } from 'react'
 import { useLiveRoom } from '@/components/live/live-room-provider'
+import { useLocale } from '@/lib/i18n'
 
 export function LivePollTab() {
   const { poll, vote, isLoggedIn } = useLiveRoom()
+  const { t } = useLocale()
   const [pending, setPending] = useState<string | null>(null)
   const [error, setError] = useState('')
 
   if (!poll) {
-    return <p className="text-white/60">No poll is active right now.</p>
+    return <p className="text-white/60">{t('live.poll.none')}</p>
   }
 
   async function handleVote(optionId: string) {
@@ -49,7 +51,7 @@ export function LivePollTab() {
           )
         })}
       </div>
-      <p className="text-[11px] text-white/40">{poll.total.toLocaleString()} votes</p>
+      <p className="text-[11px] text-white/40">{t('live.poll.votes', { count: poll.total.toLocaleString() })}</p>
       {error && <p className="text-[11px] text-red-400">{error}</p>}
     </div>
   )

@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { io, type Socket } from 'socket.io-client'
+import { useLocale } from '@/lib/i18n'
 
 export interface LiveChatMessage {
   id: string
@@ -51,6 +52,7 @@ interface LiveRoomValue {
 const LiveRoomContext = createContext<LiveRoomValue | null>(null)
 
 export function LiveRoomProvider({ children, isLoggedIn }: { children: ReactNode; isLoggedIn: boolean }) {
+  const { t } = useLocale()
   const socketRef = useRef<Socket | null>(null)
   const [connected, setConnected] = useState(false)
   const [presenceCount, setPresenceCount] = useState(0)
@@ -81,7 +83,7 @@ export function LiveRoomProvider({ children, isLoggedIn }: { children: ReactNode
   function emitWithAck<T>(event: string, payload: T): Promise<AckResult> {
     return new Promise((resolve) => {
       const socket = socketRef.current
-      if (!socket) return resolve({ error: 'not connected' })
+      if (!socket) return resolve({ error: t('live.notConnected') })
       socket.emit(event, payload, (res: AckResult) => resolve(res ?? { ok: true }))
     })
   }

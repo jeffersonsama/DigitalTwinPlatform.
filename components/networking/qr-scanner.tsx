@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import jsQR from 'jsqr'
 import { AlertCircle, Camera, X } from 'lucide-react'
+import { useLocale } from '@/lib/i18n'
 
 /** Only follows links that point back into our own /profile pages — a
  * scanned QR is untrusted input, so we don't navigate to arbitrary decoded
@@ -21,6 +22,7 @@ function resolveProfilePath(raw: string): string | null {
 
 export function QrScanner() {
   const router = useRouter()
+  const { t } = useLocale()
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [error, setError] = useState<string | null>(null)
@@ -40,7 +42,7 @@ export function QrScanner() {
         await videoRef.current.play()
         tick()
       } catch {
-        setError('Camera access was denied or is unavailable. You can paste a profile link below instead.')
+        setError(t('qrScanner.cameraError'))
       }
     }
 
@@ -84,7 +86,7 @@ export function QrScanner() {
     e.preventDefault()
     const path = resolveProfilePath(manualUrl.trim())
     if (path) router.push(path)
-    else setError("That doesn't look like a forum profile link.")
+    else setError(t('qrScanner.invalidLink'))
   }
 
   return (
@@ -96,7 +98,7 @@ export function QrScanner() {
         {found && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/70">
             <p className="flex items-center gap-2 text-sm font-semibold text-cyan-accent">
-              <Camera className="h-4 w-4" /> Code found — opening profile…
+              <Camera className="h-4 w-4" /> {t('qrScanner.codeFound')}
             </p>
           </div>
         )}
@@ -108,20 +110,20 @@ export function QrScanner() {
         )}
       </div>
 
-      <p className="text-sm text-white/50">Point your camera at a delegate&apos;s QR code from their Passport.</p>
+      <p className="text-sm text-white/50">{t('qrScanner.instructions')}</p>
 
       <form onSubmit={goToManualUrl} className="flex w-full max-w-sm items-center gap-2">
         <input
           value={manualUrl}
           onChange={(e) => setManualUrl(e.target.value)}
-          placeholder="Or paste a profile link…"
+          placeholder={t('qrScanner.pastePlaceholder')}
           className="flex-1 rounded-full border border-white/15 bg-navy-900 px-4 py-2 text-sm text-white outline-none placeholder:text-white/40 focus:border-cyan-accent"
         />
         <button
           type="submit"
           className="rounded-full bg-cyan-accent px-4 py-2 text-sm font-semibold text-navy-950"
         >
-          Go
+          {t('qrScanner.go')}
         </button>
       </form>
     </div>
@@ -130,10 +132,11 @@ export function QrScanner() {
 
 export function CloseScannerButton() {
   const router = useRouter()
+  const { t } = useLocale()
   return (
     <button
       onClick={() => router.back()}
-      aria-label="Close scanner"
+      aria-label={t('qrScanner.close')}
       className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
     >
       <X className="h-4 w-4" />

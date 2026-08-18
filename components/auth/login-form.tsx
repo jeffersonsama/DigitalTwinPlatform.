@@ -3,8 +3,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useLocale } from '@/lib/i18n'
 
 export function LoginForm() {
+  const { t } = useLocale()
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -23,7 +25,7 @@ export function LoginForm() {
     setSubmitting(false)
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
-      setError(body.error || 'Something went wrong')
+      setError(body.error || t('auth.errorGeneric'))
       return
     }
     router.push('/passport')
@@ -34,7 +36,7 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="text-sm font-medium text-foreground">
-          Email
+          {t('auth.emailLabel')}
         </label>
         <input
           id="email"
@@ -47,7 +49,7 @@ export function LoginForm() {
       </div>
       <div className="flex flex-col gap-1.5">
         <label htmlFor="password" className="text-sm font-medium text-foreground">
-          Password
+          {t('auth.passwordLabel')}
         </label>
         <input
           id="password"
@@ -66,13 +68,13 @@ export function LoginForm() {
         disabled={submitting}
         className="mt-1 rounded-lg bg-icesco-blue px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-icesco disabled:opacity-60"
       >
-        {submitting ? 'Logging in…' : 'Log in'}
+        {submitting ? t('auth.login.submitting') : t('shell.logIn')}
       </button>
 
       <p className="text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{' '}
+        {t('auth.login.noAccount')}{' '}
         <Link href="/register" className="font-medium text-icesco-blue hover:underline">
-          Register
+          {t('auth.login.registerLink')}
         </Link>
       </p>
     </form>
