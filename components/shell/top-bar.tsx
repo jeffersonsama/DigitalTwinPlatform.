@@ -99,7 +99,7 @@ export function TopBar({
   notifications: NotificationView[]
   unreadCount: number
 }) {
-  const { t } = useLocale()
+  const { locale, t } = useLocale()
   const router = useRouter()
 
   async function handleLogout() {
@@ -148,7 +148,7 @@ export function TopBar({
           <div className="flex items-center gap-2">
             <Link
               href="/passport"
-              title={`${user.levelTitle} · ${user.xp.toLocaleString()} / ${user.xpMax.toLocaleString()} XP`}
+              title={`${user.levelTitle} · ${user.xp.toLocaleString(locale)} / ${user.xpMax.toLocaleString(locale)} XP`}
               className={cn(
                 'hidden items-center gap-2 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors sm:flex',
                 immersive ? 'bg-white/10 text-white/80 hover:bg-white/15' : 'bg-accent text-icesco-blue hover:bg-accent/80',
@@ -163,7 +163,7 @@ export function TopBar({
                   style={{ width: `${Math.min(100, Math.round((user.xp / Math.max(user.xpMax, 1)) * 100))}%` }}
                 />
               </span>
-              <span className="whitespace-nowrap">{user.xp.toLocaleString()} XP</span>
+              <span className="whitespace-nowrap">{user.xp.toLocaleString(locale)} XP</span>
             </Link>
             {user.isAdmin && (
               <span
