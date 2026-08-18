@@ -42,7 +42,7 @@ export async function Hero() {
               {t('home.joinLiveNow')}
             </Link>
             <Link
-              href="/knowledge"
+              href="/program"
               className="inline-flex items-center gap-2 rounded-lg border border-white/40 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
             >
               {t('home.exploreProgram')}
