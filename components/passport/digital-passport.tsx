@@ -23,6 +23,8 @@ import {
   CheckCircle2,
   Lock,
   Clock,
+  UserPlus,
+  Mail,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { avatarSrc } from '@/lib/avatar'
@@ -51,6 +53,8 @@ export interface PassportView {
   levelTitle: string
   xp: number
   xpMax: number
+  referralCode: string
+  referralsCount: number
   stats: { missions: number; connections: number; certificates: number }
 }
 
@@ -107,6 +111,7 @@ export function DigitalPassport({
   const { t } = useLocale()
   const [tab, setTab] = useState<Tab>('Activity')
   const [showShare, setShowShare] = useState(false)
+  const [showReferral, setShowReferral] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
   const xpPct = Math.round((passport.xp / passport.xpMax) * 100)
 
@@ -158,6 +163,18 @@ export function DigitalPassport({
                 <ScanLine className="h-4 w-4" /> {t('passport.scan')}
               </Link>
             </div>
+
+            <button
+              onClick={() => setShowReferral(true)}
+              className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-icesco-blue/40 px-3 py-2 text-sm font-semibold text-icesco-blue transition-colors hover:bg-accent"
+            >
+              <UserPlus className="h-4 w-4" /> {t('passport.referral.title')}
+            </button>
+            {passport.referralsCount > 0 && (
+              <p className="mt-1.5 text-center text-xs text-muted-foreground">
+                {t('passport.referral.joinedCount', { count: passport.referralsCount })}
+              </p>
+            )}
 
             <div className="mt-5 rounded-xl bg-accent/60 p-4">
               <div className="flex items-center justify-between">
@@ -319,6 +336,9 @@ export function DigitalPassport({
       </section>
 
       {showShare && <SharePassportModal userId={passport.id} name={passport.name} onClose={() => setShowShare(false)} />}
+      {showReferral && (
+        <ReferralModal referralCode={passport.referralCode} onClose={() => setShowReferral(false)} />
+      )}
       {showEdit && (
         <EditProfileModal
           name={passport.name}
@@ -405,6 +425,90 @@ function SharePassportModal({ userId, name, onClose }: { userId: string; name: s
               <Share2 className="h-3.5 w-3.5" /> {t('common.share')}
             </button>
           )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const REFERRAL_CHANNELS = [
+  { key: 'linkedin', labelKey: 'passport.referral.shareLinkedin' as const },
+  { key: 'x', labelKey: 'passport.referral.shareX' as const },
+  { key: 'whatsapp', labelKey: 'passport.referral.shareWhatsapp' as const },
+  { key: 'email', labelKey: 'passport.referral.shareEmail' as const },
+]
+
+function ReferralModal({ referralCode, onClose }: { referralCode: string; onClose: () => void }) {
+  const { t } = useLocale()
+  const [copied, setCopied] = useState(false)
+  const inviteUrl = `${window.location.origin}/register?ref=${referralCode}`
+  const shareText = t('passport.referral.shareText', { link: inviteUrl })
+
+  function openChannel(channel: (typeof REFERRAL_CHANNELS)[number]['key']) {
+    recordShareIntent(channel).catch(() => {})
+    const encodedUrl = encodeURIComponent(inviteUrl)
+    const encodedText = encodeURIComponent(shareText)
+    const target =
+      channel === 'linkedin'
+        ? `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`
+        : channel === 'x'
+          ? `https://twitter.com/intent/tweet?text=${encodedText}`
+          : channel === 'whatsapp'
+            ? `https://wa.me/?text=${encodedText}`
+            : `mailto:?subject=${encodeURIComponent(t('passport.referral.emailSubject'))}&body=${encodedText}`
+    window.open(target, '_blank', 'noopener,noreferrer')
+  }
+
+  async function copyLink() {
+    await navigator.clipboard.writeText(inviteUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+    recordShareIntent('link').catch(() => {})
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="flex w-full max-w-sm flex-col gap-4 rounded-2xl bg-card p-6 shadow-2xl"
+      >
+        <div className="flex w-full items-center justify-between">
+          <p className="text-sm font-semibold text-foreground">{t('passport.referral.title')}</p>
+          <button aria-label={t('common.close')} onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <p className="text-xs text-muted-foreground">{t('passport.referral.description')}</p>
+
+        <button
+          onClick={copyLink}
+          className="flex items-center justify-between gap-2 rounded-lg border border-border bg-background px-3 py-2.5 text-left"
+        >
+          <span className="truncate text-xs text-muted-foreground">{inviteUrl}</span>
+          {copied ? (
+            <Check className="h-3.5 w-3.5 shrink-0 text-icesco-teal" />
+          ) : (
+            <Copy className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          )}
+        </button>
+
+        <div className="grid grid-cols-2 gap-2">
+          {REFERRAL_CHANNELS.map((c) => (
+            <button
+              key={c.key}
+              onClick={() => openChannel(c.key)}
+              className="flex items-center justify-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-icesco-blue hover:text-icesco-blue"
+            >
+              {c.key === 'email' && <Mail className="h-3.5 w-3.5" />}
+              {t(c.labelKey)}
+            </button>
+          ))}
         </div>
       </div>
     </div>

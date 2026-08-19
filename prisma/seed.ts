@@ -2,6 +2,7 @@ import 'dotenv/config'
 import { PrismaClient } from '../lib/generated/prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import bcrypt from 'bcrypt'
+import { generateReferralCode } from '../lib/referral'
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
 const prisma = new PrismaClient({ adapter })
@@ -89,6 +90,7 @@ async function main() {
         levelTitle: 'Resilience Builder',
         xp: 2450,
         xpMax: 3300,
+        referralCode: generateReferralCode(),
       },
     })
     usersByName.set(u.name, user)

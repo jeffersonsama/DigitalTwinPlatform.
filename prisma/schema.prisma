@@ -31,6 +31,14 @@ model User {
   lastSeenAt   DateTime   @default(now())
   createdAt    DateTime   @default(now())
 
+  // Programme de parrainage (docs/xp-certification-system.md §3.2) : chaque utilisateur a un
+  // code unique généré à l'inscription ; `referredById` capture qui l'a fait rejoindre le forum
+  // pour l'attribution ponctuelle du bonus XP au parrain (voir app/api/auth/register/route.ts).
+  referralCode String     @unique
+  referredById String?
+  referredBy   User?      @relation("Referrals", fields: [referredById], references: [id])
+  referrals    User[]     @relation("Referrals")
+
   certificates        Certificate[]
   badges              Badge[]
   skills              Skill[]

@@ -17,18 +17,20 @@ export default async function PassportPage() {
   const user = await requireUser()
   const { t } = await getTranslations()
 
-  const [badges, skills, progress, activity, certs, connectionsCount, certificatesCount, countries] = await Promise.all([
-    prisma.badge.findMany({ where: { userId: user.id } }),
-    prisma.skill.findMany({ where: { userId: user.id } }),
-    prisma.progressItem.findMany({ where: { userId: user.id } }),
-    prisma.activityLogEntry.findMany({ where: { userId: user.id }, orderBy: { createdAt: 'desc' } }),
-    prisma.certificate.findMany({ where: { userId: user.id }, orderBy: { issuedAt: 'desc' }, take: 4 }),
-    prisma.connection.count({
-      where: { status: 'accepted', OR: [{ fromUserId: user.id }, { toUserId: user.id }] },
-    }),
-    prisma.certificate.count({ where: { userId: user.id, status: 'issued' } }),
-    prisma.country.findMany({ orderBy: { name: 'asc' } }),
-  ])
+  const [badges, skills, progress, activity, certs, connectionsCount, certificatesCount, countries, referralsCount] =
+    await Promise.all([
+      prisma.badge.findMany({ where: { userId: user.id } }),
+      prisma.skill.findMany({ where: { userId: user.id } }),
+      prisma.progressItem.findMany({ where: { userId: user.id } }),
+      prisma.activityLogEntry.findMany({ where: { userId: user.id }, orderBy: { createdAt: 'desc' } }),
+      prisma.certificate.findMany({ where: { userId: user.id }, orderBy: { issuedAt: 'desc' }, take: 4 }),
+      prisma.connection.count({
+        where: { status: 'accepted', OR: [{ fromUserId: user.id }, { toUserId: user.id }] },
+      }),
+      prisma.certificate.count({ where: { userId: user.id, status: 'issued' } }),
+      prisma.country.findMany({ orderBy: { name: 'asc' } }),
+      prisma.user.count({ where: { referredById: user.id } }),
+    ])
 
   const missions = progress.find((p) => p.label === 'Missions Completed')?.value ?? 0
 
@@ -45,6 +47,8 @@ export default async function PassportPage() {
           levelTitle: user.levelTitle,
           xp: user.xp,
           xpMax: user.xpMax,
+          referralCode: user.referralCode,
+          referralsCount,
           stats: { missions, connections: connectionsCount, certificates: certificatesCount },
         }}
         countries={countries.map((c) => ({ name: c.name, flag: c.flag }))}

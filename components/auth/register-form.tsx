@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { COUNTRIES } from '@/lib/countries'
 import { useLocale } from '@/lib/i18n'
@@ -9,6 +9,7 @@ import { useLocale } from '@/lib/i18n'
 export function RegisterForm() {
   const { t } = useLocale()
   const router = useRouter()
+  const ref = useSearchParams().get('ref') ?? ''
   const [values, setValues] = useState({ name: '', email: '', password: '', role: '', country: '' })
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -25,7 +26,7 @@ export function RegisterForm() {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(values),
+      body: JSON.stringify(ref ? { ...values, ref } : values),
     })
     setSubmitting(false)
     if (!res.ok) {
